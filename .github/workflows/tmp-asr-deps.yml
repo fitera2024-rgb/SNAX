@@ -1,0 +1,34 @@
+name: Temporary ASR dependencies
+
+on:
+  push:
+    branches:
+      - tmp-asr-deps-20260813
+
+permissions:
+  contents: read
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Download Vosk wheel and Russian model
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p asr-deps
+          curl -L --fail --retry 3 \
+            'https://files.pythonhosted.org/packages/fc/ca/83398cfcd557360a3d7b2d732aee1c5f6999f68618d1645f38d53e14c9ff/vosk-0.3.45-py3-none-manylinux_2_12_x86_64.manylinux2010_x86_64.whl' \
+            -o asr-deps/vosk-0.3.45-py3-none-manylinux_2_12_x86_64.manylinux2010_x86_64.whl
+          curl -L --fail --retry 3 \
+            'https://alphacephei.com/vosk/models/vosk-model-small-ru-0.22.zip' \
+            -o asr-deps/vosk-model-small-ru-0.22.zip
+          sha256sum asr-deps/* | tee asr-deps/SHA256SUMS.txt
+      - name: Upload dependencies
+        uses: actions/upload-artifact@v4
+        with:
+          name: asr-deps
+          path: asr-deps
+          compression-level: 0
+          retention-days: 1
