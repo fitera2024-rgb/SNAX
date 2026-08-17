@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://snak.example/profiles/profile.schema.json",
-  "title": "SNAK Supplier Import Profile",
+  "$id": "https://snax.example/profiles/profile.schema.json",
+  "title": "SNAX Supplier Import Profile",
   "type": "object",
   "additionalProperties": false,
   "required": [

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://snak.example/contracts/import-package.schema.json",
-  "title": "SNAK Import Package",
+  "$id": "https://snax.example/contracts/import-package.schema.json",
+  "title": "SNAX Import Package",
   "type": "object",
   "additionalProperties": false,
   "required": [

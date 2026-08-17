@@ -43,3 +43,6 @@ fixtures/raw/
 !fixtures/golden/**/*.xlsx
 !fixtures/golden/**/*.xls
 !fixtures/golden/**/*.csv
+
+# Generated project packs
+*_Codex_Project_Pack_*.zip

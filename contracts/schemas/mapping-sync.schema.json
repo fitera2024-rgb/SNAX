@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://snak.example/contracts/mapping-sync.schema.json",
-  "title": "SNAK 1C Mapping Sync",
+  "$id": "https://snax.example/contracts/mapping-sync.schema.json",
+  "title": "SNAX 1C Mapping Sync",
   "type": "object",
   "additionalProperties": false,
   "required": [

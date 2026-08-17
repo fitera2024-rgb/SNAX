@@ -1,12 +1,12 @@
 openapi: 3.1.0
 info:
-  title: SNAK Supplier Import API
+  title: SNAX Supplier Import API
   version: 1.1.0
   description: API внешнего сервиса нормализации прайс-листов и обмена пакетами с 1С:УТ. Контракт не предоставляет расчёт
     потребности и создание заказа поставщику. Дополнение 1.1 добавляет документы поставки и receipt-package для приемки в
     1С.
 servers:
-- url: https://snak-import.example/api/v1
+- url: https://snax-import.example/api/v1
   description: Production placeholder
 security:
 - bearerAuth: []
