@@ -1,0 +1,742 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snax.example/contracts/import-package.schema.json",
+  "title": "SNAX Import Package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "packageId",
+    "idempotencyKey",
+    "createdAt",
+    "supplier",
+    "sourceFile",
+    "profile",
+    "summary",
+    "rows",
+    "issues",
+    "payloadDigest"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^1\\.[0-9]+\\.[0-9]+$"
+    },
+    "packageId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "minLength": 16,
+      "maxLength": 200
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "supplier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "name"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "externalGuid": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 64
+        }
+      }
+    },
+    "sourceFile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "sha256",
+        "mediaType",
+        "sizeBytes",
+        "receivedAt"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "mediaType": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "sizeBytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "receivedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "archiveReference": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1000
+        }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "version",
+        "fingerprint"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "fingerprint": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 256
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "totalRawRows",
+        "productRows",
+        "serviceRows",
+        "errorRows",
+        "warningCount",
+        "errorCount",
+        "criticalCount"
+      ],
+      "properties": {
+        "totalRawRows": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "productRows": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "serviceRows": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "errorRows": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "warningCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "errorCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "criticalCount": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "rows": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/itemRow"
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/issue"
+      }
+    },
+    "payloadDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "$defs": {
+    "sourceCoordinate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sheet",
+        "row"
+      ],
+      "properties": {
+        "sheet": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "row": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "range": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 50
+        }
+      }
+    },
+    "gtin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "raw",
+        "normalized",
+        "valid"
+      ],
+      "properties": {
+        "raw": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 100
+        },
+        "normalized": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9]{6,18}$"
+        },
+        "valid": {
+          "type": "boolean"
+        },
+        "kind": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "GTIN8",
+            "GTIN12",
+            "GTIN13",
+            "GTIN14",
+            "OTHER",
+            null
+          ]
+        },
+        "transformationCodes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "packaging": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseUnit",
+        "orderUnit",
+        "baseUnitsPerOrderUnit"
+      ],
+      "properties": {
+        "baseUnit": {
+          "type": "string",
+          "enum": [
+            "PCE",
+            "KG",
+            "L",
+            "M",
+            "OTHER"
+          ]
+        },
+        "orderUnit": {
+          "type": "string",
+          "enum": [
+            "PCE",
+            "PACK",
+            "BLOCK",
+            "BOX",
+            "CASE",
+            "PALLET",
+            "KG",
+            "L",
+            "OTHER"
+          ]
+        },
+        "baseUnitsPerOrderUnit": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+        },
+        "netWeightKg": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+        },
+        "volumeL": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+        },
+        "variantLabel": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 300
+        }
+      }
+    },
+    "price": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "amount",
+        "currency",
+        "perUnit"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "amount": {
+          "type": "string",
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "perUnit": {
+          "type": "string",
+          "enum": [
+            "PCE",
+            "PACK",
+            "BLOCK",
+            "BOX",
+            "CASE",
+            "PALLET",
+            "KG",
+            "L",
+            "OTHER"
+          ]
+        },
+        "vatIncluded": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "thresholdAmount": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+        },
+        "validFrom": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "validTo": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        }
+      }
+    },
+    "availability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "quantity",
+        "unit",
+        "status"
+      ],
+      "properties": {
+        "quantity": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "PCE",
+            "PACK",
+            "BLOCK",
+            "BOX",
+            "CASE",
+            "PALLET",
+            "KG",
+            "L",
+            "OTHER",
+            null
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "IN_STOCK",
+            "LOW_STOCK",
+            "OUT_OF_STOCK",
+            "IN_TRANSIT",
+            "EXPECTED",
+            "DISCONTINUED",
+            "UNKNOWN"
+          ]
+        },
+        "expectedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "supplierComment": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 2000
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "moq": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+        },
+        "multiple": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "PCE",
+            "PACK",
+            "BLOCK",
+            "BOX",
+            "CASE",
+            "PALLET",
+            "KG",
+            "L",
+            "OTHER",
+            null
+          ]
+        },
+        "minimumOrderAmount": {
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "amount",
+                "currency"
+              ],
+              "properties": {
+                "amount": {
+                  "type": "string",
+                  "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+                },
+                "currency": {
+                  "type": "string",
+                  "pattern": "^[A-Z]{3}$"
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "issueCodes"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "VALID",
+            "WARNING",
+            "ERROR"
+          ]
+        },
+        "issueCodes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "itemRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rowId",
+        "source",
+        "rowType",
+        "externalVariantKey",
+        "supplierNameRaw",
+        "supplierNameNormalized",
+        "gtins",
+        "packaging",
+        "prices",
+        "availability",
+        "constraints",
+        "quality"
+      ],
+      "properties": {
+        "rowId": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 200
+        },
+        "source": {
+          "$ref": "#/$defs/sourceCoordinate"
+        },
+        "rowType": {
+          "type": "string",
+          "const": "PRODUCT"
+        },
+        "externalVariantKey": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 256
+        },
+        "supplierSku": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200
+        },
+        "supplierNameRaw": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "supplierNameNormalized": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "brand": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 300
+        },
+        "category": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 500
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          }
+        },
+        "gtins": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/gtin"
+          }
+        },
+        "packaging": {
+          "$ref": "#/$defs/packaging"
+        },
+        "prices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/price"
+          }
+        },
+        "availability": {
+          "$ref": "#/$defs/availability"
+        },
+        "constraints": {
+          "$ref": "#/$defs/constraints"
+        },
+        "quality": {
+          "$ref": "#/$defs/quality"
+        },
+        "mappingHint": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "cachedMappingVersion": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 1
+            },
+            "cachedStatus": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 64
+            }
+          }
+        }
+      }
+    },
+    "issue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "issueId",
+        "code",
+        "severity",
+        "message"
+      ],
+      "properties": {
+        "issueId": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 200
+        },
+        "rowId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200
+        },
+        "source": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/sourceCoordinate"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z0-9_]+$"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "INFO",
+            "WARNING",
+            "ERROR",
+            "CRITICAL"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "field": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200
+        },
+        "retryable": {
+          "type": "boolean",
+          "default": false
+        },
+        "details": {
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

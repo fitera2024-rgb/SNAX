@@ -1,0 +1,345 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snax.example/profiles/profile.schema.json",
+  "title": "SNAX Supplier Import Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profileVersion",
+    "supplierCode",
+    "match",
+    "workbook",
+    "ranges",
+    "normalization",
+    "quality"
+  ],
+  "properties": {
+    "profileVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "supplierCode": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 1000
+    },
+    "match": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "fileNameRegex": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 500
+        },
+        "requiredSheetNames": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "requiredHeaders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "minimumScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "workbook": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "includeSheets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "excludeSheets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "excludeHiddenSheets": {
+          "type": "boolean"
+        }
+      }
+    },
+    "ranges": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sheet",
+          "header",
+          "rows",
+          "mapping"
+        ],
+        "properties": {
+          "sheet": {
+            "type": "string",
+            "minLength": 1
+          },
+          "header": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "searchRows",
+              "aliases"
+            ],
+            "properties": {
+              "searchRows": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                ],
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "aliases": {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "minItems": 1
+                }
+              }
+            }
+          },
+          "rows": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "startAfterHeader": {
+                "type": "integer",
+                "minimum": 0,
+                "default": 1
+              },
+              "maxRows": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1
+              },
+              "stopWhenAllEmpty": {
+                "type": "boolean",
+                "default": true
+              },
+              "categoryRegex": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "maxLength": 500
+              },
+              "totalRegex": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "maxLength": 500
+              }
+            }
+          },
+          "mapping": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "supplierName"
+            ],
+            "properties": {
+              "supplierSku": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "supplierName": {
+                "type": "string"
+              },
+              "brand": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "category": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "gtinRaw": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "availabilityQuantity": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "availabilityStatus": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "supplierComment": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "orderUnit": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "baseUnitsPerOrderUnit": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "prices": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "type",
+                    "column",
+                    "currency"
+                  ],
+                  "properties": {
+                    "type": {
+                      "type": "string"
+                    },
+                    "column": {
+                      "type": "string"
+                    },
+                    "currency": {
+                      "type": "string",
+                      "pattern": "^[A-Z]{3}$"
+                    },
+                    "perUnit": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    },
+                    "thresholdColumn": {
+                      "type": [
+                        "string",
+                        "null"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "normalization": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "gtin": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "trim": {
+              "type": "boolean"
+            },
+            "removeLeadingDot": {
+              "type": "boolean"
+            },
+            "restoreLeadingZeroOnlyIfChecksumValid": {
+              "type": "boolean"
+            },
+            "placeholderRegexes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "locale": {
+          "type": "string",
+          "default": "ru-RU"
+        },
+        "defaultCurrency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "blocking": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "duplicateKeyFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}

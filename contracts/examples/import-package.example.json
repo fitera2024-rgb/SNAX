@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "1.0.0",
+  "packageId": "3a5bbb42-bc59-4e3f-bd5c-28a76036f244",
+  "idempotencyKey": "sha256:1b3b3f96c2f8b18f:run:01",
+  "createdAt": "2026-08-17T08:00:00Z",
+  "supplier": {
+    "code": "DEMO",
+    "name": "Демо поставщик",
+    "externalGuid": null
+  },
+  "sourceFile": {
+    "name": "demo-price.xlsx",
+    "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+    "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "sizeBytes": 12345,
+    "receivedAt": "2026-08-17T07:58:00Z",
+    "archiveReference": "source/2026/08/17/111111..."
+  },
+  "profile": {
+    "code": "DEMO_XLSX",
+    "version": "1.0.0",
+    "fingerprint": "fp:demo:2026-08"
+  },
+  "summary": {
+    "totalRawRows": 3,
+    "productRows": 1,
+    "serviceRows": 2,
+    "errorRows": 0,
+    "warningCount": 1,
+    "errorCount": 0,
+    "criticalCount": 0
+  },
+  "rows": [
+    {
+      "rowId": "row_6b2a4d1f",
+      "source": {
+        "sheet": "Прайс",
+        "row": 3,
+        "range": "A3:H3"
+      },
+      "rowType": "PRODUCT",
+      "externalVariantKey": "extv_9b125982",
+      "supplierSku": "ET-001259",
+      "supplierNameRaw": "Жевательные конфеты Example 100 г",
+      "supplierNameNormalized": "Жевательные конфеты Example 100 г",
+      "brand": "Example",
+      "category": "Конфеты",
+      "attributes": {
+        "weight": "100 г"
+      },
+      "gtins": [
+        {
+          "raw": ".460123456789",
+          "normalized": "0460123456789",
+          "valid": true,
+          "kind": "GTIN13",
+          "transformationCodes": [
+            "GTIN_REMOVE_LEADING_DOT",
+            "GTIN_RESTORE_LEADING_ZERO"
+          ]
+        }
+      ],
+      "packaging": {
+        "baseUnit": "PCE",
+        "orderUnit": "BOX",
+        "baseUnitsPerOrderUnit": "24",
+        "netWeightKg": "2.4",
+        "volumeL": null,
+        "variantLabel": "короб 24 шт."
+      },
+      "prices": [
+        {
+          "type": "BASE",
+          "amount": "85.00",
+          "currency": "RUB",
+          "perUnit": "PCE",
+          "vatIncluded": true,
+          "thresholdAmount": null,
+          "validFrom": "2026-08-17",
+          "validTo": null
+        }
+      ],
+      "availability": {
+        "quantity": "12",
+        "unit": "BOX",
+        "status": "IN_STOCK",
+        "expectedAt": null,
+        "supplierComment": null
+      },
+      "constraints": {
+        "moq": "2",
+        "multiple": "1",
+        "unit": "BOX",
+        "minimumOrderAmount": null
+      },
+      "quality": {
+        "status": "WARNING",
+        "issueCodes": [
+          "GTIN_NORMALIZED"
+        ]
+      },
+      "mappingHint": {
+        "cachedMappingVersion": 17,
+        "cachedStatus": "APPROVED"
+      }
+    }
+  ],
+  "issues": [
+    {
+      "issueId": "issue_e162bb31",
+      "rowId": "row_6b2a4d1f",
+      "source": {
+        "sheet": "Прайс",
+        "row": 3,
+        "range": "C3"
+      },
+      "code": "GTIN_NORMALIZED",
+      "severity": "WARNING",
+      "message": "GTIN нормализован по правилам профиля.",
+      "field": "gtins[0]",
+      "retryable": false,
+      "details": {
+        "before": ".460123456789",
+        "after": "0460123456789"
+      }
+    }
+  ],
+  "payloadDigest": "2222222222222222222222222222222222222222222222222222222222222222"
+}

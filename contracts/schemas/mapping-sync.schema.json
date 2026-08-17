@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snax.example/contracts/mapping-sync.schema.json",
+  "title": "SNAX 1C Mapping Sync",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "sourceSystem",
+    "checkpoint",
+    "generatedAt",
+    "mappings"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^1\\.[0-9]+\\.[0-9]+$"
+    },
+    "sourceSystem": {
+      "type": "string",
+      "const": "1C_UT"
+    },
+    "checkpoint": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "mappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mappingId",
+          "version",
+          "supplierCode",
+          "externalVariantKey",
+          "nomenclatureGuid",
+          "status",
+          "updatedAt"
+        ],
+        "properties": {
+          "mappingId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "supplierCode": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "externalVariantKey": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 256
+          },
+          "supplierSku": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 200
+          },
+          "gtin": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^[0-9]{6,18}$"
+          },
+          "nomenclatureGuid": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "characteristicGuid": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "packagingGuid": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "APPROVED",
+              "DO_NOT_BUY",
+              "BLOCKED",
+              "DELETED"
+            ]
+          },
+          "reasonCode": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 100
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedBy": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 200
+          }
+        }
+      }
+    }
+  }
+}
