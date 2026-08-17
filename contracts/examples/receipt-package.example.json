@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "1.0.0",
+  "receiptPackageId": "22222222-2222-4222-8222-222222222222",
+  "idempotencyKey": "receipt-demo-2026-08-18-0001",
+  "createdAt": "2026-08-18T08:30:00Z",
+  "supplier": {
+    "code": "SUP-DEMO",
+    "name": "Обезличенный поставщик",
+    "externalGuid": null
+  },
+  "sourceDocument": {
+    "name": "delivery-note-demo.xlsx",
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "sizeBytes": 24576,
+    "receivedAt": "2026-08-18T08:25:00Z",
+    "documentType": "DELIVERY_NOTE",
+    "number": "DEMO-105",
+    "date": "2026-08-18",
+    "archiveReference": "object://receipts/demo"
+  },
+  "recognition": {
+    "mode": "STRUCTURED",
+    "profileCode": "demo_delivery_note",
+    "profileVersion": "1.0.0",
+    "confidence": 1.0,
+    "reviewRequired": false
+  },
+  "orderHint": {
+    "supplierOrderNumber": "PO-DEMO-77",
+    "storeCode": "STORE-01",
+    "warehouseCode": "WH-STORE-01",
+    "expectedDate": "2026-08-18"
+  },
+  "summary": {
+    "lineCount": 2,
+    "warningCount": 0,
+    "errorCount": 0,
+    "criticalCount": 0,
+    "currency": "RUB",
+    "netTotal": "1500.00",
+    "taxTotal": "300.00",
+    "grossTotal": "1800.00"
+  },
+  "lines": [
+    {
+      "sourceLineId": "line-1",
+      "coordinate": {
+        "page": null,
+        "sheet": "Товары",
+        "row": 8,
+        "range": "A8:K8"
+      },
+      "supplierSku": "SKU-001",
+      "nameRaw": "Товар демонстрационный 1",
+      "nameNormalized": "товар демонстрационный 1",
+      "gtin": {
+        "raw": "04600000000001",
+        "normalized": "04600000000001",
+        "valid": true
+      },
+      "unitCode": "PCE",
+      "packagingVariant": "1 шт",
+      "documentQuantity": "10",
+      "unitPrice": "100.00",
+      "netAmount": "1000.00",
+      "taxRate": "20%",
+      "taxAmount": "200.00",
+      "grossAmount": "1200.00",
+      "lotNumber": null,
+      "expiryDate": null,
+      "confidence": 1.0,
+      "issues": []
+    },
+    {
+      "sourceLineId": "line-2",
+      "coordinate": {
+        "page": null,
+        "sheet": "Товары",
+        "row": 9,
+        "range": "A9:K9"
+      },
+      "supplierSku": "SKU-002",
+      "nameRaw": "Товар демонстрационный 2",
+      "nameNormalized": "товар демонстрационный 2",
+      "gtin": {
+        "raw": "04600000000018",
+        "normalized": "04600000000018",
+        "valid": true
+      },
+      "unitCode": "PCE",
+      "packagingVariant": "1 шт",
+      "documentQuantity": "5",
+      "unitPrice": "100.00",
+      "netAmount": "500.00",
+      "taxRate": "20%",
+      "taxAmount": "100.00",
+      "grossAmount": "600.00",
+      "lotNumber": null,
+      "expiryDate": null,
+      "confidence": 1.0,
+      "issues": []
+    }
+  ],
+  "issues": [],
+  "payloadDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+}

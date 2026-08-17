@@ -1,0 +1,507 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snak.example/contracts/receipt-package.schema.json",
+  "title": "SNAK Receipt Package",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "receiptPackageId",
+    "idempotencyKey",
+    "createdAt",
+    "supplier",
+    "sourceDocument",
+    "recognition",
+    "summary",
+    "lines",
+    "issues",
+    "payloadDigest"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^1\\.[0-9]+\\.[0-9]+$"
+    },
+    "receiptPackageId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "minLength": 16,
+      "maxLength": 200
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "supplier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "name"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "externalGuid": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 64
+        }
+      }
+    },
+    "sourceDocument": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "sha256",
+        "mediaType",
+        "sizeBytes",
+        "receivedAt",
+        "documentType"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "mediaType": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "sizeBytes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "receivedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "documentType": {
+          "type": "string",
+          "enum": [
+            "UPD",
+            "INVOICE",
+            "DELIVERY_NOTE",
+            "EDI",
+            "OTHER"
+          ]
+        },
+        "number": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 100
+        },
+        "date": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "archiveReference": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1000
+        }
+      }
+    },
+    "recognition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "reviewRequired"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "STRUCTURED",
+            "OCR_HINTS",
+            "ATTACHMENT_ONLY"
+          ]
+        },
+        "profileCode": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 100
+        },
+        "profileVersion": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "confidence": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "reviewRequired": {
+          "type": "boolean"
+        }
+      }
+    },
+    "orderHint": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "supplierOrderNumber": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 100
+        },
+        "storeCode": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 64
+        },
+        "warehouseCode": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 64
+        },
+        "expectedDate": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lineCount",
+        "warningCount",
+        "errorCount",
+        "criticalCount"
+      ],
+      "properties": {
+        "lineCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "warningCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "errorCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "criticalCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "currency": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[A-Z]{3}$"
+        },
+        "netTotal": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "taxTotal": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        },
+        "grossTotal": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+        }
+      }
+    },
+    "lines": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/receiptLine"
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/issue"
+      }
+    },
+    "payloadDigest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "$defs": {
+    "decimal": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+    },
+    "coordinate": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "page": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "sheet": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 255
+        },
+        "row": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "range": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 100
+        }
+      }
+    },
+    "gtin": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "raw",
+        "normalized",
+        "valid"
+      ],
+      "properties": {
+        "raw": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 100
+        },
+        "normalized": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^[0-9]{6,18}$"
+        },
+        "valid": {
+          "type": "boolean"
+        }
+      }
+    },
+    "receiptLine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceLineId",
+        "nameRaw",
+        "coordinate",
+        "gtin",
+        "documentQuantity",
+        "issues"
+      ],
+      "properties": {
+        "sourceLineId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "coordinate": {
+          "$ref": "#/$defs/coordinate"
+        },
+        "supplierSku": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200
+        },
+        "nameRaw": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "nameNormalized": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1000
+        },
+        "gtin": {
+          "$ref": "#/$defs/gtin"
+        },
+        "unitCode": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 32
+        },
+        "packagingVariant": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 200
+        },
+        "documentQuantity": {
+          "$ref": "#/$defs/decimal"
+        },
+        "unitPrice": {
+          "$ref": "#/$defs/decimal"
+        },
+        "netAmount": {
+          "$ref": "#/$defs/decimal"
+        },
+        "taxRate": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 20
+        },
+        "taxAmount": {
+          "$ref": "#/$defs/decimal"
+        },
+        "grossAmount": {
+          "$ref": "#/$defs/decimal"
+        },
+        "lotNumber": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 100
+        },
+        "expiryDate": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "confidence": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/issue"
+          }
+        }
+      }
+    },
+    "issue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "severity",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z0-9_]+$"
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "INFO",
+            "WARNING",
+            "ERROR",
+            "CRITICAL"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "sourceLineId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 128
+        },
+        "field": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 100
+        }
+      }
+    }
+  }
+}

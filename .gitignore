@@ -1,0 +1,45 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Runtime and local infrastructure
+.local/
+var/
+data/
+logs/
+*.log
+
+# Supplier/commercial files
+fixtures/private/
+fixtures/raw/
+*.xls
+*.xlsx
+*.csv
+
+# Keep approved synthetic/golden fixtures only
+!fixtures/golden/**/*.xlsx
+!fixtures/golden/**/*.xls
+!fixtures/golden/**/*.csv
