@@ -1,0 +1,1058 @@
+openapi: 3.1.0
+info:
+  title: SNAX Supplier Import API
+  version: 1.1.0
+  description: API внешнего сервиса нормализации прайс-листов и обмена пакетами с 1С:УТ. Контракт не предоставляет расчёт
+    потребности и создание заказа поставщику. Дополнение 1.1 добавляет документы поставки и receipt-package для приемки в
+    1С.
+servers:
+- url: https://snax-import.example/api/v1
+  description: Production placeholder
+security:
+- bearerAuth: []
+paths:
+  /imports:
+    post:
+      operationId: createImport
+      summary: Загрузить исходный файл
+      parameters:
+      - $ref: '#/components/parameters/CorrelationId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                supplierCode:
+                  type:
+                  - string
+                  - 'null'
+                profileCode:
+                  type:
+                  - string
+                  - 'null'
+      responses:
+        '202':
+          description: Файл зарегистрирован, обработка поставлена в очередь
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/CorrelationId'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportAccepted'
+        '409':
+          description: Точная копия уже зарегистрирована
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+  /imports/{importId}:
+    get:
+      operationId: getImport
+      summary: Получить состояние импорта
+      parameters:
+      - $ref: '#/components/parameters/ImportId'
+      - $ref: '#/components/parameters/CorrelationId'
+      responses:
+        '200':
+          description: Состояние импорта
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportStatus'
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+  /imports/{importId}/rows:
+    get:
+      operationId: listImportRows
+      summary: Просмотреть строки импорта
+      parameters:
+      - $ref: '#/components/parameters/ImportId'
+      - $ref: '#/components/parameters/Cursor'
+      - name: rowType
+        in: query
+        schema:
+          type:
+          - string
+          - 'null'
+      - name: qualityStatus
+        in: query
+        schema:
+          type:
+          - string
+          - 'null'
+      responses:
+        '200':
+          description: Страница строк
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RowPage'
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+  /imports/{importId}/issues:
+    get:
+      operationId: listImportIssues
+      summary: Просмотреть ошибки и предупреждения
+      parameters:
+      - $ref: '#/components/parameters/ImportId'
+      - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Страница issues
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssuePage'
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+  /imports/{importId}/profile:
+    post:
+      operationId: selectImportProfile
+      summary: Выбрать профиль и запустить новый processing run
+      parameters:
+      - $ref: '#/components/parameters/ImportId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - profileCode
+              - profileVersion
+              properties:
+                profileCode:
+                  type: string
+                profileVersion:
+                  type: string
+                reason:
+                  type:
+                  - string
+                  - 'null'
+      responses:
+        '202':
+          description: Новый run создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportAccepted'
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+  /imports/{importId}/publish:
+    post:
+      operationId: publishImport
+      summary: Опубликовать валидированный импорт как пакет
+      parameters:
+      - $ref: '#/components/parameters/ImportId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '201':
+          description: Пакет опубликован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PackageReference'
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+  /packages/{packageId}:
+    get:
+      operationId: getPackage
+      summary: Получить manifest пакета
+      parameters:
+      - $ref: '#/components/parameters/PackageId'
+      responses:
+        '200':
+          description: Manifest
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PackageManifest'
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+  /packages/{packageId}/export.xlsx:
+    get:
+      operationId: exportPackageXlsx
+      summary: Выгрузить единый XLSX для пилота
+      parameters:
+      - $ref: '#/components/parameters/PackageId'
+      responses:
+        '200':
+          description: XLSX
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+  /integration/1c/packages/next:
+    get:
+      operationId: getNextPackageFor1C
+      summary: Получить следующий готовый пакет
+      parameters:
+      - name: nodeId
+        in: query
+        required: true
+        schema:
+          type: string
+          maxLength: 100
+      - $ref: '#/components/parameters/CorrelationId'
+      responses:
+        '200':
+          description: Пакет доступен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PackageManifest'
+        '204':
+          description: Готовых пакетов нет
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+  /integration/1c/packages/{packageId}/rows:
+    get:
+      operationId: getPackageRowsFor1C
+      summary: Получить chunk строк пакета
+      parameters:
+      - $ref: '#/components/parameters/PackageId'
+      - $ref: '#/components/parameters/Cursor'
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 5000
+          default: 1000
+      responses:
+        '200':
+          description: Chunk строк
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RowPage'
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+  /integration/1c/packages/{packageId}/issues:
+    get:
+      operationId: getPackageIssuesFor1C
+      summary: Получить chunk issues пакета
+      parameters:
+      - $ref: '#/components/parameters/PackageId'
+      - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: Chunk issues
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IssuePage'
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+  /integration/1c/packages/{packageId}/ack:
+    post:
+      operationId: acknowledgePackageFrom1C
+      summary: Подтвердить обработку пакета в 1С
+      parameters:
+      - $ref: '#/components/parameters/PackageId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PackageAck'
+      responses:
+        '200':
+          description: ACK сохранён
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AckResult'
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+  /integration/1c/mappings:sync:
+    post:
+      operationId: syncMappingsFrom1C
+      summary: Синхронизировать snapshot или дельту подтверждённых связей
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./schemas/mapping-sync.schema.json
+      responses:
+        '200':
+          description: Дельта применена
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - acceptedCheckpoint
+                - applied
+                - rejected
+                properties:
+                  acceptedCheckpoint:
+                    type: integer
+                    minimum: 0
+                  applied:
+                    type: integer
+                    minimum: 0
+                  rejected:
+                    type: integer
+                    minimum: 0
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+  /integration/1c/mappings/checkpoint:
+    get:
+      operationId: getMappingCheckpoint
+      summary: Получить последний checkpoint связей
+      responses:
+        '200':
+          description: Checkpoint
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - checkpoint
+                properties:
+                  checkpoint:
+                    type: integer
+                    minimum: 0
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+  /health/live:
+    get:
+      security: []
+      operationId: live
+      summary: Liveness
+      responses:
+        '200':
+          description: Процесс жив
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+  /health/ready:
+    get:
+      security: []
+      operationId: ready
+      summary: Readiness
+      responses:
+        '200':
+          description: Зависимости доступны
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+        '503':
+          description: Одна или несколько зависимостей недоступны
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+  /version:
+    get:
+      security: []
+      operationId: version
+      summary: Версия приложения и контрактов
+      responses:
+        '200':
+          description: Version information
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - applicationVersion
+                - commitSha
+                - contractVersion
+                properties:
+                  applicationVersion:
+                    type: string
+                  commitSha:
+                    type: string
+                  contractVersion:
+                    type: string
+  /receipt-imports:
+    post:
+      operationId: createReceiptImport
+      summary: Загрузить документ поставки для приемки
+      parameters:
+      - $ref: '#/components/parameters/CorrelationId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                supplierCode:
+                  type:
+                  - string
+                  - 'null'
+                documentType:
+                  type:
+                  - string
+                  - 'null'
+                supplierOrderNumber:
+                  type:
+                  - string
+                  - 'null'
+      responses:
+        '202':
+          description: Документ зарегистрирован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReceiptImportAccepted'
+        '409':
+          description: Точная копия уже зарегистрирована
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+  /receipt-imports/{receiptImportId}:
+    get:
+      operationId: getReceiptImport
+      summary: Получить состояние разбора документа поставки
+      parameters:
+      - $ref: '#/components/parameters/ReceiptImportId'
+      - $ref: '#/components/parameters/CorrelationId'
+      responses:
+        '200':
+          description: Состояние receipt import
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReceiptImportStatus'
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+  /receipt-imports/{receiptImportId}/publish:
+    post:
+      operationId: publishReceiptImport
+      summary: Опубликовать receipt-package
+      parameters:
+      - $ref: '#/components/parameters/ReceiptImportId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '201':
+          description: Receipt package опубликован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReceiptPackageReference'
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+  /integration/1c/receipt-packages/next:
+    get:
+      operationId: getNextReceiptPackageFor1C
+      summary: Получить следующий receipt-package
+      parameters:
+      - name: nodeId
+        in: query
+        required: true
+        schema:
+          type: string
+          maxLength: 100
+      - $ref: '#/components/parameters/CorrelationId'
+      responses:
+        '200':
+          description: Receipt package доступен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReceiptPackageManifest'
+        '204':
+          description: Готовых пакетов нет
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+  /integration/1c/receipt-packages/{receiptPackageId}:
+    get:
+      operationId: getReceiptPackageFor1C
+      summary: Получить полный receipt-package
+      parameters:
+      - $ref: '#/components/parameters/ReceiptPackageId'
+      responses:
+        '200':
+          description: Receipt package
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/receipt-package.schema.json
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+  /integration/1c/receipt-packages/{receiptPackageId}/ack:
+    post:
+      operationId: acknowledgeReceiptPackageFrom1C
+      summary: Подтвердить импорт receipt-package в staging 1С
+      parameters:
+      - $ref: '#/components/parameters/ReceiptPackageId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReceiptPackageAck'
+      responses:
+        '200':
+          description: ACK сохранен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AckResult'
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+  /integration/1c/receipt-packages/{receiptPackageId}/status:
+    post:
+      operationId: pushReceiptStatusFrom1C
+      summary: Передать бизнес-статус приемки из 1С
+      parameters:
+      - $ref: '#/components/parameters/ReceiptPackageId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReceiptStatusUpdate'
+      responses:
+        '200':
+          description: Статус сохранен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AckResult'
+        default:
+          $ref: '#/components/responses/ProblemResponse'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    CorrelationId:
+      name: X-Correlation-ID
+      in: header
+      required: false
+      schema:
+        type: string
+        maxLength: 100
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 16
+        maxLength: 200
+    ImportId:
+      name: importId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    PackageId:
+      name: packageId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    Cursor:
+      name: cursor
+      in: query
+      required: false
+      schema:
+        type:
+        - string
+        - 'null'
+    ReceiptImportId:
+      name: receiptImportId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ReceiptPackageId:
+      name: receiptPackageId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  headers:
+    CorrelationId:
+      schema:
+        type: string
+  responses:
+    ProblemResponse:
+      description: Ошибка
+      headers:
+        X-Correlation-ID:
+          $ref: '#/components/headers/CorrelationId'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+  schemas:
+    Problem:
+      type: object
+      additionalProperties: false
+      required:
+      - code
+      - message
+      - retryable
+      - correlationId
+      properties:
+        code:
+          type: string
+          pattern: ^[A-Z0-9_]+$
+        message:
+          type: string
+        details:
+          type:
+          - object
+          - 'null'
+        field:
+          type:
+          - string
+          - 'null'
+        retryable:
+          type: boolean
+        correlationId:
+          type: string
+    ImportAccepted:
+      type: object
+      additionalProperties: false
+      required:
+      - importId
+      - status
+      - statusUrl
+      properties:
+        importId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - RECEIVED
+          - PROCESSING
+          - DUPLICATE
+        statusUrl:
+          type: string
+          format: uri-reference
+    ImportStatus:
+      type: object
+      additionalProperties: false
+      required:
+      - importId
+      - status
+      - createdAt
+      - summary
+      properties:
+        importId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - RECEIVED
+          - DUPLICATE
+          - PROCESSING
+          - PROFILE_REVIEW
+          - VALIDATED
+          - BLOCKED
+          - READY_FOR_1C
+          - DELIVERED
+          - ACCEPTED_BY_1C
+          - REJECTED_BY_1C
+          - ERROR
+          - ARCHIVED
+        createdAt:
+          type: string
+          format: date-time
+        profileCode:
+          type:
+          - string
+          - 'null'
+        profileVersion:
+          type:
+          - string
+          - 'null'
+        summary:
+          type: object
+          additionalProperties: true
+    PackageReference:
+      type: object
+      additionalProperties: false
+      required:
+      - packageId
+      - status
+      properties:
+        packageId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - READY_FOR_1C
+    PackageManifest:
+      type: object
+      additionalProperties: false
+      required:
+      - schemaVersion
+      - packageId
+      - supplierCode
+      - payloadDigest
+      - rowCount
+      - issueCount
+      - chunkSize
+      properties:
+        schemaVersion:
+          type: string
+        packageId:
+          type: string
+          format: uuid
+        supplierCode:
+          type: string
+        payloadDigest:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        rowCount:
+          type: integer
+          minimum: 0
+        issueCount:
+          type: integer
+          minimum: 0
+        chunkSize:
+          type: integer
+          minimum: 1
+        createdAt:
+          type: string
+          format: date-time
+    RowPage:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - nextCursor
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        nextCursor:
+          type:
+          - string
+          - 'null'
+    IssuePage:
+      type: object
+      additionalProperties: false
+      required:
+      - items
+      - nextCursor
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        nextCursor:
+          type:
+          - string
+          - 'null'
+    PackageAck:
+      type: object
+      additionalProperties: false
+      required:
+      - packageId
+      - status
+      - receivedAt
+      - correlationId
+      properties:
+        packageId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - ACCEPTED
+          - PARTIAL
+          - REJECTED
+          - RETRY_LATER
+        receivedAt:
+          type: string
+          format: date-time
+        onecDocumentGuid:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        summary:
+          type:
+          - object
+          - 'null'
+          additionalProperties: true
+        error:
+          anyOf:
+          - $ref: '#/components/schemas/Problem'
+          - type: 'null'
+        retryAfterSeconds:
+          type:
+          - integer
+          - 'null'
+          minimum: 1
+        correlationId:
+          type: string
+    AckResult:
+      type: object
+      additionalProperties: false
+      required:
+      - stored
+      - packageStatus
+      properties:
+        stored:
+          type: boolean
+        packageStatus:
+          type: string
+    Health:
+      type: object
+      additionalProperties: false
+      required:
+      - status
+      properties:
+        status:
+          type: string
+          enum:
+          - ok
+          - degraded
+          - failed
+        dependencies:
+          type: object
+          additionalProperties:
+            type: string
+    ReceiptImportAccepted:
+      type: object
+      additionalProperties: false
+      required:
+      - receiptImportId
+      - status
+      - statusUrl
+      properties:
+        receiptImportId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - RECEIVED
+          - PROCESSING
+          - DUPLICATE_DOCUMENT
+        statusUrl:
+          type: string
+          format: uri-reference
+    ReceiptImportStatus:
+      type: object
+      additionalProperties: false
+      required:
+      - receiptImportId
+      - status
+      - createdAt
+      - summary
+      properties:
+        receiptImportId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - RECEIVED
+          - DUPLICATE_DOCUMENT
+          - PROCESSING
+          - PARSING_REVIEW
+          - VALIDATED
+          - BLOCKED
+          - READY_FOR_1C
+          - IMPORTED_1C
+          - REJECTED
+          - ERROR
+          - ARCHIVED
+        createdAt:
+          type: string
+          format: date-time
+        profileCode:
+          type:
+          - string
+          - 'null'
+        profileVersion:
+          type:
+          - string
+          - 'null'
+        summary:
+          type: object
+          additionalProperties: true
+    ReceiptPackageReference:
+      type: object
+      additionalProperties: false
+      required:
+      - receiptPackageId
+      - status
+      properties:
+        receiptPackageId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - READY_FOR_1C
+    ReceiptPackageManifest:
+      type: object
+      additionalProperties: false
+      required:
+      - schemaVersion
+      - receiptPackageId
+      - supplierCode
+      - payloadDigest
+      - lineCount
+      - issueCount
+      properties:
+        schemaVersion:
+          type: string
+        receiptPackageId:
+          type: string
+          format: uuid
+        supplierCode:
+          type: string
+        sourceDocumentNumber:
+          type:
+          - string
+          - 'null'
+        payloadDigest:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        lineCount:
+          type: integer
+          minimum: 0
+        issueCount:
+          type: integer
+          minimum: 0
+        createdAt:
+          type: string
+          format: date-time
+    ReceiptPackageAck:
+      type: object
+      additionalProperties: false
+      required:
+      - receiptPackageId
+      - status
+      - receivedAt
+      - correlationId
+      properties:
+        receiptPackageId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - IMPORTED
+          - PARTIAL
+          - REJECTED
+          - RETRY_LATER
+        receivedAt:
+          type: string
+          format: date-time
+        onecStagingGuid:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        linkedOrderGuid:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        summary:
+          type:
+          - object
+          - 'null'
+          additionalProperties: true
+        error:
+          anyOf:
+          - $ref: '#/components/schemas/Problem'
+          - type: 'null'
+        correlationId:
+          type: string
+    ReceiptStatusUpdate:
+      type: object
+      additionalProperties: false
+      required:
+      - receiptPackageId
+      - status
+      - changedAt
+      - correlationId
+      properties:
+        receiptPackageId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - IMPORTED_1C
+          - LINKED_TO_ORDER
+          - IN_ACCEPTANCE
+          - SUBMITTED
+          - APPROVED
+          - POSTED
+          - REJECTED
+          - CANCELLED
+        changedAt:
+          type: string
+          format: date-time
+        acceptanceSessionGuid:
+          type:
+          - string
+          - 'null'
+          format: uuid
+        onecDocumentGuids:
+          type: array
+          items:
+            type: string
+            format: uuid
+        comment:
+          type:
+          - string
+          - 'null'
+          maxLength: 1000
+        correlationId:
+          type: string

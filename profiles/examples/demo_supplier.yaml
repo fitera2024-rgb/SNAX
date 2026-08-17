@@ -1,0 +1,71 @@
+profileVersion: 1.0.0
+supplierCode: DEMO
+description: Демонстрационный профиль однотабличного XLSX
+match:
+  fileNameRegex: '(?i)demo.*\.xlsx$'
+  requiredSheetNames:
+    - Прайс
+  requiredHeaders:
+    - Артикул
+    - Наименование
+    - Штрихкод
+  minimumScore: 0.85
+workbook:
+  includeSheets:
+    - Прайс
+  excludeSheets: []
+  excludeHiddenSheets: false
+ranges:
+  - sheet: Прайс
+    header:
+      searchRows: [1, 20]
+      aliases:
+        supplierSku: [Артикул, Код]
+        supplierName: [Наименование, Товар]
+        brand: [Бренд, Торговая марка]
+        gtinRaw: [Штрихкод, EAN, GTIN]
+        priceBase: [Цена, Опт]
+        availabilityQuantity: [Остаток, Доступно]
+    rows:
+      startAfterHeader: 1
+      maxRows: 10000
+      stopWhenAllEmpty: true
+      categoryRegex: '^Раздел:'
+      totalRegex: '^(Итого|Всего)'
+    mapping:
+      supplierSku: supplierSku
+      supplierName: supplierName
+      brand: brand
+      category: null
+      gtinRaw: gtinRaw
+      availabilityQuantity: availabilityQuantity
+      availabilityStatus: null
+      supplierComment: null
+      orderUnit: null
+      baseUnitsPerOrderUnit: null
+      prices:
+        - type: BASE
+          column: priceBase
+          currency: RUB
+          perUnit: PCE
+          thresholdColumn: null
+normalization:
+  gtin:
+    trim: true
+    removeLeadingDot: true
+    restoreLeadingZeroOnlyIfChecksumValid: true
+    placeholderRegexes:
+      - '^0+$'
+      - '^(нет|б/ш|без штрихкода)$'
+  locale: ru-RU
+  defaultCurrency: RUB
+quality:
+  blocking:
+    - missing:supplierName
+    - invalid:price
+  warnings:
+    - invalid:gtin
+  duplicateKeyFields:
+    - supplierSku
+    - gtinRaw
+    - orderUnit

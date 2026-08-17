@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0.0",
+  "sourceSystem": "1C_UT",
+  "checkpoint": 1024,
+  "generatedAt": "2026-08-17T09:10:00Z",
+  "mappings": [
+    {
+      "mappingId": "c9284785-8810-40a8-a283-c8656ef3d9ed",
+      "version": 17,
+      "supplierCode": "DEMO",
+      "externalVariantKey": "extv_9b125982",
+      "supplierSku": "ET-001259",
+      "gtin": "0460123456789",
+      "nomenclatureGuid": "0f6cd7d8-719e-4199-94f3-498007682250",
+      "characteristicGuid": null,
+      "packagingGuid": "d07e6fc7-9b2e-417c-a8ae-89d82a9f9d96",
+      "status": "APPROVED",
+      "reasonCode": null,
+      "updatedAt": "2026-08-17T09:09:12Z",
+      "updatedBy": "КМ Иванова"
+    }
+  ]
+}
