@@ -20,10 +20,11 @@ Branch: `work/003-queue-outbox-worker`. Ранний опубликованны�
 `b90e8b0073dcfcc18da801cf3eb292468271a5a5`. CI-stabilization changes опубликованы через
 GitHub API как `4d58b7b54824ada2b0da23ca51bea9d06e8c0665` и
 `8df693c23884802af9a97f9fbc9d767d93002e8b`; финальный review head:
-`bdab9f5a22a26601916f60c4ff304da7574c8c77`.
+`4af6b31309f9d64800a1e506666d73c205bc46ef`.
 
 В финальном review внесены только safety/documentation updates: `928ca4b` закрывает lease/lock
 expiry boundary, `bdab9f5` сохраняет строгие JSON-типы ProcessingJobMessageV1.
+`4af6b31` — финальная documentation-only hygiene правка без изменения runtime behavior.
 
 ## 3. Process topology
 
@@ -236,14 +237,14 @@ stale retry и последующий worker success на live stack. Live вы�
 | `npm run typecheck` | passed |
 | `npm test -- --run` | 1 file, 9 tests passed |
 | `npm run build` | passed, Vite production bundle built |
-| `docker compose ...` / migrations / live services | Docker CLI отсутствует локально; CI run 107 прошёл все live gates |
+| `docker compose ...` / migrations / live services | Docker CLI отсутствует локально; CI run 111 прошёл все live gates |
 
 ## 26. CI run ID
 
-`32176713000` (run 107): `backend`, `frontend`, `migration`, `outbox-postgres`,
+`32177739010` (run 111): `backend`, `frontend`, `migration`, `outbox-postgres`,
 `queue-worker` и `docker` — success. Run URL:
-https://github.com/fitera2024-rgb/SNAX/actions/runs/32176713000.
-Итоговый remote head `bdab9f5a22a26601916f60c4ff304da7574c8c77` зелёный; review summary
+https://github.com/fitera2024-rgb/SNAX/actions/runs/32177739010.
+Итоговый remote head `4af6b31309f9d64800a1e506666d73c205bc46ef` зелёный; review summary
 опубликован в PR #8, verdict — `READY_TO_MERGE`, merge не выполнялся.
 
 ## 27. Изменённые файлы
@@ -255,7 +256,7 @@ unit/PostgreSQL/live tests; README и этот review draft. Точный спи
 
 ## 28. Остаточные риски
 
-- live Docker/service evidence подтверждён CI run 107 на head `bdab9f5`;
+- live Docker/service evidence подтверждён CI run 111 на head `4af6b31`;
 - broker delivery физически остаётся at-least-once;
 - будущий processor с external side effects обязан реализовать effect-specific idempotency;
 - production operator authorization отсутствует и manual retry остаётся CLI-only.
@@ -293,5 +294,5 @@ files, personal data и реальные credentials не добавлены. `.
   dead-letter проверены unit, PostgreSQL и live queue resilience gates.
 - Duplicate delivery: второй claim/effect/event не создаётся; подтверждено live smoke.
 - CI: PostgreSQL, Redis/Celery, MinIO, Docker health checks и все шесть required jobs зелёные в
-  run 107.
+  run 111.
 - Scope: WORK-003 не добавляет parsing, normalization/DQ, profiles, 1С, OCR/PDF или receipt flow.
