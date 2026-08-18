@@ -15,7 +15,11 @@ from snax_import.adapters.db.models import ImportModel, SourceFileModel
 from snax_import.adapters.db.session import create_database_engine, create_session_factory
 from snax_import.adapters.db.uow import SqlAlchemyUnitOfWork
 from snax_import.adapters.storage.s3 import S3ObjectStorage
-from snax_import.application.import_registration import ImportRegistrationService, UploadRequest
+from snax_import.application.import_registration import (
+    ImportRegistrationService,
+    RegistrationResult,
+    UploadRequest,
+)
 from snax_import.domain.errors import DuplicateFile
 from snax_import.domain.value_objects import ObjectKey, Sha256Digest
 
@@ -64,7 +68,7 @@ def test_concurrent_duplicate_registration_creates_one_import_and_one_object() -
     object_key = ObjectKey.for_digest(digest)
     barrier = Barrier(2)
 
-    def register(index: int):
+    def register(index: int) -> RegistrationResult | DuplicateFile:
         service, _ = _build_service()
         barrier.wait(timeout=10)
         try:
@@ -83,7 +87,7 @@ def test_concurrent_duplicate_registration_creates_one_import_and_one_object() -
     with ThreadPoolExecutor(max_workers=2) as executor:
         results = list(executor.map(register, (1, 2)))
 
-    winners = [result for result in results if not isinstance(result, DuplicateFile)]
+    winners = [result for result in results if isinstance(result, RegistrationResult)]
     losers = [result for result in results if isinstance(result, DuplicateFile)]
     assert len(winners) == 1
     assert len(losers) == 1
@@ -92,7 +96,9 @@ def test_concurrent_duplicate_registration_creates_one_import_and_one_object() -
     engine = create_database_engine(os.environ["TEST_DATABASE_URL"])
     with Session(engine) as session:
         source_count = session.scalar(
-            select(func.count()).select_from(SourceFileModel).where(SourceFileModel.sha256 == digest.value)
+            select(func.count())
+            .select_from(SourceFileModel)
+            .where(SourceFileModel.sha256 == digest.value)
         )
         import_count = session.scalar(
             select(func.count())
