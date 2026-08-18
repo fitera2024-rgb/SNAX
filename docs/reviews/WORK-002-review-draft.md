@@ -83,7 +83,7 @@ Observed locally on 2026-08-18:
 - PostgreSQL Alembic up/down/up — NOT RUN locally for the same Docker/service limitation;
 - MinIO integration — NOT RUN locally for the same service limitation;
 - frontend `npm run lint`, `npm run typecheck`, `npm test -- --run` and `npm run build` — PASS locally; the first `npm ci` attempt hit a Windows file-lock `EPERM`, after which a dependency install retry completed and the lockfile was restored unchanged.
-- GitHub Actions CI run `32091390541` / run `#24` — PASS: backend, frontend, Docker smoke, and `database-storage-api`; the latter completed PostgreSQL `upgrade -> downgrade -> upgrade`, MinIO bucket preparation, and the integration suite against live PostgreSQL/MinIO services.
+- GitHub Actions CI run `32091537475` / run `#26` — PASS: backend, frontend, Docker smoke, and `database-storage-api`; the latter completed PostgreSQL `upgrade -> downgrade -> upgrade`, MinIO bucket preparation, and the integration suite against live PostgreSQL/MinIO services.
 
 The GitHub Actions integration job was independently checked after completion. The PR remains Draft because WORK-002 requires an independent architecture review before any readiness or merge decision.
 
