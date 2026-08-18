@@ -134,16 +134,16 @@ class ImportRegistrationService:
                 return existing
 
             with path.open("rb") as stream:
-                stored = self.storage.put_stream(
+                self.storage.put_stream(
                     stream,
                     object_key=object_key,
                     digest=digest,
                     size=size.value,
                     media_type=media_type.value,
-                    metadata={
-                        "original-filename": original_filename.value,
-                        "media-type": media_type.value,
-                    },
+                    # Blob metadata must be content-invariant and ASCII-safe. The original
+                    # filename belongs to the PostgreSQL source record because the same bytes
+                    # can arrive under different (including Cyrillic) filenames.
+                    metadata={"media-type": media_type.value},
                 )
 
             source = SourceFile.create(
@@ -193,14 +193,14 @@ class ImportRegistrationService:
                         winner_source = check_uow.imports.source_for_import(winner.id)
                         if winner_source is not None and winner_source.sha256 == digest:
                             return self._existing_result(winner, winner_source, replay=True)
-                        if stored.created_by_attempt:
-                            self.storage.delete(object_key)
                         raise IdempotencyConflict(idempotency_key.value) from conflict
                     winner = check_uow.imports.by_digest(digest)
                     if winner is not None:
                         raise DuplicateFile(winner.id) from conflict
-                if stored.created_by_attempt:
-                    self.storage.delete(object_key)
+                # Never delete a content-addressed raw object synchronously after a database
+                # conflict. Another concurrent request may already reference the same digest.
+                # An unreferenced object is safer than deleting a referenced original and is
+                # reclaimed only by a future grace-period garbage collector.
                 raise conflict
             return RegistrationResult(
                 import_id=aggregate.id,
