@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
@@ -41,3 +42,28 @@ def test_api_upload_get_duplicate_and_replay(test_client: TestClient) -> None:
     )
     assert duplicate.status_code == 409
     assert duplicate.json()["code"] == "DUPLICATE_FILE"
+
+
+@pytest.mark.skipif(
+    not os.environ.get("TEST_DATABASE_URL") or not os.environ.get("TEST_S3_ENDPOINT"),
+    reason="PostgreSQL and MinIO integration settings are required",
+)
+def test_api_accepts_cyrillic_original_filename() -> None:
+    from snax_import.main import app
+
+    marker = uuid4().hex
+    filename = "Прайс поставщика № 1.xlsx"
+    payload = f"unicode-filename-{marker}".encode()
+    with TestClient(app) as client:
+        created = client.post(
+            "/imports",
+            headers={
+                "X-Idempotency-Key": f"unicode-filename-{marker}",
+                "X-Correlation-ID": f"unicode-correlation-{marker}",
+            },
+            files={"file": (filename, payload, "application/octet-stream")},
+        )
+        assert created.status_code == 202
+        status = client.get(f"/imports/{created.json()['importId']}")
+    assert status.status_code == 200
+    assert status.json()["summary"]["originalFileName"] == filename
