@@ -19,7 +19,8 @@ Branch: `work/003-queue-outbox-worker`. Ранний опубликованны�
 `38b127f0e5006b17f5c16f792990cb6e179caa08`. Основной implementation head:
 `b90e8b0073dcfcc18da801cf3eb292468271a5a5`. CI-stabilization changes опубликованы через
 GitHub API как `4d58b7b54824ada2b0da23ca51bea9d06e8c0665` и
-`8df693c23884802af9a97f9fbc9d767d93002e8b`.
+`8df693c23884802af9a97f9fbc9d767d93002e8b`; review evidence doc —
+`0b259aa1acfed13ab6f18d09434939e255800e46`.
 
 ## 3. Process topology
 
@@ -232,14 +233,15 @@ stale retry и последующий worker success на live stack. Live вы�
 | `npm run typecheck` | passed |
 | `npm test -- --run` | 1 file, 9 tests passed |
 | `npm run build` | passed, Vite production bundle built |
-| `docker compose ...` / migrations / live services | Docker CLI отсутствует локально; CI run 79 прошёл все live gates |
+| `docker compose ...` / migrations / live services | Docker CLI отсутствует локально; CI run 81 прошёл все live gates |
 
 ## 26. CI run ID
 
-`32116712353` (run 79): `backend`, `frontend`, `migration`, `outbox-postgres`,
+`32117035428` (run 81): `backend`, `frontend`, `migration`, `outbox-postgres`,
 `queue-worker` и `docker` — success. Run URL:
-https://github.com/fitera2024-rgb/SNAX/actions/runs/32116712353.
-Этот head зелёный; review остаётся Draft до независимого GPT-5.6 Pro review.
+https://github.com/fitera2024-rgb/SNAX/actions/runs/32117035428.
+Итоговый remote head `0b259aa1acfed13ab6f18d09434939e255800e46` зелёный; review остаётся
+Draft до независимого GPT-5.6 Pro review.
 
 ## 27. Изменённые файлы
 
@@ -250,7 +252,7 @@ unit/PostgreSQL/live tests; README и этот review draft. Точный спи
 
 ## 28. Остаточные риски
 
-- live Docker/service evidence подтверждён CI run 79 на head `8df693c`;
+- live Docker/service evidence подтверждён CI run 81 на head `0b259aa`;
 - broker delivery физически остаётся at-least-once;
 - будущий processor с external side effects обязан реализовать effect-specific idempotency;
 - production operator authorization отсутствует и manual retry остаётся CLI-only.
