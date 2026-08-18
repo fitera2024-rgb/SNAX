@@ -31,7 +31,7 @@ def test_api_upload_get_duplicate_and_replay(test_client: TestClient) -> None:
         headers=headers,
         files={"file": ("renamed.bin", payload, "application/octet-stream")},
     )
-    assert replay.status_code == 200
+    assert replay.status_code == 202
     assert replay.json()["importId"] == import_id
 
     duplicate = test_client.post(
