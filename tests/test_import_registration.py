@@ -48,13 +48,17 @@ def request(payload: bytes, key: str, filename: str = "price.xlsx") -> UploadReq
 
 def test_registration_is_streamed_and_idempotent() -> None:
     service, database, storage = build_service()
-    first = service.register(request(b"payload", "idempotency-0001"))
-    replay = service.register(request(b"payload", "idempotency-0001", "renamed.xlsx"))
+    first = service.register(request(b"payload", "idempotency-0001", "Прайс поставщика.xlsx"))
+    replay = service.register(request(b"payload", "idempotency-0001", "Другое имя.xlsx"))
     assert first.status is ImportStatus.STORED
     assert replay.replay is True
     assert replay.import_id == first.import_id
+    assert first.source.original_filename.value == "Прайс поставщика.xlsx"
     assert len(database.imports) == 1
     assert storage.object_count() == 1
+    metadata = storage.metadata(first.source.object_key)
+    assert "original-filename" not in metadata
+    assert metadata["media-type"] == first.source.media_type.value
 
 
 def test_exact_duplicate_and_idempotency_conflict_are_distinct() -> None:
@@ -87,7 +91,7 @@ def test_concurrent_duplicate_registration_has_one_import_and_one_object() -> No
     assert storage.object_count() == 1
 
 
-def test_db_failure_compensates_only_object_created_by_attempt() -> None:
+def test_db_failure_leaves_content_addressed_object_for_safe_retry() -> None:
     service_database = InMemoryDatabase()
     storage = InMemoryObjectStorage()
     calls = 0
@@ -108,10 +112,16 @@ def test_db_failure_compensates_only_object_created_by_attempt() -> None:
         storage=storage,
         max_upload_bytes=1024,
     )
+    upload = request(b"rollback payload", "rollback-idempotency-0001")
     with pytest.raises(PersistenceConflict):
-        service.register(request(b"rollback payload", "rollback-idempotency-0001"))
+        service.register(upload)
     assert len(service_database.imports) == 0
-    assert storage.object_count() == 0
+    assert storage.object_count() == 1
+
+    retried = service.register(request(b"rollback payload", "rollback-idempotency-0001"))
+    assert retried.status is ImportStatus.STORED
+    assert len(service_database.imports) == 1
+    assert storage.object_count() == 1
 
 
 def test_optimistic_transition_rejects_stale_version() -> None:
