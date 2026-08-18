@@ -22,6 +22,7 @@ class HealthResponse(BaseModel):
 
 
 class VersionResponse(BaseModel):
+    applicationName: Literal["SNAX"] = "SNAX"
     applicationVersion: str
     commitSha: str
     contractVersion: str

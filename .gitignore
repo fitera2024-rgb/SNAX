@@ -19,6 +19,12 @@ dist/
 build/
 *.egg-info/
 
+# Frontend
+apps/web/node_modules/
+apps/web/dist/
+apps/web/coverage/
+*.tsbuildinfo
+
 # IDE / OS
 .idea/
 .vscode/

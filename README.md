@@ -36,7 +36,7 @@
 
 ## Статус
 
-Этот пакет — baseline v2.1. Базовый импорт прайс-листов дополнен процессом приёмки поставок в магазинах. Репозиторий содержит спецификацию и стартовые контракты, но ещё не содержит готового production-кода.
+Этот пакет — baseline v2.1. В WORK-001 добавлен запускаемый внешний scaffold: FastAPI API, React web shell, локальная инфраструктура Docker Compose и проверки качества. Это не production-код и он не читает файлы поставщиков.
 
 Разработка ведётся двумя связанными уровнями:
 
@@ -74,18 +74,63 @@ work/001-web-bootstrap-impl
 
 Полный набор правил находится в `AGENTS.md`.
 
-## Целевой local bootstrap
+## Локальный запуск WORK-001
 
-Команды реализуются в WORK-001 / `TASK-000`:
+Требования: Python 3.12+, Node.js 22+, Docker Compose v2.
 
 ```bash
-cp .env.example .env
-docker compose up -d --build
-python scripts/validate_contracts.py
-pytest -q
+python -m venv .venv
+.venv/Scripts/pip install -e ".[dev]"
+.venv/Scripts/uvicorn snax_import.main:app --reload
 ```
 
-До завершения WORK-001 этот раздел является целевым интерфейсом разработчика, а не гарантированно работающим запуском.
+Web запускается из `apps/web`:
+
+```bash
+npm ci
+npm run dev
+```
+
+API доступен на `http://localhost:8000`, web — на `http://localhost:5173`.
+
+Полный локальный стек:
+
+```bash
+docker compose up -d --build
+```
+
+После запуска Compose API доступен на `http://localhost:8000`, web — на `http://localhost:8080`, консоль MinIO — на `http://localhost:9001`.
+
+## Проверки WORK-001
+
+Backend и контракты, из корня репозитория:
+
+```bash
+ruff check .
+ruff format --check .
+mypy src
+pytest -q
+python scripts/validate_contracts.py
+```
+
+Frontend, из `apps/web`:
+
+```bash
+npm ci
+npm run lint
+npm run typecheck
+npm test -- --run
+npm run build
+```
+
+Docker smoke, из корня репозитория:
+
+```bash
+docker compose config
+docker compose up -d --build
+python scripts/smoke_test.py
+docker compose down -v
+```
 
 ## Структура первой волны
 

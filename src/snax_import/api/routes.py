@@ -14,11 +14,14 @@ from snax_import.api.models import (
     Problem,
     VersionResponse,
 )
+from snax_import.config import settings
 
 router = APIRouter()
 
 
-def _correlation_id(x_correlation_id: str | None = Header(default=None, alias="X-Correlation-ID")) -> str:
+def _correlation_id(
+    x_correlation_id: str | None = Header(default=None, alias="X-Correlation-ID"),
+) -> str:
     return x_correlation_id or "unset"
 
 
@@ -53,13 +56,15 @@ def health_ready() -> HealthResponse:
 
 
 @router.get("/version", response_model=VersionResponse)
-def version(correlation_id: str = Header(default="unknown", alias="X-Correlation-ID")) -> VersionResponse:
+def version(
+    correlation_id: str = Header(default="unknown", alias="X-Correlation-ID"),
+) -> VersionResponse:
     return VersionResponse(
-        applicationVersion="0.1.0",
-        commitSha="local-snapshot",
-        contractVersion="1.1.0",
+        applicationVersion=settings.app_version,
+        commitSha=settings.commit_sha,
+        contractVersion=settings.public_version_contract,
         buildMetadata={
-            "buildEnvironment": "bootstrap",
+            "buildEnvironment": settings.app_env,
             "correlationId": correlation_id,
             "service": "snax-order-import",
         },
@@ -89,7 +94,9 @@ def get_import(import_id: UUID) -> ImportStatusSummary:
 def get_import_rows(import_id: UUID) -> list[ImportRow]:
     summary = mock_data.get_import_summary(import_id)
     if summary is None:
-        raise ApiError(code="IMPORT_NOT_FOUND", message="Импорт не найден", status_code=404, field="importId")
+        raise ApiError(
+            code="IMPORT_NOT_FOUND", message="Импорт не найден", status_code=404, field="importId"
+        )
     return mock_data.get_import_rows(import_id)
 
 
@@ -97,5 +104,7 @@ def get_import_rows(import_id: UUID) -> list[ImportRow]:
 def get_import_steps(import_id: UUID) -> ImportStatusDetail:
     detail = mock_data.get_import_detail(import_id)
     if detail is None:
-        raise ApiError(code="IMPORT_NOT_FOUND", message="Импорт не найден", status_code=404, field="importId")
+        raise ApiError(
+            code="IMPORT_NOT_FOUND", message="Импорт не найден", status_code=404, field="importId"
+        )
     return detail

@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import logging
 import uuid
-from typing import cast
+from collections.abc import Awaitable, Callable
 
-from fastapi import Depends, FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
@@ -26,7 +26,9 @@ app = FastAPI(
 
 
 @app.middleware("http")
-async def add_correlation_id(request: Request, call_next):
+async def add_correlation_id(
+    request: Request, call_next: Callable[[Request], Awaitable[Response]]
+) -> Response:
     request_id = request.headers.get("X-Correlation-ID") or str(uuid.uuid4())
     request.state.correlation_id = request_id
     response = await call_next(request)
@@ -50,7 +52,9 @@ async def handle_api_error(request: Request, exc: ApiError) -> JSONResponse:
         field=exc.field,
         details=exc.details,
     ).model_dump()
-    return JSONResponse(status_code=exc.status_code, content=payload, headers={"X-Correlation-ID": request_id})
+    return JSONResponse(
+        status_code=exc.status_code, content=payload, headers={"X-Correlation-ID": request_id}
+    )
 
 
 @app.exception_handler(RequestValidationError)
@@ -63,7 +67,9 @@ async def handle_validation_error(request: Request, exc: RequestValidationError)
         correlationId=request_id,
         details={"issues": exc.errors()},
     ).model_dump()
-    logging.getLogger(__name__).warning("validation.error", extra={"error_count": len(exc.errors())})
+    logging.getLogger(__name__).warning(
+        "validation.error", extra={"error_count": len(exc.errors())}
+    )
     return JSONResponse(status_code=400, content=payload, headers={"X-Correlation-ID": request_id})
 
 
@@ -74,11 +80,13 @@ async def handle_http_exception(request: Request, exc: StarletteHTTPException) -
     message = exc.detail if isinstance(exc.detail, str) else "Request error"
     payload = Problem(
         code=code,
-        message=cast(str, message),
+        message=message,
         retryable=False,
         correlationId=request_id,
     ).model_dump()
-    return JSONResponse(status_code=exc.status_code, content=payload, headers={"X-Correlation-ID": request_id})
+    return JSONResponse(
+        status_code=exc.status_code, content=payload, headers={"X-Correlation-ID": request_id}
+    )
 
 
 @app.exception_handler(Exception)
