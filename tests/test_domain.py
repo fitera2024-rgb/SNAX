@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime, timedelta
 from itertools import product
 from uuid import uuid4
 
 import pytest
 
-from snax_import.domain.entities import Import
+from snax_import.domain.entities import Import, ImportStatusEvent, ProcessingRun, SourceFile
 from snax_import.domain.errors import InvalidTransition, InvalidValue, TerminalStateError
 from snax_import.domain.state_machine import ALLOWED_TRANSITIONS, ImportStatus
 from snax_import.domain.value_objects import (
@@ -41,7 +41,7 @@ def test_value_objects_validate_digest_size_and_metadata() -> None:
         OriginalFileName("bad\x00name.xlsx")
 
 
-def test_entities_reject_naive_timestamps() -> None:
+def test_entities_reject_naive_timestamps_and_invalid_versions() -> None:
     with pytest.raises(InvalidValue):
         Import(
             id=uuid4(),
@@ -52,6 +52,86 @@ def test_entities_reject_naive_timestamps() -> None:
             idempotency_key=IdempotencyKey("idempotency-0001"),
             created_at=datetime.now(),
             updated_at=datetime.now(),
+        )
+
+    now = datetime.now(UTC)
+    with pytest.raises(InvalidValue):
+        Import(
+            id=uuid4(),
+            source_file_id=uuid4(),
+            status=ImportStatus.RECEIVED,
+            version=0,
+            correlation_id=CorrelationId("correlation-001"),
+            idempotency_key=IdempotencyKey("idempotency-0001"),
+            created_at=now,
+            updated_at=now,
+        )
+    with pytest.raises(InvalidValue):
+        Import(
+            id=uuid4(),
+            source_file_id=uuid4(),
+            status=ImportStatus.RECEIVED,
+            version=1,
+            correlation_id=CorrelationId("correlation-001"),
+            idempotency_key=IdempotencyKey("idempotency-0001"),
+            created_at=now,
+            updated_at=now - timedelta(seconds=1),
+        )
+
+
+def test_source_file_requires_object_key_for_its_digest() -> None:
+    now = datetime.now(UTC)
+    digest = Sha256Digest("a" * 64)
+    other_digest = Sha256Digest("b" * 64)
+    with pytest.raises(InvalidValue):
+        SourceFile.create(
+            sha256=digest,
+            object_key=ObjectKey.for_digest(other_digest),
+            original_filename=OriginalFileName("price.xlsx"),
+            media_type=MediaType("application/octet-stream"),
+            size=FileSize(10),
+            now=now,
+        )
+
+
+def test_events_and_processing_runs_enforce_domain_invariants() -> None:
+    now = datetime.now(UTC)
+    with pytest.raises(InvalidValue):
+        ImportStatusEvent(
+            id=uuid4(),
+            import_id=uuid4(),
+            sequence=0,
+            previous_status=None,
+            new_status=ImportStatus.RECEIVED,
+            occurred_at=now,
+            reason="created",
+            correlation_id=CorrelationId("correlation-001"),
+            actor="system",
+        )
+    with pytest.raises(InvalidValue):
+        ImportStatusEvent(
+            id=uuid4(),
+            import_id=uuid4(),
+            sequence=2,
+            previous_status=ImportStatus.STORED,
+            new_status=ImportStatus.STORED,
+            occurred_at=now,
+            reason="same status",
+            correlation_id=CorrelationId("correlation-001"),
+            actor="system",
+        )
+    with pytest.raises(InvalidValue):
+        ProcessingRun.create(uuid4(), 0)
+    with pytest.raises(InvalidValue):
+        ProcessingRun(
+            id=uuid4(),
+            import_id=uuid4(),
+            run_number=1,
+            status="PROCESSING",
+            started_at=now,
+            completed_at=now - timedelta(seconds=1),
+            failure_code=None,
+            failure_reason=None,
         )
 
 
