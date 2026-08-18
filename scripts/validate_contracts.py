@@ -17,11 +17,24 @@ PAIRS = (
         "schemas/processing-job-message.schema.json",
         "examples/processing-job-message.example.json",
     ),
+    ("raw-workbook.schema.json", "examples/raw-workbook.example.json"),
+    ("raw-workbook.schema.json", "examples/raw-workbook-error.example.json"),
 )
 INVALID_PAIRS = (
     (
         "schemas/processing-job-message.schema.json",
         "invalid/processing-job-message-dangerous-payload.json",
+    ),
+    ("raw-workbook.schema.json", "invalid/raw-workbook-invalid-value-type.json"),
+    ("raw-workbook.schema.json", "invalid/raw-workbook-missing-workbook.json"),
+    ("raw-workbook.schema.json", "invalid/raw-workbook-error-token-as-code.json"),
+    (
+        "raw-workbook.schema.json",
+        "invalid/raw-workbook-string-converted-to-number.json",
+    ),
+    (
+        "raw-workbook.schema.json",
+        "invalid/raw-workbook-formula-metadata-missing.json",
     ),
 )
 
