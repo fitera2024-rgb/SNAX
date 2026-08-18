@@ -87,9 +87,15 @@ class RecordingQueue(ProcessingQueuePort):
 
 
 def test_two_postgresql_dispatchers_publish_one_outbox_row() -> None:
-    _, uow_factory = _factory()
+    engine, uow_factory = _factory()
     marker = uuid4().hex
     created = _register(uow_factory, marker)
+    with Session(engine) as session:
+        target = session.scalar(
+            select(OutboxMessageModel).where(OutboxMessageModel.aggregate_id == created.import_id)
+        )
+    assert target is not None and target.processing_run_id is not None
+    target_run_id = target.processing_run_id
     queue = RecordingQueue()
 
     def dispatch(owner: str) -> int:
@@ -106,10 +112,17 @@ def test_two_postgresql_dispatchers_publish_one_outbox_row() -> None:
 
     with ThreadPoolExecutor(max_workers=2) as pool:
         claimed = list(pool.map(dispatch, ("dispatcher-a", "dispatcher-b")))
-    assert sum(claimed) == 1
-    assert len(queue.messages) == 1
+    # The integration database is shared by the whole job, so another test may
+    # leave a valid pending message.  Both dispatchers may legitimately claim
+    # different rows; the concurrency guarantee is that this target row is
+    # published exactly once.
+    target_messages = [
+        message for message in queue.messages if message.processing_run_id == target_run_id
+    ]
+    assert sum(claimed) >= 1
+    assert len(target_messages) == 1
     with uow_factory() as uow:
-        outbox = uow.outbox.by_deduplication_key(f"process:{queue.messages[0].processing_run_id}:1")
+        outbox = uow.outbox.by_deduplication_key(f"process:{target_run_id}:1")
     assert outbox is not None and outbox.status.value == "PUBLISHED"
     assert outbox.aggregate_id == created.import_id
 
@@ -230,3 +243,4 @@ def test_heartbeat_vs_sweeper_never_creates_two_active_runs() -> None:
     assert active <= 1
     assert sum(run.status == ProcessingRunStatus.QUEUED.value for run in all_runs) <= 1
     assert len(all_runs) <= 2
+
