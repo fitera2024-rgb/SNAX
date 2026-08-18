@@ -77,12 +77,12 @@ Observed locally on 2026-08-18:
 
 - `python -m ruff check .` — PASS;
 - `python -m mypy src` — PASS;
-- `python -m pytest -q` — PASS, 15 passed and 3 integration tests skipped without service variables;
+- `python -m pytest -q -rA` — PASS, 17 passed and 3 integration tests skipped without service variables;
 - `python scripts/validate_contracts.py` — PASS, OpenAPI and three JSON examples validated;
 - `docker compose config` — NOT RUN: Docker CLI is not installed in this environment;
 - PostgreSQL Alembic up/down/up — NOT RUN locally for the same Docker/service limitation;
 - MinIO integration — NOT RUN locally for the same service limitation;
-- frontend regression commands — pending final gate run.
+- frontend `npm run lint`, `npm run typecheck`, `npm test -- --run` and `npm run build` — PASS locally; the first `npm ci` attempt hit a Windows file-lock `EPERM`, after which a dependency install retry completed and the lockfile was restored unchanged.
 
 The GitHub Actions integration job is configured to run PostgreSQL/MinIO migration up/down/up, bucket preparation, integration tests and API duplicate/replay checks. Logs must be reviewed independently before changing the PR out of Draft.
 
