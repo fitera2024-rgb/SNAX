@@ -27,6 +27,11 @@ def _validate_utc(value: datetime, field: str) -> None:
         raise InvalidValue(field, "Timestamp должен быть timezone-aware UTC")
 
 
+def _validate_nonblank(value: str, field: str) -> None:
+    if not isinstance(value, str) or not value.strip():
+        raise InvalidValue(field, "Значение обязательно")
+
+
 class StorageStatus(StrEnum):
     STORED = "STORED"
     ORPHANED = "ORPHANED"
@@ -45,6 +50,8 @@ class SourceFile:
 
     def __post_init__(self) -> None:
         _validate_utc(self.created_at, "createdAt")
+        if self.object_key != ObjectKey.for_digest(self.sha256):
+            raise InvalidValue("objectKey", "Object key должен соответствовать SHA-256")
 
     @classmethod
     def create(
@@ -83,6 +90,12 @@ class ImportStatusEvent:
 
     def __post_init__(self) -> None:
         _validate_utc(self.occurred_at, "occurredAt")
+        if self.sequence < 1:
+            raise InvalidValue("sequence", "Последовательность события должна быть положительной")
+        _validate_nonblank(self.reason, "reason")
+        _validate_nonblank(self.actor, "actor")
+        if self.previous_status is self.new_status:
+            raise InvalidValue("newStatus", "Событие не может сохранять тот же статус")
 
 
 @dataclass(frozen=True, slots=True)
@@ -108,6 +121,12 @@ class Import:
     def __post_init__(self) -> None:
         _validate_utc(self.created_at, "createdAt")
         _validate_utc(self.updated_at, "updatedAt")
+        if self.updated_at < self.created_at:
+            raise InvalidValue("updatedAt", "updatedAt не может быть раньше createdAt")
+        if self.version < 1:
+            raise InvalidValue("version", "Версия aggregate должна быть положительной")
+        if self.event_sequence < 0:
+            raise InvalidValue("eventSequence", "Номер события не может быть отрицательным")
 
     @classmethod
     def create(
@@ -157,10 +176,13 @@ class Import:
         actor: str = "system",
         now: datetime | None = None,
     ) -> TransitionResult:
-        if not reason.strip():
-            raise InvalidValue("reason", "Причина перехода обязательна")
+        _validate_nonblank(reason, "reason")
+        _validate_nonblank(actor, "actor")
         validate_transition(self.status, target)
         timestamp = now or utc_now()
+        _validate_utc(timestamp, "occurredAt")
+        if timestamp < self.updated_at:
+            raise InvalidValue("occurredAt", "Событие не может предшествовать aggregate")
         event = ImportStatusEvent(
             id=uuid4(),
             import_id=self.id,
@@ -203,13 +225,20 @@ class ProcessingRun:
     failure_reason: str | None
 
     def __post_init__(self) -> None:
+        if self.run_number < 1:
+            raise InvalidValue("runNumber", "Номер запуска должен быть положительным")
+        _validate_nonblank(self.status, "status")
         if self.started_at is not None:
             _validate_utc(self.started_at, "startedAt")
         if self.completed_at is not None:
             _validate_utc(self.completed_at, "completedAt")
+        if (
+            self.started_at is not None
+            and self.completed_at is not None
+            and self.completed_at < self.started_at
+        ):
+            raise InvalidValue("completedAt", "completedAt не может быть раньше startedAt")
 
     @classmethod
     def create(cls, import_id: UUID, run_number: int) -> ProcessingRun:
-        if run_number < 1:
-            raise InvalidValue("runNumber", "Номер запуска должен быть положительным")
         return cls(uuid4(), import_id, run_number, "QUEUED", None, None, None, None)
