@@ -74,8 +74,23 @@ class ProcessingJobMessageV1:
         missing = _REQUIRED - set(payload)
         if unknown or missing:
             raise InvalidValue("payload", f"Unknown={sorted(unknown)} missing={sorted(missing)}")
-        if payload["schemaVersion"] != 1:
+        if type(payload["schemaVersion"]) is not int or payload["schemaVersion"] != 1:
             raise JobSchemaUnsupported()
+        for field in (
+            "messageId",
+            "eventType",
+            "importId",
+            "processingRunId",
+            "correlationId",
+            "requestedAt",
+        ):
+            if type(payload[field]) is not str:
+                raise InvalidValue("payload", f"{field} must be a JSON string")
+        for field in ("runNumber", "dispatchGeneration"):
+            if type(payload[field]) is not int:
+                raise InvalidValue("payload", f"{field} must be a JSON integer")
+        if payload.get("retryOfRunId") is not None and type(payload["retryOfRunId"]) is not str:
+            raise InvalidValue("payload", "retryOfRunId must be a JSON string or null")
         try:
             requested_at = datetime.fromisoformat(
                 str(payload["requestedAt"]).replace("Z", "+00:00")
