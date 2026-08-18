@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
@@ -78,14 +78,18 @@ def _column_name(column: int) -> str:
     return "".join(reversed(result))
 
 
-def _serialize_value(value: RawValue) -> str | int | float | bool | None:
+def _serialize_value(value: RawValue) -> str | int | bool | None:
     if isinstance(value, datetime):
-        return value.astimezone(UTC).isoformat().replace("+00:00", "Z")
+        return value.isoformat().replace("+00:00", "Z")
     if isinstance(value, date):
         return value.isoformat()
     if isinstance(value, Decimal):
         return format(value, "f")
     return value
+
+
+def _is_raw_value(value: object) -> bool:
+    return value is None or isinstance(value, (str, int, Decimal, date, datetime, bool))
 
 
 @dataclass(frozen=True, slots=True)
@@ -135,8 +139,10 @@ class Formula:
 
     def __post_init__(self) -> None:
         _require_non_blank(self.formula_text, "formula.formulaText")
+        if not _is_raw_value(self.cached_result) or isinstance(self.cached_result, float):
+            raise InvalidValue("formula.cachedResult", "Cached result должен быть raw scalar")
 
-    def to_dict(self) -> dict[str, str | int | float | bool | None]:
+    def to_dict(self) -> dict[str, str | int | bool | None]:
         return {
             "formulaText": self.formula_text,
             "cachedResult": _serialize_value(self.cached_result),
@@ -175,19 +181,52 @@ class Cell:
         _require_positive(self.column_index, "cell.columnIndex")
         if self.coordinate.row != self.row_index or self.coordinate.column != self.column_index:
             raise InvalidValue("cell.coordinate", "Coordinate и индексы ячейки должны совпадать")
-        if self.value_type is ValueType.FORMULA and self.formula is None:
-            raise InvalidValue("cell.formula", "Для FORMULA требуется formula metadata")
+        if self.value_type is ValueType.FORMULA:
+            if self.formula is None:
+                raise InvalidValue("cell.formula", "Для FORMULA требуется formula metadata")
+            if self.raw_value is not None and self.raw_value != self.formula.formula_text:
+                raise InvalidValue(
+                    "cell.rawValue", "Исходная формула должна совпадать с formulaText"
+                )
+        elif self.formula is not None:
+            raise InvalidValue("cell.formula", "Formula metadata допустима только для FORMULA")
         if self.formula is not None and self.cached_value != self.formula.cached_result:
             raise InvalidValue(
                 "cell.cachedValue", "cachedValue должен совпадать с formula.cachedResult"
             )
+        if self.formula is None and self.cached_value is not None:
+            raise InvalidValue("cell.cachedValue", "Cached value допустим только для FORMULA")
         if self.value_type is ValueType.ERROR:
             if not isinstance(self.raw_value, str) or not self.raw_value.strip():
                 raise InvalidValue("cell.rawValue", "Для ERROR требуется исходное значение ошибки")
             if not self.error_code:
                 raise InvalidValue("cell.errorCode", "Для ERROR требуется стабильный error code")
+        elif self.error_code is not None and self.value_type is not ValueType.FORMULA:
+            raise InvalidValue("cell.errorCode", "Error code допустим только для ERROR или FORMULA")
         if self.error_code is not None:
             _require_machine_code(self.error_code, "cell.errorCode")
+        self._validate_raw_value_type()
+
+    def _validate_raw_value_type(self) -> None:
+        value = self.raw_value
+        if not _is_raw_value(value) or isinstance(value, float):
+            raise InvalidValue("cell.rawValue", "rawValue должен быть lossless raw scalar")
+        matches = {
+            ValueType.STRING: isinstance(value, str),
+            ValueType.INTEGER: isinstance(value, int) and not isinstance(value, bool),
+            ValueType.DECIMAL: isinstance(value, Decimal),
+            ValueType.DATE: isinstance(value, date) and not isinstance(value, datetime),
+            ValueType.DATETIME: isinstance(value, datetime),
+            ValueType.BOOLEAN: isinstance(value, bool),
+            ValueType.FORMULA: value is None or isinstance(value, str),
+            ValueType.ERROR: isinstance(value, str),
+            ValueType.EMPTY: value is None,
+            ValueType.UNKNOWN: True,
+        }
+        if not matches[self.value_type]:
+            raise InvalidValue(
+                "cell.rawValue", f"rawValue не соответствует valueType={self.value_type.value}"
+            )
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -237,19 +276,22 @@ class Sheet:
     max_row: int
     max_column: int
     merged_ranges: tuple[MergedRange, ...] = ()
-    rows: tuple[Row, ...] = ()
+    # A replayable read-only Sequence may be backed by disk or another lazy store.
+    # The model therefore does not require all row payloads to live in memory.
+    rows: Sequence[Row] = ()
 
     def __post_init__(self) -> None:
         _require_non_blank(self.name, "sheet.name")
         _require_non_negative(self.index, "sheet.index")
         _require_non_negative(self.max_row, "sheet.maxRow")
         _require_non_negative(self.max_column, "sheet.maxColumn")
-        row_indexes = [row.index for row in self.rows]
-        if len(set(row_indexes)) != len(row_indexes):
-            raise InvalidValue("sheet.rows", "В листе не должно быть дублирующихся строк")
-        if any(row.index > self.max_row for row in self.rows):
-            raise InvalidValue("sheet.rows", "Строка выходит за maxRow листа")
+        row_indexes: set[int] = set()
         for row in self.rows:
+            if row.index in row_indexes:
+                raise InvalidValue("sheet.rows", "В листе не должно быть дублирующихся строк")
+            row_indexes.add(row.index)
+            if row.index > self.max_row:
+                raise InvalidValue("sheet.rows", "Строка выходит за maxRow листа")
             if any(cell.column_index > self.max_column for cell in row.cells):
                 raise InvalidValue("sheet.rows", "Ячейка выходит за maxColumn листа")
         for merged_range in self.merged_ranges:

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import uuid4
@@ -20,6 +21,12 @@ from snax_import.domain.raw_workbook import (
     Workbook,
     WorkbookFormat,
 )
+from snax_import.ports.workbook_reader import (
+    IssueSeverity,
+    ReaderIssue,
+    ReaderIssueCode,
+    ReaderResult,
+)
 
 
 def _cell(row: int, column: int, value: str) -> Cell:
@@ -34,33 +41,35 @@ def _cell(row: int, column: int, value: str) -> Cell:
 
 
 def test_coordinate_a1_and_string_values_preserve_leading_zeroes() -> None:
-    cell = _cell(12, 28, "00123")
+    cell = _cell(12, 28, "001234")
 
     assert cell.coordinate.a1 == "AB12"
-    assert cell.raw_value == "00123"
-    assert cell.to_dict()["rawValue"] == "00123"
+    assert cell.raw_value == "001234"
+    assert cell.to_dict()["rawValue"] == "001234"
 
 
 def test_formula_is_data_with_cached_value_and_is_not_evaluated() -> None:
-    formula = Formula("=SUM(A1:A2)", Decimal("10.50"))
+    formula = Formula("=A1+B1", Decimal("10.50"))
     cell = Cell(
         coordinate=CellCoordinate(3, 2),
         row_index=3,
         column_index=2,
         value_type=ValueType.FORMULA,
-        raw_value=None,
+        raw_value="=A1+B1",
         display_value="10.50",
         formula=formula,
         cached_value=Decimal("10.50"),
     )
 
     assert cell.formula is formula
-    assert cell.formula.formula_text == "=SUM(A1:A2)"
+    assert cell.formula.formula_text == "=A1+B1"
     assert cell.cached_value == Decimal("10.50")
     assert cell.to_dict()["formula"] == {
-        "formulaText": "=SUM(A1:A2)",
+        "formulaText": "=A1+B1",
         "cachedResult": "10.50",
     }
+    assert cell.to_dict()["rawValue"] == "=A1+B1"
+    assert cell.to_dict()["cachedValue"] == "10.50"
 
 
 def test_error_cell_and_merged_range_are_structured() -> None:
@@ -177,3 +186,75 @@ def test_formula_requires_cached_value_consistency() -> None:
             formula=Formula("=1", 1),
             cached_value=2,
         )
+
+
+@pytest.mark.parametrize(
+    ("value_type", "raw_value"),
+    [
+        (ValueType.STRING, 1234),
+        (ValueType.INTEGER, "001234"),
+        (ValueType.DECIMAL, "10.50"),
+        (ValueType.BOOLEAN, 1),
+        (ValueType.EMPTY, ""),
+    ],
+)
+def test_value_type_mismatch_is_rejected_without_silent_conversion(
+    value_type: ValueType, raw_value: object
+) -> None:
+    with pytest.raises(InvalidValue):
+        Cell(
+            coordinate=CellCoordinate(1, 1),
+            row_index=1,
+            column_index=1,
+            value_type=value_type,
+            raw_value=raw_value,  # type: ignore[arg-type]
+        )
+
+
+class _LazyRows(Sequence[Row]):
+    def __init__(self, count: int) -> None:
+        self.count = count
+
+    def __len__(self) -> int:
+        return self.count
+
+    def __getitem__(self, index: int | slice) -> Row | list[Row]:
+        if isinstance(index, slice):
+            return [Row(item + 1) for item in range(*index.indices(self.count))]
+        if index < 0:
+            index += self.count
+        if index < 0 or index >= self.count:
+            raise IndexError(index)
+        return Row(index + 1)
+
+
+def test_sheet_accepts_replayable_lazy_rows_without_materializing_to_tuple() -> None:
+    rows = _LazyRows(3)
+
+    sheet = Sheet(
+        name="Lazy",
+        index=0,
+        visibility=SheetVisibility.VISIBLE,
+        max_row=3,
+        max_column=0,
+        rows=rows,
+    )
+
+    assert sheet.rows is rows
+    assert [row.index for row in sheet.rows] == [1, 2, 3]
+
+
+def test_reader_result_requires_explicit_error_when_workbook_is_absent() -> None:
+    with pytest.raises(InvalidValue):
+        ReaderResult(workbook=None)
+
+    issue = ReaderIssue(
+        issue_id="reader-1",
+        code=ReaderIssueCode.MALFORMED_STRUCTURE,
+        severity=IssueSeverity.ERROR,
+        message="Invalid workbook",
+    )
+    result = ReaderResult(workbook=None, issues=(issue,))
+
+    assert not result.success
+    assert result.errors == (issue,)

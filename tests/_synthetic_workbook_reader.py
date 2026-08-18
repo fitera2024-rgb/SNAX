@@ -25,10 +25,10 @@ from snax_import.domain.raw_workbook import (
 )
 from snax_import.ports.workbook_reader import (
     IssueSeverity,
-    RawWorkbookResult,
     ReaderIssue,
     ReaderIssueCode,
     ReaderOptions,
+    ReaderResult,
     ReaderStatistics,
     WorkbookReader,
 )
@@ -43,11 +43,10 @@ class _MutableSheet:
     max_column: int
     merged_ranges: list[MergedRange] = field(default_factory=list)
     rows: list[Row] = field(default_factory=list)
-    hidden_skipped: bool = False
 
 
 class SyntheticWorkbookReader(WorkbookReader):
-    """Safe line-oriented fixture reader used before a real XLSX adapter exists.
+    """Test-only line-oriented reader used to exercise the reader contract.
 
     The fixture is UTF-8 NDJSON. The first record is a ``workbook`` header, followed
     by ``sheet``, ``row`` and ``end`` records. Each input line is processed once, so
@@ -66,7 +65,7 @@ class SyntheticWorkbookReader(WorkbookReader):
             and extension_matches
         )
 
-    def read(self, source: BinaryIO, options: ReaderOptions) -> RawWorkbookResult:
+    def read(self, source: BinaryIO, options: ReaderOptions) -> ReaderResult:
         started = time.monotonic()
         issues: list[ReaderIssue] = []
         sheets: list[_MutableSheet] = []
@@ -78,8 +77,6 @@ class SyntheticWorkbookReader(WorkbookReader):
         cells_read = 0
         formula_cells = 0
         error_cells = 0
-        skipped_sheets = 0
-        skipped_rows = 0
         issue_number = 0
         stopped = False
 
@@ -171,7 +168,7 @@ class SyntheticWorkbookReader(WorkbookReader):
                 workbook_header = event
                 continue
             if event_type == "sheet":
-                current_sheet = self._parse_sheet(event, options, add_issue)
+                current_sheet = self._parse_sheet(event, add_issue)
                 if current_sheet is None:
                     stopped = True
                     continue
@@ -195,14 +192,6 @@ class SyntheticWorkbookReader(WorkbookReader):
                     stopped = True
                     continue
                 sheets.append(current_sheet)
-                if current_sheet.hidden_skipped:
-                    skipped_sheets += 1
-                    add_issue(
-                        ReaderIssueCode.HIDDEN_SHEET_SKIPPED,
-                        IssueSeverity.WARNING,
-                        "Hidden sheet was excluded by ReaderOptions",
-                        sheet_name=current_sheet.name,
-                    )
                 continue
             if event_type == "row":
                 if current_sheet is None:
@@ -221,9 +210,6 @@ class SyntheticWorkbookReader(WorkbookReader):
                         details={"limit": str(options.max_rows)},
                     )
                     stopped = True
-                    continue
-                if current_sheet.hidden_skipped:
-                    skipped_rows += 1
                     continue
                 row, cell_count, row_formula_count, row_error_count = self._parse_row(
                     event, current_sheet, options, add_issue
@@ -269,17 +255,16 @@ class SyntheticWorkbookReader(WorkbookReader):
             cells_read=cells_read,
             formula_cells=formula_cells,
             error_cells=error_cells,
-            skipped_sheets=skipped_sheets,
-            skipped_rows=skipped_rows,
+            skipped_sheets=0,
+            skipped_rows=0,
             bytes_read=bytes_read,
             duration_seconds=duration,
         )
-        return RawWorkbookResult(workbook=workbook, issues=tuple(issues), statistics=statistics)
+        return ReaderResult(workbook=workbook, issues=tuple(issues), statistics=statistics)
 
     @staticmethod
     def _parse_sheet(
         event: dict[str, Any],
-        options: ReaderOptions,
         add_issue: Any,
     ) -> _MutableSheet | None:
         try:
@@ -290,9 +275,6 @@ class SyntheticWorkbookReader(WorkbookReader):
                 visibility=visibility,
                 max_row=int(event.get("maxRow", 0)),
                 max_column=int(event.get("maxColumn", 0)),
-                hidden_skipped=(
-                    visibility is not SheetVisibility.VISIBLE and not options.allow_hidden_sheets
-                ),
             )
             for raw_range in event.get("mergedRanges", []):
                 start = raw_range["startCell"]
@@ -340,7 +322,7 @@ class SyntheticWorkbookReader(WorkbookReader):
                     )
                     return None, 0, 0, 0
                 cell = SyntheticWorkbookReader._parse_cell(
-                    raw_cell, options, add_issue, sheet.name, row_index
+                    raw_cell, add_issue, sheet.name, row_index
                 )
                 if cell is None:
                     continue
@@ -373,7 +355,6 @@ class SyntheticWorkbookReader(WorkbookReader):
     @staticmethod
     def _parse_cell(
         raw_cell: Any,
-        options: ReaderOptions,
         add_issue: Any,
         sheet_name: str,
         row_index: int,
@@ -388,7 +369,7 @@ class SyntheticWorkbookReader(WorkbookReader):
             cached_value = SyntheticWorkbookReader._raw_value(raw_cell.get("cachedValue"))
             formula_payload = raw_cell.get("formula")
             formula = None
-            if formula_payload is not None and options.preserve_formulas:
+            if formula_payload is not None:
                 formula = Formula(
                     str(formula_payload["formulaText"]),
                     SyntheticWorkbookReader._raw_value(formula_payload.get("cachedResult")),
@@ -402,8 +383,6 @@ class SyntheticWorkbookReader(WorkbookReader):
                     row_index=row_index,
                     cell_coordinate=coordinate,
                 )
-                if not options.preserve_formulas:
-                    formula = None
             if raw_cell.get("errorCode"):
                 add_issue(
                     ReaderIssueCode.FORMULA_ERROR

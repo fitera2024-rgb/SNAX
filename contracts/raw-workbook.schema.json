@@ -13,7 +13,7 @@
     "errors": { "type": "array", "items": { "$ref": "#/$defs/issue" } }
   },
   "$defs": {
-    "rawValue": { "type": ["string", "number", "boolean", "null"] },
+    "rawValue": { "type": ["string", "integer", "boolean", "null"] },
     "coordinate": {
       "type": "object",
       "additionalProperties": false,
@@ -76,6 +76,46 @@
       },
       "allOf": [
         {
+          "if": { "properties": { "valueType": { "const": "STRING" } }, "required": ["valueType"] },
+          "then": { "properties": { "rawValue": { "type": "string" } } }
+        },
+        {
+          "if": { "properties": { "valueType": { "const": "INTEGER" } }, "required": ["valueType"] },
+          "then": { "properties": { "rawValue": { "type": "integer" } } }
+        },
+        {
+          "if": { "properties": { "valueType": { "const": "DECIMAL" } }, "required": ["valueType"] },
+          "then": {
+            "properties": {
+              "rawValue": {
+                "type": "string",
+                "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "valueType": { "const": "DATE" } }, "required": ["valueType"] },
+          "then": { "properties": { "rawValue": { "type": "string", "format": "date" } } }
+        },
+        {
+          "if": { "properties": { "valueType": { "const": "DATETIME" } }, "required": ["valueType"] },
+          "then": { "properties": { "rawValue": { "type": "string", "format": "date-time" } } }
+        },
+        {
+          "if": { "properties": { "valueType": { "const": "BOOLEAN" } }, "required": ["valueType"] },
+          "then": { "properties": { "rawValue": { "type": "boolean" } } }
+        },
+        {
+          "if": { "properties": { "valueType": { "const": "FORMULA" } }, "required": ["valueType"] },
+          "then": {
+            "properties": {
+              "rawValue": { "type": ["string", "null"] },
+              "formula": { "$ref": "#/$defs/formula" }
+            }
+          }
+        },
+        {
           "if": {
             "properties": { "valueType": { "const": "ERROR" } },
             "required": ["valueType"]
@@ -83,7 +123,30 @@
           "then": {
             "properties": {
               "rawValue": { "type": "string", "minLength": 1 },
+              "formula": { "type": "null" },
+              "cachedValue": { "type": "null" },
               "errorCode": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "valueType": { "const": "EMPTY" } }, "required": ["valueType"] },
+          "then": { "properties": { "rawValue": { "type": "null" } } }
+        },
+        {
+          "if": {
+            "properties": {
+              "valueType": {
+                "not": { "enum": ["FORMULA", "ERROR"] }
+              }
+            },
+            "required": ["valueType"]
+          },
+          "then": {
+            "properties": {
+              "formula": { "type": "null" },
+              "cachedValue": { "type": "null" },
+              "errorCode": { "type": "null" }
             }
           }
         }

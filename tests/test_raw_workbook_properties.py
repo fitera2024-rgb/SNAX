@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import random
 
 from snax_import.domain.raw_workbook import Cell, CellCoordinate, ValueType
@@ -18,8 +19,11 @@ def test_property_round_trip_preserves_random_string_codes() -> None:
             raw_value=code,
             display_value=code,
         )
+        payload = json.loads(json.dumps(cell.to_dict()))
+
         assert cell.raw_value == code
-        assert cell.to_dict()["rawValue"] == code
+        assert payload["rawValue"] == code
+        assert isinstance(payload["rawValue"], str)
 
 
 def test_property_random_scalar_cells_do_not_raise_or_change_type() -> None:

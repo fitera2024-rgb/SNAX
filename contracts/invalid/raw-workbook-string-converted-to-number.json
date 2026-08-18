@@ -1,0 +1,54 @@
+{
+  "workbook": {
+    "id": "11111111-1111-4111-8111-111111111111",
+    "sourceFileId": "22222222-2222-4222-8222-222222222222",
+    "filename": { "name": "leading-zero.xlsx", "mediaType": null, "sizeBytes": 32 },
+    "format": "XLSX",
+    "createdAt": "2026-08-18T00:00:00Z",
+    "sheets": [
+      {
+        "name": "Data",
+        "index": 0,
+        "visibility": "VISIBLE",
+        "maxRow": 1,
+        "maxColumn": 1,
+        "mergedRanges": [],
+        "rows": [
+          {
+            "index": 1,
+            "hidden": false,
+            "height": null,
+            "cells": [
+              {
+                "coordinate": { "row": 1, "column": 1, "a1": "A1" },
+                "rowIndex": 1,
+                "columnIndex": 1,
+                "valueType": "STRING",
+                "rawValue": 1234,
+                "displayValue": "001234",
+                "formula": null,
+                "cachedValue": null,
+                "errorCode": null
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "workbookMetadata": {}
+  },
+  "issues": [],
+  "statistics": {
+    "sheetsRead": 1,
+    "rowsRead": 1,
+    "cellsRead": 1,
+    "formulaCells": 0,
+    "errorCells": 0,
+    "skippedSheets": 0,
+    "skippedRows": 0,
+    "bytesRead": 32,
+    "durationSeconds": 0
+  },
+  "warnings": [],
+  "errors": []
+}

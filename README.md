@@ -245,15 +245,15 @@ WORK-004 добавляет промежуточный framework-neutral сло�
   merged ranges;
 - `src/snax_import/ports/workbook_reader.py` задаёт `WorkbookReader`, `ReaderOptions`,
   `ReaderResult`, `ReaderIssue` и стабильные коды лимитов/ошибок;
-- `SyntheticWorkbookReader` читает UTF-8 NDJSON построчно для synthetic fixtures и
-  останавливает обработку при превышении размера, sheets/rows/columns/cells, времени
-  или memory budget;
+- test-only `SyntheticWorkbookReader` в `tests/` читает UTF-8 NDJSON fixtures,
+  проверяет Reader Protocol и останавливается при превышении технических лимитов;
 - `contracts/raw-workbook.schema.json` и valid/invalid fixtures проверяются общей
   contract-командой.
 
-Формулы хранятся только как текст и cached result. Reader не запускает Excel, макросы,
-external links, LibreOffice, COM или формулы. Полноценный XLSX/XLS/CSV parsing,
-zip-bomb enforcement и isolated legacy worker остаются в WORK-005+.
+Production reader adapters в WORK-004 отсутствуют. Формулы хранятся только как текст и
+cached result, hidden sheets сохраняются с visibility. Reader Protocol не допускает
+опций, отбрасывающих эти raw-данные. Полноценный XLSX/XLS/CSV parsing, zip-bomb
+enforcement и isolated legacy worker остаются в WORK-005+.
 
 Проверки WORK-004 из корня репозитория:
 

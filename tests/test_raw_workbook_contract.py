@@ -28,3 +28,25 @@ def test_error_token_used_as_machine_code_fails_raw_workbook_schema() -> None:
     assert any(
         child.json_path.endswith(".errorCode") for error in errors for child in error.context
     )
+
+
+def test_string_converted_to_number_fails_raw_workbook_schema() -> None:
+    validator = Draft202012Validator(_load("raw-workbook.schema.json"))
+
+    errors = list(
+        validator.iter_errors(_load("invalid/raw-workbook-string-converted-to-number.json"))
+    )
+
+    assert errors
+    assert any(child.json_path.endswith(".rawValue") for error in errors for child in error.context)
+
+
+def test_formula_without_metadata_fails_raw_workbook_schema() -> None:
+    validator = Draft202012Validator(_load("raw-workbook.schema.json"))
+
+    errors = list(
+        validator.iter_errors(_load("invalid/raw-workbook-formula-metadata-missing.json"))
+    )
+
+    assert errors
+    assert any(child.json_path.endswith(".formula") for error in errors for child in error.context)

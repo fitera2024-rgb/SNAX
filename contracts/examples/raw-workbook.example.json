@@ -51,8 +51,8 @@
                 "rowIndex": 2,
                 "columnIndex": 1,
                 "valueType": "STRING",
-                "rawValue": "00123",
-                "displayValue": "00123",
+                "rawValue": "001234",
+                "displayValue": "001234",
                 "formula": null,
                 "cachedValue": null,
                 "errorCode": null
@@ -62,10 +62,10 @@
                 "rowIndex": 2,
                 "columnIndex": 2,
                 "valueType": "FORMULA",
-                "rawValue": null,
+                "rawValue": "=A1+B1",
                 "displayValue": "10",
                 "formula": {
-                  "formulaText": "=SUM(C2:C3)",
+                  "formulaText": "=A1+B1",
                   "cachedResult": 10
                 },
                 "cachedValue": 10,

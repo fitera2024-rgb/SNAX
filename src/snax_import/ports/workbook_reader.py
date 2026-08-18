@@ -55,8 +55,6 @@ class ReaderOptions:
     max_cells: int = 10_000_000
     timeout_seconds: float = 60.0
     memory_limit: int = 512 * 1024 * 1024
-    allow_hidden_sheets: bool = False
-    preserve_formulas: bool = True
 
     def __post_init__(self) -> None:
         for field_name in (
@@ -182,6 +180,11 @@ class ReaderResult:
         object.__setattr__(self, "issues", issues)
         object.__setattr__(self, "warnings", warnings)
         object.__setattr__(self, "errors", errors)
+        if self.workbook is None and not errors:
+            raise InvalidValue(
+                "readerResult.workbook",
+                "Отсутствующая workbook должна сопровождаться ReaderIssue уровня ERROR",
+            )
 
     @property
     def success(self) -> bool:
@@ -205,8 +208,8 @@ class WorkbookReader(Protocol):
     def supports(self, media_type: str | None = None, extension: str | None = None) -> bool:
         """Return whether this reader accepts the supplied media type/extension."""
 
-    def read(self, source: BinaryIO, options: ReaderOptions) -> RawWorkbookResult:
-        """Read untrusted bytes into the raw model without business interpretation."""
+    def read(self, source: BinaryIO, options: ReaderOptions) -> ReaderResult:
+        """Read untrusted bytes without dropping sheets, formulas, or source values."""
 
 
 __all__ = [
