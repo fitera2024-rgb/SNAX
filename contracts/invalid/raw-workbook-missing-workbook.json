@@ -1,0 +1,16 @@
+{
+  "issues": [],
+  "statistics": {
+    "sheetsRead": 0,
+    "rowsRead": 0,
+    "cellsRead": 0,
+    "formulaCells": 0,
+    "errorCells": 0,
+    "skippedSheets": 0,
+    "skippedRows": 0,
+    "bytesRead": 0,
+    "durationSeconds": 0
+  },
+  "warnings": [],
+  "errors": []
+}

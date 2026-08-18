@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snax.example/contracts/raw-workbook.schema.json",
+  "title": "SNAX Raw Workbook Result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["workbook", "issues", "statistics", "warnings", "errors"],
+  "properties": {
+    "workbook": { "anyOf": [{ "$ref": "#/$defs/workbook" }, { "type": "null" }] },
+    "issues": { "type": "array", "items": { "$ref": "#/$defs/issue" } },
+    "statistics": { "$ref": "#/$defs/statistics" },
+    "warnings": { "type": "array", "items": { "$ref": "#/$defs/issue" } },
+    "errors": { "type": "array", "items": { "$ref": "#/$defs/issue" } }
+  },
+  "$defs": {
+    "rawValue": { "type": ["string", "number", "boolean", "null"] },
+    "coordinate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["row", "column", "a1"],
+      "properties": {
+        "row": { "type": "integer", "minimum": 1 },
+        "column": { "type": "integer", "minimum": 1 },
+        "a1": { "type": "string", "pattern": "^[A-Z]+[1-9][0-9]*$" }
+      }
+    },
+    "filename": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "mediaType", "sizeBytes"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "mediaType": { "type": ["string", "null"], "maxLength": 200 },
+        "sizeBytes": { "type": ["integer", "null"], "minimum": 0 }
+      }
+    },
+    "formula": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["formulaText", "cachedResult"],
+      "properties": {
+        "formulaText": { "type": "string", "minLength": 1 },
+        "cachedResult": { "$ref": "#/$defs/rawValue" }
+      }
+    },
+    "mergedRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["startCell", "endCell"],
+      "properties": {
+        "startCell": { "$ref": "#/$defs/coordinate" },
+        "endCell": { "$ref": "#/$defs/coordinate" }
+      }
+    },
+    "cell": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["coordinate", "rowIndex", "columnIndex", "valueType", "rawValue", "displayValue", "formula", "cachedValue", "errorCode"],
+      "properties": {
+        "coordinate": { "$ref": "#/$defs/coordinate" },
+        "rowIndex": { "type": "integer", "minimum": 1 },
+        "columnIndex": { "type": "integer", "minimum": 1 },
+        "valueType": { "type": "string", "enum": ["STRING", "INTEGER", "DECIMAL", "DATE", "DATETIME", "BOOLEAN", "FORMULA", "ERROR", "EMPTY", "UNKNOWN"] },
+        "rawValue": { "$ref": "#/$defs/rawValue" },
+        "displayValue": { "type": ["string", "null"] },
+        "formula": { "anyOf": [{ "$ref": "#/$defs/formula" }, { "type": "null" }] },
+        "cachedValue": { "$ref": "#/$defs/rawValue" },
+        "errorCode": { "type": ["string", "null"], "pattern": "^[A-Z0-9_]+$" }
+      }
+    },
+    "row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["index", "cells", "hidden", "height"],
+      "properties": {
+        "index": { "type": "integer", "minimum": 1 },
+        "cells": { "type": "array", "items": { "$ref": "#/$defs/cell" } },
+        "hidden": { "type": "boolean" },
+        "height": { "type": ["string", "null"], "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]+)?$" }
+      }
+    },
+    "sheet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "index", "visibility", "maxRow", "maxColumn", "mergedRanges", "rows"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1, "maxLength": 255 },
+        "index": { "type": "integer", "minimum": 0 },
+        "visibility": { "type": "string", "enum": ["VISIBLE", "HIDDEN", "VERY_HIDDEN"] },
+        "maxRow": { "type": "integer", "minimum": 0 },
+        "maxColumn": { "type": "integer", "minimum": 0 },
+        "mergedRanges": { "type": "array", "items": { "$ref": "#/$defs/mergedRange" } },
+        "rows": { "type": "array", "items": { "$ref": "#/$defs/row" } }
+      }
+    },
+    "workbook": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "sourceFileId", "filename", "format", "createdAt", "sheets", "workbookMetadata"],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "sourceFileId": { "type": "string", "format": "uuid" },
+        "filename": { "$ref": "#/$defs/filename" },
+        "format": { "type": "string", "enum": ["XLSX", "XLS", "CSV", "SYNTHETIC", "UNKNOWN"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "sheets": { "type": "array", "items": { "$ref": "#/$defs/sheet" } },
+        "workbookMetadata": { "type": "object", "additionalProperties": { "type": "string" } }
+      }
+    },
+    "issue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issueId", "code", "severity", "message", "sheetName", "rowIndex", "cellCoordinate", "retryable", "details"],
+      "properties": {
+        "issueId": { "type": "string", "minLength": 1 },
+        "code": {
+          "type": "string",
+          "enum": [
+            "FILE_TOO_LARGE",
+            "WORKBOOK_TOO_MANY_SHEETS",
+            "WORKBOOK_TOO_MANY_ROWS",
+            "WORKBOOK_TOO_MANY_COLUMNS",
+            "CELL_LIMIT_EXCEEDED",
+            "TIMEOUT_EXCEEDED",
+            "MEMORY_LIMIT_EXCEEDED",
+            "UNSUPPORTED_FORMAT",
+            "FORMULA_PRESENT",
+            "FORMULA_ERROR",
+            "CELL_ERROR",
+            "MERGED_RANGE_INVALID",
+            "SHEET_READ_FAILED",
+            "ROW_READ_FAILED",
+            "HIDDEN_SHEET_SKIPPED",
+            "MALFORMED_STRUCTURE"
+          ]
+        },
+        "severity": { "type": "string", "enum": ["INFO", "WARNING", "ERROR", "CRITICAL"] },
+        "message": { "type": "string", "minLength": 1 },
+        "sheetName": { "type": ["string", "null"] },
+        "rowIndex": { "type": ["integer", "null"], "minimum": 1 },
+        "cellCoordinate": { "anyOf": [{ "$ref": "#/$defs/coordinate" }, { "type": "null" }] },
+        "retryable": { "type": "boolean" },
+        "details": { "type": "object", "additionalProperties": { "type": "string" } }
+      }
+    },
+    "statistics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sheetsRead", "rowsRead", "cellsRead", "formulaCells", "errorCells", "skippedSheets", "skippedRows", "bytesRead", "durationSeconds"],
+      "properties": {
+        "sheetsRead": { "type": "integer", "minimum": 0 },
+        "rowsRead": { "type": "integer", "minimum": 0 },
+        "cellsRead": { "type": "integer", "minimum": 0 },
+        "formulaCells": { "type": "integer", "minimum": 0 },
+        "errorCells": { "type": "integer", "minimum": 0 },
+        "skippedSheets": { "type": "integer", "minimum": 0 },
+        "skippedRows": { "type": "integer", "minimum": 0 },
+        "bytesRead": { "type": "integer", "minimum": 0 },
+        "durationSeconds": { "type": "number", "minimum": 0 }
+      }
+    }
+  }
+}

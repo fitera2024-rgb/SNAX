@@ -1,0 +1,98 @@
+{
+  "workbook": {
+    "id": "11111111-1111-4111-8111-111111111111",
+    "sourceFileId": "22222222-2222-4222-8222-222222222222",
+    "filename": {
+      "name": "synthetic-price.jsonl",
+      "mediaType": "application/vnd.snax.synthetic+json",
+      "sizeBytes": 1024
+    },
+    "format": "SYNTHETIC",
+    "createdAt": "2026-08-18T00:00:00Z",
+    "sheets": [
+      {
+        "name": "Price",
+        "index": 0,
+        "visibility": "VISIBLE",
+        "maxRow": 3,
+        "maxColumn": 3,
+        "mergedRanges": [
+          {
+            "startCell": { "row": 1, "column": 1, "a1": "A1" },
+            "endCell": { "row": 1, "column": 3, "a1": "C1" }
+          }
+        ],
+        "rows": [
+          {
+            "index": 1,
+            "hidden": false,
+            "height": "18.5",
+            "cells": [
+              {
+                "coordinate": { "row": 1, "column": 1, "a1": "A1" },
+                "rowIndex": 1,
+                "columnIndex": 1,
+                "valueType": "STRING",
+                "rawValue": "Supplier SKU",
+                "displayValue": "Supplier SKU",
+                "formula": null,
+                "cachedValue": null,
+                "errorCode": null
+              }
+            ]
+          },
+          {
+            "index": 2,
+            "hidden": false,
+            "height": null,
+            "cells": [
+              {
+                "coordinate": { "row": 2, "column": 1, "a1": "A2" },
+                "rowIndex": 2,
+                "columnIndex": 1,
+                "valueType": "STRING",
+                "rawValue": "00123",
+                "displayValue": "00123",
+                "formula": null,
+                "cachedValue": null,
+                "errorCode": null
+              },
+              {
+                "coordinate": { "row": 2, "column": 2, "a1": "B2" },
+                "rowIndex": 2,
+                "columnIndex": 2,
+                "valueType": "FORMULA",
+                "rawValue": null,
+                "displayValue": "10",
+                "formula": {
+                  "formulaText": "=SUM(C2:C3)",
+                  "cachedResult": 10
+                },
+                "cachedValue": 10,
+                "errorCode": null
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "workbookMetadata": {
+      "producer": "synthetic-fixture",
+      "formulasExecuted": "false"
+    }
+  },
+  "issues": [],
+  "statistics": {
+    "sheetsRead": 1,
+    "rowsRead": 2,
+    "cellsRead": 3,
+    "formulaCells": 1,
+    "errorCells": 0,
+    "skippedSheets": 0,
+    "skippedRows": 0,
+    "bytesRead": 1024,
+    "durationSeconds": 0.001
+  },
+  "warnings": [],
+  "errors": []
+}

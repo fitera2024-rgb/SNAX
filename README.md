@@ -235,6 +235,36 @@ retry endpoint и production operator authorization в WORK-003 нет.
 Следующий шаг — raw workbook/readers. Реальный parsing, формулы, нормализация, matching,
 расчёт заказа, 1С, OCR/PDF и receipt flow в WORK-003 не входят.
 
+## WORK-004: Raw Workbook Model и Reader Protocol
+
+WORK-004 добавляет промежуточный framework-neutral слой между immutable source file и
+будущими readers профилей:
+
+- `src/snax_import/domain/raw_workbook.py` описывает workbook/sheet/row/cell,
+  1-based coordinates, A1 representation, value types, formulas, cached values и
+  merged ranges;
+- `src/snax_import/ports/workbook_reader.py` задаёт `WorkbookReader`, `ReaderOptions`,
+  `ReaderResult`, `ReaderIssue` и стабильные коды лимитов/ошибок;
+- `SyntheticWorkbookReader` читает UTF-8 NDJSON построчно для synthetic fixtures и
+  останавливает обработку при превышении размера, sheets/rows/columns/cells, времени
+  или memory budget;
+- `contracts/raw-workbook.schema.json` и valid/invalid fixtures проверяются общей
+  contract-командой.
+
+Формулы хранятся только как текст и cached result. Reader не запускает Excel, макросы,
+external links, LibreOffice, COM или формулы. Полноценный XLSX/XLS/CSV parsing,
+zip-bomb enforcement и isolated legacy worker остаются в WORK-005+.
+
+Проверки WORK-004 из корня репозитория:
+
+```bash
+ruff check .
+ruff format --check .
+mypy src
+pytest -q -m "not integration"
+python scripts/validate_contracts.py
+```
+
 ## Данные
 
 Реальные прайс-листы поставщиков не должны храниться в публичном/общем Git. Для тестов используются обезличенные golden fixtures или синтетические файлы, сохраняющие структуру и аномалии.

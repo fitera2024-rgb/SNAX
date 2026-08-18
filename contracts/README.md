@@ -4,7 +4,13 @@
 - `schemas/import-package.schema.json` — канонический пакет прайс-листа для 1С.
 - `schemas/mapping-sync.schema.json` — дельта подтверждённых связей из 1С.
 - `schemas/receipt-package.schema.json` — канонический пакет документа поставки для staging приемки.
+- `raw-workbook.schema.json` — framework-neutral raw workbook result для reader protocol.
 - `examples/` — валидные примеры для contract tests.
+- `invalid/` — примеры, которые обязаны быть отклонены схемой.
+
+Raw workbook использует 1-based индексы строк/колонок и хранит A1-представление
+координаты рядом с числовыми индексами. `FORMULA` — только metadata (`formulaText`
+и cached result); схема и reader не исполняют формулы.
 
 Правила изменения:
 
