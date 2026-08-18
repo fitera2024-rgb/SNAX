@@ -21,9 +21,21 @@ class Runtime:
 
 def build_runtime(config: Settings) -> Runtime:
     has_database = bool(config.database_url)
-    has_storage = bool(
-        config.s3_endpoint and config.s3_access_key and config.s3_secret_key and config.s3_bucket
+    storage_values = (
+        config.s3_endpoint,
+        config.s3_access_key,
+        config.s3_secret_key,
+        config.s3_bucket,
     )
+    has_storage = all(storage_values)
+    has_partial_storage = any(storage_values) and not has_storage
+
+    if has_partial_storage or has_database != has_storage:
+        raise RuntimeError(
+            "DATABASE_URL and complete S3 configuration must be configured together"
+        )
+
+    temp_directory = config.temp_directory or None
     if has_database and has_storage:
         engine = create_database_engine(config.database_url or "")
         factory = create_session_factory(engine)
@@ -45,7 +57,7 @@ def build_runtime(config: Settings) -> Runtime:
                 uow_factory=sql_uow_factory,
                 storage=storage,
                 max_upload_bytes=config.max_upload_bytes,
-                temp_directory=config.temp_directory,
+                temp_directory=temp_directory,
             ),
             storage=storage,
             database_engine=engine,
@@ -64,7 +76,7 @@ def build_runtime(config: Settings) -> Runtime:
             uow_factory=memory_uow_factory,
             storage=storage,
             max_upload_bytes=config.max_upload_bytes,
-            temp_directory=config.temp_directory,
+            temp_directory=temp_directory,
         ),
         storage=storage,
     )
