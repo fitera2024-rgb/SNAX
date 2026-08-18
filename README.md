@@ -132,6 +132,34 @@ python scripts/smoke_test.py
 docker compose down -v
 ```
 
+## WORK-002: ядро импорта
+
+WORK-002 добавляет реальную регистрацию исходного файла: потоковый SHA-256, immutable raw object в S3/MinIO, PostgreSQL lifecycle и `POST/GET /imports`. Разбор XLS/XLSX/CSV и очередь намеренно не входят в эту работу.
+
+Локальный стек с миграциями и bucket preparation:
+
+```bash
+python -m pip install -e ".[dev]"
+docker compose up -d --build
+docker compose exec api alembic upgrade head
+docker compose exec api python scripts/prepare_storage.py
+python scripts/smoke_test.py
+python -m pytest -q -m integration
+docker compose down -v
+```
+
+Миграция проверяется отдельно в PostgreSQL:
+
+```bash
+alembic upgrade head
+alembic downgrade base
+alembic upgrade head
+```
+
+Поток регистрации требует `X-Idempotency-Key` (16–200 символов) и принимает multipart-поле `file`; поддерживается также прежнее имя `Idempotency-Key`. Новый файл возвращает `202` со статусом `STORED`, повтор того же ключа и digest — `200`, другой digest с тем же ключом — `409 IDEMPOTENCY_CONFLICT`, точный duplicate с другим ключом — `409 DUPLICATE_FILE`, превышение `MAX_UPLOAD_BYTES` — `413 FILE_TOO_LARGE`.
+
+Объект хранится по детерминированному ключу `raw/sha256/{digest[0:2]}/{digest[2:4]}/{digest}`. Имя файла — только metadata. PostgreSQL и S3 не считаются одной distributed transaction: после DB rollback удаляется только объект, созданный текущей попыткой; уже существующий object не удаляется и не перезаписывается.
+
 ## Структура первой волны
 
 - сервисный каркас и контракты;

@@ -4,10 +4,16 @@ services:
       context: .
       dockerfile: Dockerfile.api
     environment:
-      DATABASE_URL: postgresql://snax:snax@postgres:5432/snax
+      DATABASE_URL: postgresql+psycopg://snax:snax@postgres:5432/snax
       REDIS_URL: redis://redis:6379/0
       S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: snax-local
+      S3_SECRET_KEY: snax-local-password
       S3_BUCKET: snax-imports
+      S3_REGION: us-east-1
+      S3_FORCE_PATH_STYLE: "true"
+      MAX_UPLOAD_BYTES: 104857600
+      TEMP_DIRECTORY: /tmp/snax
     ports:
       - "8000:8000"
     depends_on:

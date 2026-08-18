@@ -567,7 +567,7 @@ components:
         type: string
         maxLength: 100
     IdempotencyKey:
-      name: Idempotency-Key
+      name: X-Idempotency-Key
       in: header
       required: true
       schema:
@@ -666,7 +666,12 @@ components:
           type: string
           enum:
           - RECEIVED
+          - STORED
+          - QUEUED
           - PROCESSING
+          - READY_FOR_REVIEW
+          - FAILED
+          - CANCELLED
           - DUPLICATE
         statusUrl:
           type: string
@@ -687,8 +692,13 @@ components:
           type: string
           enum:
           - RECEIVED
+          - STORED
+          - QUEUED
           - DUPLICATE
           - PROCESSING
+          - READY_FOR_REVIEW
+          - FAILED
+          - CANCELLED
           - PROFILE_REVIEW
           - VALIDATED
           - BLOCKED

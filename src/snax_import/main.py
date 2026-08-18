@@ -14,6 +14,7 @@ from snax_import.api.models import Problem
 from snax_import.api.routes import router as api_router
 from snax_import.config import settings
 from snax_import.logging_config import setup_logging
+from snax_import.runtime import build_runtime
 
 setup_logging(settings.log_level)
 
@@ -23,6 +24,7 @@ app = FastAPI(
     docs_url="/docs",
     openapi_url="/openapi.json",
 )
+app.state.runtime = build_runtime(settings)
 
 
 @app.middleware("http")

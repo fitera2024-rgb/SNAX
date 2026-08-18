@@ -18,6 +18,7 @@ jobs:
       - run: mypy src
       - run: pytest
       - run: python scripts/validate_contracts.py
+      - run: python scripts/validate_manifest.py
   frontend:
     runs-on: ubuntu-latest
     defaults:
@@ -43,8 +44,35 @@ jobs:
       - run: pip install requests
       - run: docker compose config
       - run: docker compose up -d --build
+      - run: docker compose exec -T api alembic upgrade head
+      - run: docker compose exec -T api python scripts/prepare_storage.py
       - run: python scripts/smoke_test.py
       - if: always()
         run: docker compose logs --no-color
+      - if: always()
+        run: docker compose down -v
+  database-storage-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker compose up -d --build postgres redis minio
+      - run: docker compose run --rm --no-deps api alembic upgrade head
+      - run: docker compose run --rm --no-deps api alembic downgrade base
+      - run: docker compose run --rm --no-deps api alembic upgrade head
+      - run: docker compose run --rm --no-deps api python scripts/prepare_storage.py
+      - run: >-
+          docker compose run --rm --no-deps
+          -e TEST_DATABASE_URL=postgresql+psycopg://snax:snax@postgres:5432/snax
+          -e TEST_S3_ENDPOINT=http://minio:9000
+          -e TEST_S3_ACCESS_KEY=snax-local
+          -e TEST_S3_SECRET_KEY=snax-local-password
+          -e TEST_S3_BUCKET=snax-imports
+          -v "${GITHUB_WORKSPACE}:/workspace"
+          -w /workspace
+          api sh -c
+          'python -m pip install --no-cache-dir pytest pytest-asyncio httpx &&
+          python -m pytest -q -m integration'
+      - if: always()
+        run: docker compose logs --no-color postgres minio api
       - if: always()
         run: docker compose down -v
