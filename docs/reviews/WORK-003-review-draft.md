@@ -16,8 +16,10 @@
 ## 2. Final branch/head
 
 Branch: `work/003-queue-outbox-worker`. Ранний опубликованный vertical-slice commit:
-`38b127f0e5006b17f5c16f792990cb6e179caa08`. Final head и итоговый CI run будут внесены
-после завершения GitHub Actions; до этого документ остаётся draft.
+`38b127f0e5006b17f5c16f792990cb6e179caa08`. Основной implementation head:
+`b90e8b0073dcfcc18da801cf3eb292468271a5a5`. CI-stabilization changes опубликованы через
+GitHub API как `4d58b7b54824ada2b0da23ca51bea9d06e8c0665` и
+`8df693c23884802af9a97f9fbc9d767d93002e8b`.
 
 ## 3. Process topology
 
@@ -216,7 +218,7 @@ stale retry и последующий worker success на live stack. Live вы�
 | Команда | Результат на текущем checkout |
 |---|---|
 | `ruff check .` | passed |
-| `ruff format --check .` | passed до последнего doc-only update; повторяется перед commit |
+| `ruff format --check .` | passed локально и в CI |
 | `mypy src` | passed, 60 source files |
 | `pytest -q -m "not integration"` | 40 passed |
 | `pytest -q` | 40 passed, 9 service tests skipped локально; это не CI evidence |
@@ -230,12 +232,14 @@ stale retry и последующий worker success на live stack. Live вы�
 | `npm run typecheck` | passed |
 | `npm test -- --run` | 1 file, 9 tests passed |
 | `npm run build` | passed, Vite production bundle built |
-| `docker compose ...` / migrations / live services | Docker CLI отсутствует локально; обязательные non-skipped gates запущены в CI |
+| `docker compose ...` / migrations / live services | Docker CLI отсутствует локально; CI run 79 прошёл все live gates |
 
 ## 26. CI run ID
 
-Pending final pushed head. Required jobs: `backend`, `frontend`, `migration`,
-`outbox-postgres`, `queue-worker`, `docker`. Review не считается завершённым до зелёного head.
+`32116712353` (run 79): `backend`, `frontend`, `migration`, `outbox-postgres`,
+`queue-worker` и `docker` — success. Run URL:
+https://github.com/fitera2024-rgb/SNAX/actions/runs/32116712353.
+Этот head зелёный; review остаётся Draft до независимого GPT-5.6 Pro review.
 
 ## 27. Изменённые файлы
 
@@ -246,7 +250,7 @@ unit/PostgreSQL/live tests; README и этот review draft. Точный спи
 
 ## 28. Остаточные риски
 
-- live Docker/service evidence пока зависит от итогового GitHub Actions run;
+- live Docker/service evidence подтверждён CI run 79 на head `8df693c`;
 - broker delivery физически остаётся at-least-once;
 - будущий processor с external side effects обязан реализовать effect-specific idempotency;
 - production operator authorization отсутствует и manual retry остаётся CLI-only.
