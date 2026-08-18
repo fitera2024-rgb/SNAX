@@ -16,7 +16,15 @@ class Settings(BaseSettings):
     database_url: str | None = None
     redis_url: str | None = None
     s3_endpoint: str | None = None
+    s3_access_key: str | None = None
+    s3_secret_key: str | None = None
     s3_bucket: str | None = None
+    s3_region: str = "us-east-1"
+    s3_force_path_style: bool = True
+    max_upload_bytes: int = 100 * 1024 * 1024
+    temp_directory: str | None = None
+    verify_object_digest: bool = True
+    allow_in_memory_fallback: bool = True
 
     model_config = SettingsConfigDict(
         env_file=".env",

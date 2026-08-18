@@ -6,6 +6,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
+from snax_import.domain.state_machine import ImportStatus
+
 
 class Problem(BaseModel):
     code: str = Field(pattern=r"^[A-Z0-9_]+$")
@@ -50,6 +52,20 @@ class ImportStatusDetail(BaseModel):
     status: str
     createdAt: datetime
     steps: list[str]
+
+
+class ImportAccepted(BaseModel):
+    importId: UUID
+    status: ImportStatus
+    statusUrl: str
+
+
+class ImportStatusResponse(BaseModel):
+    importId: UUID
+    status: ImportStatus
+    createdAt: datetime
+    profileCode: str | None = None
+    summary: dict[str, object]
 
 
 class ImportRow(BaseModel):
