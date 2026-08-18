@@ -155,4 +155,3 @@ jobs:
         run: docker compose logs --no-color
       - if: always()
         run: docker compose down -v
-
