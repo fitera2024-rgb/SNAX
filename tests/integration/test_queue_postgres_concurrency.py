@@ -243,4 +243,3 @@ def test_heartbeat_vs_sweeper_never_creates_two_active_runs() -> None:
     assert active <= 1
     assert sum(run.status == ProcessingRunStatus.QUEUED.value for run in all_runs) <= 1
     assert len(all_runs) <= 2
-
