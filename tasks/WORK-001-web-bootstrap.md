@@ -13,7 +13,7 @@
 | Основная модель Codex | `GPT-5.3-Codex`, reasoning `high` |
 | Вспомогательная модель | `GPT-5.3-Codex-Spark` только для точечных UI-правок |
 | Архитектурное ревью | GPT-5.6 Pro |
-| Статус | `READY_FOR_CODEX_CLOUD` |
+| Статус | `DONE` |
 | Связь с программным backlog | WORK-001 включает bootstrap из `TASK-000` и добавляет web shell |
 
 ## Режим выполнения в Codex Cloud
