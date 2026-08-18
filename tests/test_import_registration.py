@@ -137,3 +137,4 @@ def test_optimistic_transition_rejects_stale_version() -> None:
         uow.commit()
     with pytest.raises(PersistenceConflict), InMemoryUnitOfWork(database) as uow:
         uow.imports.save_transition(stale.aggregate, stale.event, aggregate.version)
+        uow.commit()

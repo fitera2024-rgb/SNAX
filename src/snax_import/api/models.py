@@ -21,6 +21,7 @@ class Problem(BaseModel):
 class HealthResponse(BaseModel):
     status: Literal["ok", "degraded", "failed"]
     dependencies: dict[str, str]
+    correlationId: str | None = None
 
 
 class VersionResponse(BaseModel):

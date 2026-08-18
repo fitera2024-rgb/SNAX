@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import ClassVar
 from uuid import UUID
 
 
@@ -75,3 +76,64 @@ class DigestMismatch(ObjectStorageError):
         )
         object.__setattr__(self, "expected", expected)
         object.__setattr__(self, "actual", actual)
+
+
+class QueueDomainError(DomainError):
+    """Base class for stable machine-readable queue failures."""
+
+    code: ClassVar[str] = "QUEUE_ERROR"
+
+    def __init__(self, message: str | None = None) -> None:
+        super().__init__(message or self.code)
+
+
+class JobAlreadyClaimed(QueueDomainError):
+    code = "JOB_ALREADY_CLAIMED"
+
+
+class JobNotClaimable(QueueDomainError):
+    code = "JOB_NOT_CLAIMABLE"
+
+
+class JobLeaseLost(QueueDomainError):
+    code = "JOB_LEASE_LOST"
+
+
+class JobHeartbeatExpired(QueueDomainError):
+    code = "JOB_HEARTBEAT_EXPIRED"
+
+
+class JobAlreadyCompleted(QueueDomainError):
+    code = "JOB_ALREADY_COMPLETED"
+
+
+class JobSchemaUnsupported(QueueDomainError):
+    code = "JOB_SCHEMA_UNSUPPORTED"
+
+
+class JobNotFound(QueueDomainError):
+    code = "JOB_NOT_FOUND"
+
+
+class RetryBudgetExhausted(QueueDomainError):
+    code = "RETRY_BUDGET_EXHAUSTED"
+
+
+class OutboxMessageNotClaimable(QueueDomainError):
+    code = "OUTBOX_MESSAGE_NOT_CLAIMABLE"
+
+
+class OutboxLeaseLost(QueueDomainError):
+    code = "OUTBOX_LEASE_LOST"
+
+
+class ProcessorNotConfigured(QueueDomainError):
+    code = "PROCESSOR_NOT_CONFIGURED"
+
+
+class RetryableProcessingError(QueueDomainError):
+    code = "PROCESSING_RETRYABLE"
+
+
+class NonRetryableProcessingError(QueueDomainError):
+    code = "PROCESSING_NONRETRYABLE"

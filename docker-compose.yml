@@ -1,19 +1,51 @@
+x-backend-environment: &backend-environment
+  APP_ENV: local
+  DATABASE_URL: postgresql+psycopg://snax:snax@postgres:5432/snax
+  REDIS_URL: redis://redis:6379/0
+  QUEUE_BROKER_URL: redis://redis:6379/0
+  QUEUE_NAME: snax.import.processing.v1
+  QUEUE_VISIBILITY_TIMEOUT_SECONDS: 3600
+  S3_ENDPOINT: http://minio:9000
+  S3_ACCESS_KEY: snax-local
+  S3_SECRET_KEY: snax-local-password
+  S3_BUCKET: snax-imports
+  S3_REGION: us-east-1
+  S3_FORCE_PATH_STYLE: "true"
+  MAX_UPLOAD_BYTES: 104857600
+  TEMP_DIRECTORY: /tmp/snax
+  PROCESSING_AUTOSTART: "true"
+  PROCESSOR_MODE: source-integrity-test
+  WORKER_ID: snax-worker-compose
+  WORKER_CONCURRENCY: 1
+  WORKER_PREFETCH_MULTIPLIER: 1
+  WORKER_SOFT_TIME_LIMIT_SECONDS: 840
+  WORKER_HARD_TIME_LIMIT_SECONDS: 900
+  JOB_LEASE_SECONDS: 45
+  JOB_HEARTBEAT_SECONDS: 10
+  OUTBOX_BATCH_SIZE: 50
+  OUTBOX_POLL_INTERVAL_SECONDS: 1
+  OUTBOX_LOCK_SECONDS: 30
+  OUTBOX_MAX_PUBLISH_ATTEMPTS: 10
+  OUTBOX_RETRY_BASE_SECONDS: 1
+  OUTBOX_RETRY_MAX_SECONDS: 60
+  PROCESSING_MAX_ATTEMPTS: 3
+  PROCESSING_RETRY_BASE_SECONDS: 5
+  PROCESSING_RETRY_MAX_SECONDS: 300
+  PROCESSING_RETRY_MULTIPLIER: 2
+  PROCESSING_RETRY_JITTER_RATIO: 0.2
+  RECOVERY_POLL_INTERVAL_SECONDS: 5
+  QUEUE_REDELIVERY_AFTER_SECONDS: 120
+
+x-backend-service: &backend-service
+  build:
+    context: .
+    dockerfile: Dockerfile.api
+  environment: *backend-environment
+  restart: unless-stopped
+
 services:
   api:
-    build:
-      context: .
-      dockerfile: Dockerfile.api
-    environment:
-      DATABASE_URL: postgresql+psycopg://snax:snax@postgres:5432/snax
-      REDIS_URL: redis://redis:6379/0
-      S3_ENDPOINT: http://minio:9000
-      S3_ACCESS_KEY: snax-local
-      S3_SECRET_KEY: snax-local-password
-      S3_BUCKET: snax-imports
-      S3_REGION: us-east-1
-      S3_FORCE_PATH_STYLE: "true"
-      MAX_UPLOAD_BYTES: 104857600
-      TEMP_DIRECTORY: /tmp/snax
+    <<: *backend-service
     ports:
       - "8000:8000"
     depends_on:
@@ -22,18 +54,75 @@ services:
       redis:
         condition: service_healthy
       minio:
-        condition: service_started
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/ready', timeout=3)"]
       interval: 5s
-      timeout: 3s
+      timeout: 4s
+      retries: 20
+
+  worker:
+    <<: *backend-service
+    command:
+      - celery
+      - -A
+      - snax_import.adapters.queue.celery_app:celery_app
+      - worker
+      - --loglevel=INFO
+      - --queues=snax.import.processing.v1
+      - --concurrency=1
+      - --hostname=snax-worker@%h
+    stop_grace_period: 30s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "celery", "-A", "snax_import.adapters.queue.celery_app:celery_app", "inspect", "ping", "--timeout=3"]
+      interval: 10s
+      timeout: 5s
       retries: 12
+
+  outbox-dispatcher:
+    <<: *backend-service
+    command: ["python", "-m", "snax_import.processes.outbox_dispatcher"]
+    stop_grace_period: 15s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-m", "snax_import.cli.healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  recovery-sweeper:
+    <<: *backend-service
+    command: ["python", "-m", "snax_import.processes.recovery_sweeper"]
+    stop_grace_period: 15s
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-m", "snax_import.cli.healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
   web:
     build: ./apps/web
     ports:
       - "8080:80"
+
   postgres:
-    image: postgres:16-alpine
+    image: postgres:16.14-alpine3.23
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_DB: snax
       POSTGRES_USER: snax
@@ -45,13 +134,17 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
   redis:
-    image: redis:7-alpine
+    image: redis:7.4.10-alpine3.21
+    ports:
+      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 10
+
   minio:
     image: minio/minio:RELEASE.2025-09-07T16-13-09Z
     command: server /data --console-address :9001
@@ -63,6 +156,11 @@ services:
       MINIO_ROOT_PASSWORD: snax-local-password
     volumes:
       - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
 
 volumes:
   postgres_data:

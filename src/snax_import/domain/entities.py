@@ -6,6 +6,7 @@ from enum import StrEnum
 from uuid import UUID, uuid4
 
 from snax_import.domain.errors import InvalidValue
+from snax_import.domain.processing import ProcessingRun as ProcessingRun
 from snax_import.domain.state_machine import ImportStatus, validate_transition
 from snax_import.domain.value_objects import (
     CorrelationId,
@@ -211,34 +212,3 @@ class Import:
 
     def retry(self, *, reason: str, now: datetime | None = None) -> TransitionResult:
         return self.transition(ImportStatus.QUEUED, reason=reason, now=now)
-
-
-@dataclass(frozen=True, slots=True)
-class ProcessingRun:
-    id: UUID
-    import_id: UUID
-    run_number: int
-    status: str
-    started_at: datetime | None
-    completed_at: datetime | None
-    failure_code: str | None
-    failure_reason: str | None
-
-    def __post_init__(self) -> None:
-        if self.run_number < 1:
-            raise InvalidValue("runNumber", "Номер запуска должен быть положительным")
-        _validate_nonblank(self.status, "status")
-        if self.started_at is not None:
-            _validate_utc(self.started_at, "startedAt")
-        if self.completed_at is not None:
-            _validate_utc(self.completed_at, "completedAt")
-        if (
-            self.started_at is not None
-            and self.completed_at is not None
-            and self.completed_at < self.started_at
-        ):
-            raise InvalidValue("completedAt", "completedAt не может быть раньше startedAt")
-
-    @classmethod
-    def create(cls, import_id: UUID, run_number: int) -> ProcessingRun:
-        return cls(uuid4(), import_id, run_number, "QUEUED", None, None, None, None)

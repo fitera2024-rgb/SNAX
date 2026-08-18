@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import BinaryIO
 from uuid import UUID
 
+from snax_import.application.scheduling.schedule_import import enqueue_import
 from snax_import.domain.entities import Import, ImportStatusEvent, SourceFile
 from snax_import.domain.errors import (
     DuplicateFile,
@@ -60,11 +61,13 @@ class ImportRegistrationService:
         storage: ObjectStoragePort,
         max_upload_bytes: int,
         temp_directory: str | None = None,
+        processing_autostart: bool = False,
     ) -> None:
         self.uow_factory = uow_factory
         self.storage = storage
         self.max_upload_bytes = max_upload_bytes
         self.temp_directory = temp_directory
+        self.processing_autostart = processing_autostart
 
     def _read_to_temp(self, request: UploadRequest) -> tuple[Path, Sha256Digest, FileSize]:
         hasher = hashlib.sha256()
@@ -185,6 +188,15 @@ class ImportRegistrationService:
                     if winner_by_digest is not None:
                         raise DuplicateFile(winner_by_digest.id)
                     uow.imports.save_registration(source, aggregate, events)
+                    if self.processing_autostart:
+                        scheduled = enqueue_import(
+                            uow=uow,
+                            aggregate=aggregate,
+                            reason="PROCESSING_AUTOSTART",
+                            actor="import-registration",
+                            now=aggregate.updated_at,
+                        )
+                        aggregate = scheduled.aggregate
                     uow.commit()
             except (PersistenceConflict, IdempotencyConflict, DuplicateFile) as conflict:
                 with self.uow_factory() as check_uow:

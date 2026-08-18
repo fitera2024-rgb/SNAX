@@ -6,6 +6,7 @@ COPY alembic.ini ./alembic.ini
 COPY alembic ./alembic
 COPY scripts ./scripts
 RUN pip install --no-cache-dir .
-RUN mkdir -p /tmp/snax
+RUN useradd --create-home --uid 10001 snax && mkdir -p /tmp/snax && chown -R snax:snax /tmp/snax
+USER snax
 EXPOSE 8000
 CMD ["uvicorn", "snax_import.main:app", "--host", "0.0.0.0", "--port", "8000"]

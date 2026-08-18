@@ -52,6 +52,12 @@ class S3ObjectStorage(ObjectStoragePort):
             config=Config(s3={"addressing_style": "path" if force_path_style else "auto"}),
         )
 
+    def healthcheck(self) -> None:
+        try:
+            self.client.head_bucket(Bucket=self.bucket)
+        except (BotoCoreError, ClientError) as exc:
+            raise ObjectStorageError("OBJECT_STORAGE_UNAVAILABLE", "Bucket is unavailable") from exc
+
     def _head(self, object_key: ObjectKey) -> dict[str, Any]:
         try:
             return dict(self.client.head_object(Bucket=self.bucket, Key=object_key.value))
@@ -192,6 +198,9 @@ class InMemoryObjectStorage(ObjectStoragePort):
     def __init__(self) -> None:
         self._objects: dict[str, tuple[bytes, dict[str, str]]] = {}
         self._lock = RLock()
+
+    def healthcheck(self) -> None:
+        return None
 
     def put_stream(
         self,

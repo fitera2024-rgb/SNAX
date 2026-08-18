@@ -27,6 +27,8 @@
 - [Программный backlog](tasks/IMPLEMENTATION_BACKLOG.md)
 - [Процесс выполнения работ](docs/WORK_PROCESS.md)
 - [WORK-001: bootstrap web-сервиса](tasks/WORK-001-web-bootstrap.md)
+- [WORK-003: очередь, transactional outbox и worker](tasks/WORK-003-queue-outbox-worker.md)
+- [ADR-003: очередь и recovery](adr/ADR-003-queue-outbox-worker.md)
 - [Prompt Codex Cloud для WORK-001](CODEX_WORK_001_PROMPT.md)
 - [Начальный prompt для Codex](CODEX_INITIAL_PROMPT.md)
 - [OpenAPI](contracts/openapi.yaml)
@@ -172,6 +174,66 @@ alembic upgrade head
 - 3–5 golden profiles;
 - API для polling 1С;
 - staging и рабочее место сопоставления в расширении УТ.
+
+## WORK-003: очередь обработки
+
+WORK-003 добавляет технический фундамент фоновой обработки:
+
+```text
+API → PostgreSQL transaction → transactional outbox → dispatcher
+    → Redis broker → Celery worker → application service
+    → PostgreSQL lifecycle
+```
+
+PostgreSQL — единственный источник истины для `Import`, `ProcessingRun`, lease, heartbeat,
+retry, dead-letter и outbox. Redis служит только транспортом at-least-once и не хранит
+результаты Celery. MinIO хранит immutable raw object; сообщение очереди содержит только
+идентификаторы и безопасную служебную metadata, без файла, object key и credentials.
+
+Exactly-once effect для текущего технического шага достигается durable run, уникальными
+constraints, атомарным claim, lease token, optimistic version и terminal-state checks. Между
+broker publish и отметкой `PUBLISHED` возможна повторная доставка; она является ожидаемой и
+безопасной. Sweeper восстанавливает run с истёкшим lease, а reconciler создаёт новую outbox
+generation для старого unclaimed `QUEUED` run, если Redis потерял опубликованное сообщение.
+
+Локальный/test Compose включает `api`, `worker`, `outbox-dispatcher`, `recovery-sweeper`,
+`postgres`, `redis`, `minio` и `web`:
+
+```bash
+docker compose up -d --build postgres redis minio
+docker compose run --rm --no-deps api alembic upgrade head
+docker compose run --rm --no-deps api python scripts/prepare_storage.py
+docker compose up -d api worker outbox-dispatcher recovery-sweeper web
+python scripts/queue_smoke_test.py
+docker compose exec -T worker celery -A snax_import.adapters.queue.celery_app:celery_app inspect ping
+docker compose down -v
+```
+
+`PROCESSING_AUTOSTART=false` оставляет новый import в `STORED`; maintenance-scheduler в
+recovery process может поставить его в очередь после включения autostart. Compose использует
+`PROCESSING_AUTOSTART=true` и `PROCESSOR_MODE=source-integrity-test`. Этот test-only processor
+проверяет наличие, размер и SHA-256 raw object, но не разбирает XLS/XLSX/CSV и запрещён
+настройками в production-like окружениях.
+
+Ручной retry разрешён только для `FAILED` import, требует audit actor/reason и идемпотентен по
+correlation ID команды:
+
+```bash
+docker compose exec -T api python -m snax_import.cli.retry_import \
+  --import-id <UUID> \
+  --actor <actor> \
+  --reason "<reason>" \
+  --correlation-id <command-id>
+
+docker compose exec -T api python -m snax_import.cli.queue_status --dead-letter
+```
+
+`GET /health/ready` выполняет короткие PostgreSQL `SELECT 1`, Redis `PING`, MinIO bucket head
+и возвращает `503` с безопасными machine-readable dependency codes при ошибке. Публичного
+retry endpoint и production operator authorization в WORK-003 нет.
+
+Следующий шаг — raw workbook/readers. Реальный parsing, формулы, нормализация, matching,
+расчёт заказа, 1С, OCR/PDF и receipt flow в WORK-003 не входят.
 
 ## Данные
 

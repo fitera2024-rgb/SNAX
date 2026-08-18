@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from itertools import product
 from uuid import uuid4
@@ -8,6 +9,7 @@ import pytest
 
 from snax_import.domain.entities import Import, ImportStatusEvent, ProcessingRun, SourceFile
 from snax_import.domain.errors import InvalidTransition, InvalidValue, TerminalStateError
+from snax_import.domain.jobs import ProcessingJobMessageV1
 from snax_import.domain.state_machine import ALLOWED_TRANSITIONS, ImportStatus
 from snax_import.domain.value_objects import (
     CorrelationId,
@@ -123,15 +125,10 @@ def test_events_and_processing_runs_enforce_domain_invariants() -> None:
     with pytest.raises(InvalidValue):
         ProcessingRun.create(uuid4(), 0)
     with pytest.raises(InvalidValue):
-        ProcessingRun(
-            id=uuid4(),
-            import_id=uuid4(),
-            run_number=1,
-            status="PROCESSING",
+        replace(
+            ProcessingRun.create(uuid4(), 1, now=now),
             started_at=now,
             completed_at=now - timedelta(seconds=1),
-            failure_code=None,
-            failure_reason=None,
         )
 
 
@@ -193,3 +190,22 @@ def test_retry_is_explicit_and_events_are_append_only_ordered() -> None:
     assert retry.aggregate.status is ImportStatus.QUEUED
     assert retry.aggregate.version == failed.version + 1
     assert failed.status is ImportStatus.FAILED
+
+
+def test_processing_message_rejects_json_type_coercion() -> None:
+    payload = ProcessingJobMessageV1(
+        message_id=uuid4(),
+        import_id=uuid4(),
+        processing_run_id=uuid4(),
+        run_number=1,
+        dispatch_generation=1,
+        correlation_id="correlation-001",
+        requested_at=datetime(2026, 8, 18, tzinfo=UTC),
+    ).to_payload()
+    payload["runNumber"] = "1"
+    with pytest.raises(InvalidValue):
+        ProcessingJobMessageV1.from_payload(payload)
+    payload["runNumber"] = 1
+    payload["dispatchGeneration"] = True
+    with pytest.raises(InvalidValue):
+        ProcessingJobMessageV1.from_payload(payload)

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "messageId": "10000000-0000-4000-8000-000000000001",
+  "eventType": "IMPORT_PROCESSING_REQUESTED",
+  "importId": "20000000-0000-4000-8000-000000000001",
+  "processingRunId": "30000000-0000-4000-8000-000000000001",
+  "runNumber": 1,
+  "dispatchGeneration": 1,
+  "correlationId": "synthetic-work-003-example",
+  "requestedAt": "2026-08-18T00:00:00Z",
+  "retryOfRunId": null
+}
