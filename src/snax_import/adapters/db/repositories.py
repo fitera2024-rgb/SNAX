@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
+from typing import Any, cast
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, update
+from sqlalchemy.engine import CursorResult
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.sql import Select
 
@@ -131,5 +134,42 @@ class SqlAlchemyImportRepository(ImportRepositoryPort):
         )
         try:
             self.session.flush()
-        except Exception as exc:
+        except IntegrityError as exc:
+            raise PersistenceConflict() from exc
+
+    def save_transition(
+        self, aggregate: Import, event: ImportStatusEvent, expected_version: int
+    ) -> None:
+        result = cast(
+            CursorResult[Any],
+            self.session.execute(
+                update(ImportModel)
+                .where(ImportModel.id == aggregate.id, ImportModel.version == expected_version)
+                .values(
+                    status=aggregate.status.value,
+                    version=aggregate.version,
+                    updated_at=aggregate.updated_at,
+                )
+            ),
+        )
+        if result.rowcount != 1:
+            raise PersistenceConflict("Optimistic version conflict")
+        self.session.add(
+            ImportStatusEventModel(
+                id=event.id,
+                import_id=event.import_id,
+                sequence=event.sequence,
+                previous_status=event.previous_status.value
+                if event.previous_status is not None
+                else None,
+                new_status=event.new_status.value,
+                reason=event.reason,
+                correlation_id=event.correlation_id.value,
+                actor=event.actor,
+                occurred_at=event.occurred_at,
+            )
+        )
+        try:
+            self.session.flush()
+        except IntegrityError as exc:
             raise PersistenceConflict() from exc

@@ -10,7 +10,7 @@ from typing import Any, BinaryIO
 import boto3  # type: ignore[import-untyped]
 from botocore.client import BaseClient  # type: ignore[import-untyped]
 from botocore.config import Config  # type: ignore[import-untyped]
-from botocore.exceptions import ClientError  # type: ignore[import-untyped]
+from botocore.exceptions import BotoCoreError, ClientError  # type: ignore[import-untyped]
 
 from snax_import.domain.errors import DigestMismatch, ObjectStorageError
 from snax_import.domain.ports import ObjectStoragePort, StoredObject
@@ -89,6 +89,8 @@ class S3ObjectStorage(ObjectStoragePort):
             pass
         else:
             stored_metadata = self._validate_head(head, digest, size)
+            if self.verify_on_put:
+                self.verify_digest(object_key, digest)
             return StoredObject(object_key, False, size, stored_metadata)
 
         object_metadata = {"sha256": digest.value, "size": str(size), **metadata}
@@ -104,9 +106,16 @@ class S3ObjectStorage(ObjectStoragePort):
             )
         except ClientError as exc:
             if not _is_precondition_or_conflict(exc):
-                raise ObjectStorageError(
-                    "OBJECT_PUT_FAILED", "Не удалось сохранить объект"
-                ) from exc
+                try:
+                    head = self._head(object_key)
+                except KeyError:
+                    raise ObjectStorageError(
+                        "OBJECT_PUT_FAILED", "Не удалось сохранить объект"
+                    ) from exc
+                stored_metadata = self._validate_head(head, digest, size)
+                if self.verify_on_put:
+                    self.verify_digest(object_key, digest)
+                return StoredObject(object_key, False, size, stored_metadata)
             try:
                 head = self._head(object_key)
             except KeyError as missing:
@@ -114,6 +123,19 @@ class S3ObjectStorage(ObjectStoragePort):
                     "OBJECT_PUT_UNCERTAIN", "Результат записи объекта не определён"
                 ) from missing
             stored_metadata = self._validate_head(head, digest, size)
+            if self.verify_on_put:
+                self.verify_digest(object_key, digest)
+            return StoredObject(object_key, False, size, stored_metadata)
+        except BotoCoreError:
+            try:
+                head = self._head(object_key)
+            except KeyError as missing:
+                raise ObjectStorageError(
+                    "OBJECT_PUT_UNCERTAIN", "Результат записи объекта не определён"
+                ) from missing
+            stored_metadata = self._validate_head(head, digest, size)
+            if self.verify_on_put:
+                self.verify_digest(object_key, digest)
             return StoredObject(object_key, False, size, stored_metadata)
 
         if self.verify_on_put:

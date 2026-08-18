@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
 
 from snax_import.adapters.db.repositories import SqlAlchemyImportRepository
+from snax_import.domain.errors import PersistenceConflict
 from snax_import.domain.ports import ImportRepositoryPort, UnitOfWorkPort
 
 
@@ -28,7 +30,10 @@ class SqlAlchemyUnitOfWork:
             raise RuntimeError("Unit of work is not active")
         try:
             self.session.commit()
-        except Exception:
+        except IntegrityError as exc:
+            self.session.rollback()
+            raise PersistenceConflict() from exc
+        except SQLAlchemyError:
             self.session.rollback()
             raise
 

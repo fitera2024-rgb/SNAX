@@ -57,9 +57,8 @@ def test_postgresql_repository_round_trip_and_event_ordering() -> None:
         assert [
             event.sequence
             for event in session.scalars(
-                select(ImportStatusEventModel).where(
-                    ImportStatusEventModel.import_id == aggregate.id
-                )
+                select(ImportStatusEventModel)
+                .where(ImportStatusEventModel.import_id == aggregate.id)
+                .order_by(ImportStatusEventModel.sequence)
             ).all()
         ] == [1, 2]
-    Base.metadata.drop_all(engine)

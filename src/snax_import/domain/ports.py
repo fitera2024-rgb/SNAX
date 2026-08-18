@@ -54,6 +54,10 @@ class ImportRepositoryPort(Protocol):
         self, source_file: SourceFile, aggregate: Import, events: Sequence[ImportStatusEvent]
     ) -> None: ...
 
+    def save_transition(
+        self, aggregate: Import, event: ImportStatusEvent, expected_version: int
+    ) -> None: ...
+
 
 class UnitOfWorkPort(Protocol):
     imports: ImportRepositoryPort

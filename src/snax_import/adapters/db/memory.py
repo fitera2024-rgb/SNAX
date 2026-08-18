@@ -63,6 +63,16 @@ class InMemoryImportRepository(ImportRepositoryPort):
     ) -> None:
         self.pending = (source_file, aggregate, events)
 
+    def save_transition(
+        self, aggregate: Import, event: ImportStatusEvent, expected_version: int
+    ) -> None:
+        with self.database.lock:
+            current = self.database.imports.get(aggregate.id)
+            if current is None or current.version != expected_version:
+                raise PersistenceConflict("Optimistic version conflict")
+            self.database.imports[aggregate.id] = aggregate
+            self.database.events.setdefault(aggregate.id, []).append(event)
+
 
 class InMemoryUnitOfWork:
     def __init__(self, database: InMemoryDatabase) -> None:

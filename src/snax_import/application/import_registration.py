@@ -69,11 +69,12 @@ class ImportRegistrationService:
     def _read_to_temp(self, request: UploadRequest) -> tuple[Path, Sha256Digest, FileSize]:
         hasher = hashlib.sha256()
         total = 0
-        with tempfile.NamedTemporaryFile(
-            mode="w+b", prefix="snax-upload-", dir=self.temp_directory, delete=False
-        ) as temp_file:
-            path = Path(temp_file.name)
-            try:
+        path: Path | None = None
+        try:
+            with tempfile.NamedTemporaryFile(
+                mode="w+b", prefix="snax-upload-", dir=self.temp_directory, delete=False
+            ) as temp_file:
+                path = Path(temp_file.name)
                 while chunk := request.stream.read(_CHUNK_SIZE):
                     total += len(chunk)
                     if total > self.max_upload_bytes:
@@ -83,9 +84,10 @@ class ImportRegistrationService:
                 if total == 0:
                     raise EmptyFile()
                 return path, Sha256Digest(hasher.hexdigest()), FileSize(total)
-            except Exception:
+        except Exception:
+            if path is not None:
                 path.unlink(missing_ok=True)
-                raise
+            raise
 
     def _existing_result(
         self, aggregate: Import, source: SourceFile, *, replay: bool
@@ -184,20 +186,22 @@ class ImportRegistrationService:
                         raise DuplicateFile(winner_by_digest.id)
                     uow.imports.save_registration(source, aggregate, events)
                     uow.commit()
-            except PersistenceConflict:
+            except (PersistenceConflict, IdempotencyConflict, DuplicateFile) as conflict:
                 with self.uow_factory() as check_uow:
                     winner = check_uow.imports.by_idempotency(idempotency_key.value)
                     if winner is not None:
                         winner_source = check_uow.imports.source_for_import(winner.id)
                         if winner_source is not None and winner_source.sha256 == digest:
                             return self._existing_result(winner, winner_source, replay=True)
-                        raise IdempotencyConflict(idempotency_key.value) from None
+                        if stored.created_by_attempt:
+                            self.storage.delete(object_key)
+                        raise IdempotencyConflict(idempotency_key.value) from conflict
                     winner = check_uow.imports.by_digest(digest)
                     if winner is not None:
-                        raise DuplicateFile(winner.id) from None
+                        raise DuplicateFile(winner.id) from conflict
                 if stored.created_by_attempt:
                     self.storage.delete(object_key)
-                raise
+                raise conflict
             return RegistrationResult(
                 import_id=aggregate.id,
                 status=aggregate.status,

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from uuid import UUID, uuid4
 
@@ -22,6 +22,11 @@ def utc_now() -> datetime:
     return datetime.now(UTC)
 
 
+def _validate_utc(value: datetime, field: str) -> None:
+    if value.tzinfo is None or value.utcoffset() != timedelta(0):
+        raise InvalidValue(field, "Timestamp должен быть timezone-aware UTC")
+
+
 class StorageStatus(StrEnum):
     STORED = "STORED"
     ORPHANED = "ORPHANED"
@@ -37,6 +42,9 @@ class SourceFile:
     size: FileSize
     storage_status: StorageStatus
     created_at: datetime
+
+    def __post_init__(self) -> None:
+        _validate_utc(self.created_at, "createdAt")
 
     @classmethod
     def create(
@@ -73,6 +81,9 @@ class ImportStatusEvent:
     correlation_id: CorrelationId
     actor: str
 
+    def __post_init__(self) -> None:
+        _validate_utc(self.occurred_at, "occurredAt")
+
 
 @dataclass(frozen=True, slots=True)
 class TransitionResult:
@@ -93,6 +104,10 @@ class Import:
     supplier_code: str | None = None
     profile_code: str | None = None
     event_sequence: int = 0
+
+    def __post_init__(self) -> None:
+        _validate_utc(self.created_at, "createdAt")
+        _validate_utc(self.updated_at, "updatedAt")
 
     @classmethod
     def create(
@@ -186,6 +201,12 @@ class ProcessingRun:
     completed_at: datetime | None
     failure_code: str | None
     failure_reason: str | None
+
+    def __post_init__(self) -> None:
+        if self.started_at is not None:
+            _validate_utc(self.started_at, "startedAt")
+        if self.completed_at is not None:
+            _validate_utc(self.completed_at, "completedAt")
 
     @classmethod
     def create(cls, import_id: UUID, run_number: int) -> ProcessingRun:

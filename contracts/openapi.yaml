@@ -567,7 +567,7 @@ components:
         type: string
         maxLength: 100
     IdempotencyKey:
-      name: Idempotency-Key
+      name: X-Idempotency-Key
       in: header
       required: true
       schema:

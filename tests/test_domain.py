@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from itertools import product
 from uuid import uuid4
 
@@ -38,6 +39,20 @@ def test_value_objects_validate_digest_size_and_metadata() -> None:
         OriginalFileName("..\\secret.xlsx")
     with pytest.raises(InvalidValue):
         OriginalFileName("bad\x00name.xlsx")
+
+
+def test_entities_reject_naive_timestamps() -> None:
+    with pytest.raises(InvalidValue):
+        Import(
+            id=uuid4(),
+            source_file_id=uuid4(),
+            status=ImportStatus.RECEIVED,
+            version=1,
+            correlation_id=CorrelationId("correlation-001"),
+            idempotency_key=IdempotencyKey("idempotency-0001"),
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+        )
 
 
 def _aggregate() -> Import:

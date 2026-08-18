@@ -19,7 +19,7 @@ class Sha256Digest:
     value: str
 
     def __post_init__(self) -> None:
-        if not _DIGEST_RE.fullmatch(self.value):
+        if not isinstance(self.value, str) or not _DIGEST_RE.fullmatch(self.value):
             raise InvalidValue("sha256", "Ожидается lowercase SHA-256 из 64 hex-символов")
 
     @classmethod
@@ -32,12 +32,18 @@ class ObjectKey:
     value: str
 
     def __post_init__(self) -> None:
-        if not self.value.startswith("raw/sha256/"):
+        if not isinstance(self.value, str) or not self.value.startswith("raw/sha256/"):
             raise InvalidValue("objectKey", "Ключ должен начинаться с raw/sha256/")
-        if any(part in {"", ".", ".."} for part in self.value.split("/")):
+        if "\\" in self.value:
+            raise InvalidValue("objectKey", "Обратный разделитель запрещён")
+        parts = self.value.split("/")
+        if len(parts) != 5 or any(part in {"", ".", ".."} for part in parts):
             raise InvalidValue("objectKey", "Недопустимый сегмент object key")
         if any(ord(char) < 32 or ord(char) == 127 for char in self.value):
             raise InvalidValue("objectKey", "Управляющие символы запрещены")
+        digest = Sha256Digest(parts[-1])
+        if parts[2] != digest.value[:2] or parts[3] != digest.value[2:4]:
+            raise InvalidValue("objectKey", "Object key не соответствует digest")
 
     @classmethod
     def for_digest(cls, digest: Sha256Digest) -> ObjectKey:
@@ -50,7 +56,7 @@ class OriginalFileName:
     value: str
 
     def __post_init__(self) -> None:
-        if not self.value or len(self.value) > 255:
+        if not isinstance(self.value, str) or not self.value or len(self.value) > 255:
             raise InvalidValue("originalFileName", "Имя файла должно содержать 1-255 символов")
         _reject_controls("originalFileName", self.value)
         if "/" in self.value or "\\" in self.value or self.value in {".", ".."}:
@@ -62,6 +68,8 @@ class FileSize:
     value: int
 
     def __post_init__(self) -> None:
+        if isinstance(self.value, bool) or not isinstance(self.value, int):
+            raise InvalidValue("sizeBytes", "Размер должен быть целым числом")
         if self.value < 0:
             raise InvalidValue("sizeBytes", "Размер не может быть отрицательным")
 
@@ -71,6 +79,8 @@ class MediaType:
     value: str
 
     def __post_init__(self) -> None:
+        if not isinstance(self.value, str):
+            raise InvalidValue("mediaType", "Media type должен быть строкой")
         normalized = self.value.strip().lower()
         if not _MEDIA_TYPE_RE.fullmatch(normalized):
             raise InvalidValue("mediaType", "Некорректный media type")
@@ -82,7 +92,7 @@ class IdempotencyKey:
     value: str
 
     def __post_init__(self) -> None:
-        if not 16 <= len(self.value) <= 200:
+        if not isinstance(self.value, str) or not 16 <= len(self.value) <= 200:
             raise InvalidValue("idempotencyKey", "Ключ должен содержать 16-200 символов")
         _reject_controls("idempotencyKey", self.value)
 
@@ -92,6 +102,6 @@ class CorrelationId:
     value: str
 
     def __post_init__(self) -> None:
-        if not self.value or len(self.value) > 100:
+        if not isinstance(self.value, str) or not self.value or len(self.value) > 100:
             raise InvalidValue("correlationId", "Correlation ID должен содержать 1-100 символов")
         _reject_controls("correlationId", self.value)

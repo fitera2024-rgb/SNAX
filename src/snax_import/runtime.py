@@ -51,7 +51,7 @@ def build_runtime(config: Settings) -> Runtime:
             database_engine=engine,
         )
 
-    if not config.allow_in_memory_fallback:
+    if not config.allow_in_memory_fallback or config.app_env.lower() not in {"local", "test"}:
         raise RuntimeError("DATABASE_URL and complete S3 configuration are required")
     database = InMemoryDatabase()
     storage = InMemoryObjectStorage()
