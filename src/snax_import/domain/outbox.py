@@ -152,7 +152,7 @@ class OutboxMessage:
         )
 
     def mark_published(self, *, owner: str, now: datetime) -> OutboxMessage:
-        self._require_owner(owner)
+        self._require_owner(owner, now)
         return replace(
             self,
             status=OutboxStatus.PUBLISHED,
@@ -175,7 +175,7 @@ class OutboxMessage:
         available_at: datetime,
         now: datetime,
     ) -> OutboxMessage:
-        self._require_owner(owner)
+        self._require_owner(owner, now)
         return replace(
             self,
             status=OutboxStatus.PENDING,
@@ -193,7 +193,7 @@ class OutboxMessage:
         if (
             self.status is not OutboxStatus.PUBLISHING
             or self.lock_expires_at is None
-            or self.lock_expires_at >= now
+            or self.lock_expires_at > now
         ):
             raise OutboxMessageNotClaimable()
         return replace(
@@ -217,7 +217,7 @@ class OutboxMessage:
         if self.status is OutboxStatus.PUBLISHING:
             if owner is None:
                 raise OutboxLeaseLost()
-            self._require_owner(owner)
+            self._require_owner(owner, now)
         return replace(
             self,
             status=OutboxStatus.DEAD,
@@ -230,6 +230,11 @@ class OutboxMessage:
             version=self.version + 1,
         )
 
-    def _require_owner(self, owner: str) -> None:
-        if self.status is not OutboxStatus.PUBLISHING or self.locked_by != owner:
+    def _require_owner(self, owner: str, now: datetime) -> None:
+        if (
+            self.status is not OutboxStatus.PUBLISHING
+            or self.locked_by != owner
+            or self.lock_expires_at is None
+            or self.lock_expires_at <= now
+        ):
             raise OutboxLeaseLost()

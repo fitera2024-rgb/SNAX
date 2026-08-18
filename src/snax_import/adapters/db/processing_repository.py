@@ -140,7 +140,7 @@ class SqlAlchemyProcessingRunRepository:
             select(ProcessingRunModel)
             .where(
                 ProcessingRunModel.status == ProcessingRunStatus.PROCESSING.value,
-                ProcessingRunModel.lease_expires_at < now,
+                ProcessingRunModel.lease_expires_at <= now,
             )
             .order_by(ProcessingRunModel.lease_expires_at, ProcessingRunModel.id)
             .limit(limit)

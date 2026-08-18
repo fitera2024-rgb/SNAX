@@ -256,7 +256,7 @@ class ProcessingRun:
     def timeout(self, *, code: str, reason: str, now: datetime) -> ProcessingRun:
         if self.status is not ProcessingRunStatus.PROCESSING:
             raise JobNotClaimable()
-        if self.lease_expires_at is None or self.lease_expires_at >= now:
+        if self.lease_expires_at is None or self.lease_expires_at > now:
             raise JobNotClaimable("Lease ещё активен")
         return self._complete(
             ProcessingRunStatus.TIMED_OUT,
@@ -349,7 +349,7 @@ class ProcessingRun:
             raise JobNotClaimable()
         if self.worker_id != worker_id or self.lease_token != lease_token:
             raise JobLeaseLost()
-        if not allow_expired and self.lease_expires_at is not None and self.lease_expires_at < now:
+        if not allow_expired and self.lease_expires_at is not None and self.lease_expires_at <= now:
             raise JobLeaseLost("Lease истёк")
 
     def _complete(

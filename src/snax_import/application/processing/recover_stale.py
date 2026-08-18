@@ -48,7 +48,7 @@ class RecoverStaleJobsService:
                 if (
                     run.status is not ProcessingRunStatus.PROCESSING
                     or run.lease_expires_at is None
-                    or run.lease_expires_at >= now
+                    or run.lease_expires_at > now
                 ):
                     continue
                 aggregate = uow.imports.by_id(run.import_id, for_update=True)

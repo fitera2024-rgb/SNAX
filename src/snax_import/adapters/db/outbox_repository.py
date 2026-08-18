@@ -136,7 +136,7 @@ class SqlAlchemyOutboxRepository:
             select(OutboxMessageModel)
             .where(
                 OutboxMessageModel.status == OutboxStatus.PUBLISHING.value,
-                OutboxMessageModel.lock_expires_at < now,
+                OutboxMessageModel.lock_expires_at <= now,
             )
             .order_by(OutboxMessageModel.lock_expires_at, OutboxMessageModel.id)
             .limit(limit)

@@ -56,3 +56,12 @@ def test_outbox_failure_and_expired_lock_recovery() -> None:
     )
     recovered = reclaimed.recover_expired(now=NOW + timedelta(seconds=36))
     assert recovered.status is OutboxStatus.PENDING
+
+
+def test_outbox_rejects_owner_at_lock_expiry() -> None:
+    claimed = _message().claim(owner="dispatcher-a", now=NOW, lock_seconds=30)
+    assert claimed.lock_expires_at is not None
+    with pytest.raises(OutboxLeaseLost):
+        claimed.mark_published(owner="dispatcher-a", now=claimed.lock_expires_at)
+    recovered = claimed.recover_expired(now=claimed.lock_expires_at)
+    assert recovered.status is OutboxStatus.PENDING

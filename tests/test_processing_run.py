@@ -73,3 +73,26 @@ def test_processing_run_rejects_stale_lease_and_times_out() -> None:
         now=NOW + timedelta(seconds=32),
     )
     assert dead.status is ProcessingRunStatus.DEAD_LETTERED
+
+
+def test_processing_run_rejects_completion_at_lease_expiry() -> None:
+    queued = ProcessingRun.create(uuid4(), 1, correlation_id="corr", now=NOW)
+    claimed = queued.claim(
+        worker_id="worker-1",
+        lease_token=TOKEN,
+        lease_duration=timedelta(seconds=30),
+        now=NOW,
+    )
+    assert claimed.lease_expires_at is not None
+    with pytest.raises(JobLeaseLost):
+        claimed.succeed(
+            worker_id="worker-1",
+            lease_token=TOKEN,
+            now=claimed.lease_expires_at,
+        )
+    expired = claimed.timeout(
+        code="JOB_HEARTBEAT_EXPIRED",
+        reason="lease expired at boundary",
+        now=claimed.lease_expires_at,
+    )
+    assert expired.status is ProcessingRunStatus.TIMED_OUT

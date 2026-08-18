@@ -162,7 +162,7 @@ class InMemoryProcessingRunRepository(ProcessingRunRepositoryPort):
                         for run in self._view().values()
                         if run.status is ProcessingRunStatus.PROCESSING
                         and run.lease_expires_at is not None
-                        and run.lease_expires_at < now
+                        and run.lease_expires_at <= now
                     ),
                     key=lambda run: (run.lease_expires_at or now, run.id),
                 )[:limit]
@@ -250,7 +250,7 @@ class InMemoryOutboxRepository(OutboxRepositoryPort):
                 for item in self._view().values()
                 if item.status is OutboxStatus.PUBLISHING
                 and item.lock_expires_at is not None
-                and item.lock_expires_at < now
+                and item.lock_expires_at <= now
             ),
             key=lambda item: (item.lock_expires_at or now, item.id),
         )[:limit]
