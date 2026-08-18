@@ -4,7 +4,6 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import (
-    JSON,
     BigInteger,
     Boolean,
     CheckConstraint,
@@ -13,7 +12,9 @@ from sqlalchemy import (
     Index,
     String,
     UniqueConstraint,
+    text,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import Uuid
 
@@ -119,7 +120,7 @@ class ProcessingRunModel(Base):
             "uq_processing_runs_active_import",
             "import_id",
             unique=True,
-            postgresql_where="status IN ('QUEUED', 'PROCESSING')",
+            postgresql_where=text("status IN ('QUEUED', 'PROCESSING')"),
         ),
     )
 
@@ -197,7 +198,7 @@ class OutboxMessageModel(Base):
     )
     correlation_id: Mapped[str] = mapped_column(String(100), nullable=False)
     deduplication_key: Mapped[str] = mapped_column(String(300), unique=True, nullable=False)
-    payload: Mapped[dict[str, object]] = mapped_column(JSON(), nullable=False)
+    payload: Mapped[dict[str, object]] = mapped_column(JSONB(), nullable=False)
     status: Mapped[str] = mapped_column(String(32), nullable=False)
     occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     available_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

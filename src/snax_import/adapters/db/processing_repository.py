@@ -94,6 +94,20 @@ class SqlAlchemyProcessingRunRepository:
         model = self.session.scalar(query)
         return processing_run_from_model(model) if model is not None else None
 
+    def latest_for_import(
+        self, import_id: UUID, *, for_update: bool = False
+    ) -> ProcessingRun | None:
+        query = (
+            select(ProcessingRunModel)
+            .where(ProcessingRunModel.import_id == import_id)
+            .order_by(ProcessingRunModel.run_number.desc())
+            .limit(1)
+        )
+        if for_update:
+            query = query.with_for_update()
+        model = self.session.scalar(query)
+        return processing_run_from_model(model) if model is not None else None
+
     def next_run_number(self, import_id: UUID) -> int:
         current = self.session.scalar(
             select(func.max(ProcessingRunModel.run_number)).where(

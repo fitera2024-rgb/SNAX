@@ -30,6 +30,7 @@ class Settings(BaseSettings):
     queue_broker_url: str | None = None
     queue_name: str = "snax.import.processing.v1"
     queue_visibility_timeout_seconds: int = 3600
+    queue_message_max_bytes: int = 16 * 1024
 
     outbox_batch_size: int = 50
     outbox_poll_interval_seconds: float = 1.0
@@ -62,6 +63,7 @@ class Settings(BaseSettings):
     def validate_queue_settings(self) -> Settings:
         positive = {
             "queue_visibility_timeout_seconds": self.queue_visibility_timeout_seconds,
+            "queue_message_max_bytes": self.queue_message_max_bytes,
             "outbox_batch_size": self.outbox_batch_size,
             "outbox_poll_interval_seconds": self.outbox_poll_interval_seconds,
             "outbox_lock_seconds": self.outbox_lock_seconds,

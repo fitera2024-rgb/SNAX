@@ -129,6 +129,14 @@ class InMemoryProcessingRunRepository(ProcessingRunRepositoryPort):
                 None,
             )
 
+    def latest_for_import(
+        self, import_id: UUID, *, for_update: bool = False
+    ) -> ProcessingRun | None:
+        del for_update
+        with self.database.lock:
+            candidates = [run for run in self._view().values() if run.import_id == import_id]
+            return max(candidates, key=lambda run: run.run_number, default=None)
+
     def next_run_number(self, import_id: UUID) -> int:
         with self.database.lock:
             return (
@@ -292,6 +300,14 @@ class InMemoryUnitOfWork:
                 imports[aggregate.id] = aggregate
                 events.setdefault(aggregate.id, []).append(event)
 
+            # Existing active runs are completed before a retry run is inserted in the
+            # same transaction. Apply optimistic saves first to mirror SQL flush order.
+            for run, expected_version in self.processing_runs.pending_save:
+                current_run = runs.get(run.id)
+                if current_run is None or current_run.version != expected_version:
+                    raise PersistenceConflict("ProcessingRun optimistic version conflict")
+                runs[run.id] = run
+
             for run in self.processing_runs.pending_add:
                 if any(
                     item.import_id == run.import_id and item.run_number == run.run_number
@@ -308,12 +324,6 @@ class InMemoryUnitOfWork:
                 ):
                     raise PersistenceConflict("Active run already exists")
                 runs[run.id] = run
-            for run, expected_version in self.processing_runs.pending_save:
-                current_run = runs.get(run.id)
-                if current_run is None or current_run.version != expected_version:
-                    raise PersistenceConflict("ProcessingRun optimistic version conflict")
-                runs[run.id] = run
-
             for message in self.outbox.pending_add:
                 if any(
                     item.deduplication_key == message.deduplication_key for item in outbox.values()

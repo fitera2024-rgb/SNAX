@@ -10,7 +10,7 @@
 | Branch | `work/003-queue-outbox-worker` |
 | PR | `[WORK-003] Queue, transactional outbox and worker` (Draft) |
 | Backlog | `TASK-005` |
-| Статус | `IN_PROGRESS` |
+| Статус | `REVIEW` |
 | Независимое ревью | GPT-5.6 Pro |
 | Merge | запрещён до независимого решения |
 
@@ -177,4 +177,3 @@ Before review: create `docs/reviews/WORK-003-review-draft.md`, record branch/hea
 state matrices, contract, migration/tables/constraints/indexes, queue settings, algorithms,
 crash matrix, evidence, every command/result, CI run ID, changed files, risks/debt/boundaries;
 set this card to `REVIEW`, keep PR Draft, do not merge and do not claim `READY_TO_MERGE`.
-

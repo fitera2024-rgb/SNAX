@@ -33,6 +33,7 @@ def enqueue_import(
     now: datetime,
     retry_of_run_id: UUID | None = None,
     available_at: datetime | None = None,
+    deduplication_key: str | None = None,
 ) -> ScheduledImport:
     if aggregate.status not in {ImportStatus.STORED, ImportStatus.FAILED}:
         raise JobNotClaimable(f"Import {aggregate.id} is {aggregate.status}")
@@ -71,7 +72,7 @@ def enqueue_import(
         aggregate_id=aggregate.id,
         processing_run_id=run.id,
         correlation_id=aggregate.correlation_id.value,
-        deduplication_key=f"process:{run.id}:{run.dispatch_generation}",
+        deduplication_key=deduplication_key or f"process:{run.id}:{run.dispatch_generation}",
         payload=message.to_payload(),
         available_at=available_at or now,
         now=now,

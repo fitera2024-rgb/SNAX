@@ -1,7 +1,12 @@
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from typing import cast
+
+from redis import Redis
+from sqlalchemy import text
+from sqlalchemy.engine import Engine
 
 from snax_import.adapters.db.memory import InMemoryDatabase, InMemoryUnitOfWork
 from snax_import.adapters.db.session import create_database_engine, create_session_factory
@@ -9,15 +14,53 @@ from snax_import.adapters.db.uow import SqlAlchemyUnitOfWork
 from snax_import.adapters.storage.s3 import InMemoryObjectStorage, S3ObjectStorage
 from snax_import.application.import_registration import ImportRegistrationService
 from snax_import.config import Settings
-from snax_import.domain.ports import ObjectStoragePort, UnitOfWorkPort
+from snax_import.domain.ports import ObjectStoragePort, UnitOfWorkFactory, UnitOfWorkPort
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(slots=True)
 class Runtime:
     service: ImportRegistrationService
     storage: ObjectStoragePort
-    uow_factory: object
-    database_engine: object | None = None
+    uow_factory: UnitOfWorkFactory
+    database_engine: Engine | None = None
+
+    def readiness(self, *, redis_url: str | None) -> dict[str, str]:
+        statuses: dict[str, str] = {}
+        if self.database_engine is None:
+            statuses["database"] = "ok:in-memory"
+        else:
+            try:
+                with self.database_engine.connect() as connection:
+                    connection.execute(text("SELECT 1"))
+                statuses["database"] = "ok"
+            except Exception as exc:
+                logger.warning("READINESS_DATABASE_FAILED", exc_info=exc)
+                statuses["database"] = "error:DATABASE_UNAVAILABLE"
+        if redis_url is None:
+            statuses["redis"] = "ok:not-required"
+        else:
+            try:
+                client = Redis.from_url(
+                    redis_url,
+                    socket_connect_timeout=2,
+                    socket_timeout=2,
+                )
+                client.ping()
+                client.close()
+                statuses["redis"] = "ok"
+            except Exception as exc:
+                logger.warning("READINESS_REDIS_FAILED", exc_info=exc)
+                statuses["redis"] = "error:REDIS_UNAVAILABLE"
+        try:
+            self.storage.healthcheck()
+            statuses["minio"] = "ok"
+        except Exception as exc:
+            logger.warning("READINESS_STORAGE_FAILED", exc_info=exc)
+            statuses["minio"] = "error:OBJECT_STORAGE_UNAVAILABLE"
+        statuses["configuration"] = "ok"
+        return statuses
 
 
 def build_runtime(config: Settings) -> Runtime:

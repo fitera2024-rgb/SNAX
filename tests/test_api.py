@@ -15,6 +15,26 @@ def test_health_is_stable(test_client: TestClient) -> None:
     }
 
 
+def test_readiness_returns_machine_readable_503(test_client: TestClient, monkeypatch) -> None:
+    monkeypatch.setattr(
+        type(test_client.app.state.runtime),
+        "readiness",
+        lambda self, *, redis_url: {
+            "database": "ok",
+            "redis": "error:REDIS_UNAVAILABLE",
+            "minio": "ok",
+            "configuration": "ok",
+        },
+    )
+    response = test_client.get(
+        "/health/ready", headers={"X-Correlation-ID": "readiness-correlation"}
+    )
+    assert response.status_code == 503
+    assert response.json()["status"] == "failed"
+    assert response.json()["dependencies"]["redis"] == "error:REDIS_UNAVAILABLE"
+    assert response.json()["correlationId"] == "readiness-correlation"
+
+
 def test_version_contains_build_metadata(test_client: TestClient) -> None:
     response = test_client.get("/version", headers={"X-Correlation-ID": "test-version"})
     assert response.status_code == 200

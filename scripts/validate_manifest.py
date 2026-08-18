@@ -8,11 +8,12 @@ MANIFEST = ROOT / "MANIFEST.sha256"
 
 
 def sha256_file(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as source:
-        for chunk in iter(lambda: source.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+    # Git normalizes tracked text to LF. Validate that canonical representation so
+    # the same manifest works on Windows checkouts with core.autocrlf enabled.
+    data = path.read_bytes()
+    if path.suffix.lower() != ".png":
+        data = data.replace(b"\r\n", b"\n")
+    return hashlib.sha256(data).hexdigest()
 
 
 def main() -> None:

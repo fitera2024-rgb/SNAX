@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import NoReturn
 from uuid import UUID
 
-from fastapi import APIRouter, File, Form, Header, Request, UploadFile
+from fastapi import APIRouter, File, Form, Header, Request, Response, UploadFile
 
 from snax_import.api import mock_data
 from snax_import.api.errors import ApiError
@@ -34,7 +34,7 @@ from snax_import.domain.errors import (
 router = APIRouter()
 
 
-@router.get("/health", response_model=HealthResponse)
+@router.get("/health", response_model=HealthResponse, response_model_exclude_none=True)
 def health() -> HealthResponse:
     return HealthResponse(
         status="ok",
@@ -47,20 +47,23 @@ def health() -> HealthResponse:
     )
 
 
-@router.get("/health/live", response_model=HealthResponse)
+@router.get("/health/live", response_model=HealthResponse, response_model_exclude_none=True)
 def health_live() -> HealthResponse:
     return HealthResponse(status="ok", dependencies={"api": "ok"})
 
 
 @router.get("/health/ready", response_model=HealthResponse)
-def health_ready() -> HealthResponse:
+def health_ready(request: Request, response: Response) -> HealthResponse:
+    dependencies = request.app.state.runtime.readiness(
+        redis_url=settings.queue_broker_url or settings.redis_url
+    )
+    failed = any(value.startswith("error:") for value in dependencies.values())
+    if failed:
+        response.status_code = 503
     return HealthResponse(
-        status="ok",
-        dependencies={
-            "database": "ok",
-            "redis": "ok",
-            "minio": "ok",
-        },
+        status="failed" if failed else "ok",
+        dependencies=dependencies,
+        correlationId=str(request.state.correlation_id),
     )
 
 

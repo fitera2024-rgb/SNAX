@@ -24,6 +24,8 @@ class StoredObject:
 
 
 class ObjectStoragePort(Protocol):
+    def healthcheck(self) -> None: ...
+
     def put_stream(
         self,
         stream: BinaryIO,
@@ -70,6 +72,10 @@ class ProcessingRunRepositoryPort(Protocol):
     def by_id(self, run_id: UUID, *, for_update: bool = False) -> ProcessingRun | None: ...
 
     def active_for_import(
+        self, import_id: UUID, *, for_update: bool = False
+    ) -> ProcessingRun | None: ...
+
+    def latest_for_import(
         self, import_id: UUID, *, for_update: bool = False
     ) -> ProcessingRun | None: ...
 
