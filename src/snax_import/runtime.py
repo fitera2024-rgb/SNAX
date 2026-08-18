@@ -31,9 +31,7 @@ def build_runtime(config: Settings) -> Runtime:
     has_partial_storage = any(storage_values) and not has_storage
 
     if has_partial_storage or has_database != has_storage:
-        raise RuntimeError(
-            "DATABASE_URL and complete S3 configuration must be configured together"
-        )
+        raise RuntimeError("DATABASE_URL and complete S3 configuration must be configured together")
 
     temp_directory = config.temp_directory or None
     if has_database and has_storage:
