@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import NoReturn
 from uuid import UUID
 
-from fastapi import APIRouter, File, Form, Header, Request, Response, UploadFile
+from fastapi import APIRouter, File, Form, Header, Request, UploadFile
 
 from snax_import.api import mock_data
 from snax_import.api.errors import ApiError
@@ -32,12 +32,6 @@ from snax_import.domain.errors import (
 )
 
 router = APIRouter()
-
-
-def _correlation_id(
-    x_correlation_id: str | None = Header(default=None, alias="X-Correlation-ID"),
-) -> str:
-    return x_correlation_id or "unset"
 
 
 @router.get("/health", response_model=HealthResponse)
@@ -71,9 +65,8 @@ def health_ready() -> HealthResponse:
 
 
 @router.get("/version", response_model=VersionResponse)
-def version(
-    correlation_id: str = Header(default="unknown", alias="X-Correlation-ID"),
-) -> VersionResponse:
+def version(request: Request) -> VersionResponse:
+    correlation_id = str(request.state.correlation_id)
     return VersionResponse(
         applicationVersion=settings.app_version,
         commitSha=settings.commit_sha,
@@ -86,8 +79,10 @@ def version(
     )
 
 
-@router.get("/imports", response_model=list[ImportStatusSummary])
-def list_imports() -> list[ImportStatusSummary]:
+@router.get("/demo/imports", response_model=list[ImportStatusSummary])
+def list_demo_imports() -> list[ImportStatusSummary]:
+    """Synthetic WORK-001 registry, deliberately separated from production import routes."""
+
     return mock_data.list_imports()
 
 
@@ -106,7 +101,7 @@ def _raise_registration_error(exc: DomainError) -> NoReturn:
             message="Idempotency key уже использован для другого файла",
             status_code=409,
             retryable=False,
-            field="Idempotency-Key",
+            field="X-Idempotency-Key",
         ) from exc
     if isinstance(exc, FileTooLarge):
         raise ApiError(
@@ -166,13 +161,11 @@ def _raise_registration_error(exc: DomainError) -> NoReturn:
 @router.post("/imports", response_model=ImportAccepted, status_code=202)
 def create_import(
     request: Request,
-    response: Response,
     file: UploadFile = File(...),  # noqa: B008
     supplier_code: str | None = Form(default=None, alias="supplierCode"),
     profile_code: str | None = Form(default=None, alias="profileCode"),
     x_idempotency_key: str | None = Header(default=None, alias="X-Idempotency-Key"),
     idempotency_key: str | None = Header(default=None, alias="Idempotency-Key"),
-    correlation_id: str = Header(default="unknown", alias="X-Correlation-ID"),
 ) -> ImportAccepted:
     key = x_idempotency_key or idempotency_key
     if key is None:
@@ -183,6 +176,7 @@ def create_import(
             retryable=False,
             field="X-Idempotency-Key",
         )
+    correlation_id = str(request.state.correlation_id)
     try:
         result = request.app.state.runtime.service.register(
             UploadRequest(
@@ -197,8 +191,6 @@ def create_import(
         )
     except DomainError as exc:
         _raise_registration_error(exc)
-    if result.replay:
-        response.status_code = 200
     return ImportAccepted(
         importId=result.import_id,
         status=result.status,
@@ -236,8 +228,8 @@ def get_import(request: Request, import_id: UUID) -> ImportStatusResponse:
     )
 
 
-@router.get("/imports/{import_id}/rows", response_model=list[ImportRow])
-def get_import_rows(import_id: UUID) -> list[ImportRow]:
+@router.get("/demo/imports/{import_id}/rows", response_model=list[ImportRow])
+def get_demo_import_rows(import_id: UUID) -> list[ImportRow]:
     summary = mock_data.get_import_summary(import_id)
     if summary is None:
         raise ApiError(
@@ -246,8 +238,8 @@ def get_import_rows(import_id: UUID) -> list[ImportRow]:
     return mock_data.get_import_rows(import_id)
 
 
-@router.get("/imports/{import_id}/steps", response_model=ImportStatusDetail)
-def get_import_steps(import_id: UUID) -> ImportStatusDetail:
+@router.get("/demo/imports/{import_id}/steps", response_model=ImportStatusDetail)
+def get_demo_import_steps(import_id: UUID) -> ImportStatusDetail:
     detail = mock_data.get_import_detail(import_id)
     if detail is None:
         raise ApiError(
