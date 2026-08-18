@@ -10,7 +10,9 @@
 
 Raw workbook использует 1-based индексы строк/колонок и хранит A1-представление
 координаты рядом с числовыми индексами. `FORMULA` — только metadata (`formulaText`
-и cached result); схема и reader не исполняют формулы.
+и cached result); схема и reader не исполняют формулы. Для `ERROR` исходный Excel
+token (`#REF!`, `#DIV/0!`, `#VALUE!`) сохраняется в `rawValue`, а `errorCode`
+содержит стабильный machine code, например `FORMULA_ERROR_REF`.
 
 Правила изменения:
 

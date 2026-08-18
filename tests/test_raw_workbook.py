@@ -89,6 +89,31 @@ def test_error_cell_and_merged_range_are_structured() -> None:
     assert sheet.rows[0].cells[0].error_code == "CELL_NOT_AVAILABLE"
 
 
+@pytest.mark.parametrize(
+    ("raw_value", "error_code"),
+    [
+        ("#REF!", "FORMULA_ERROR_REF"),
+        ("#DIV/0!", "FORMULA_ERROR_DIV_ZERO"),
+        ("#VALUE!", "FORMULA_ERROR_VALUE"),
+    ],
+)
+def test_excel_error_cells_preserve_raw_token_and_stable_code(
+    raw_value: str, error_code: str
+) -> None:
+    cell = Cell(
+        coordinate=CellCoordinate(1, 1),
+        row_index=1,
+        column_index=1,
+        value_type=ValueType.ERROR,
+        raw_value=raw_value,
+        display_value=raw_value,
+        error_code=error_code,
+    )
+
+    assert cell.to_dict()["rawValue"] == raw_value
+    assert cell.to_dict()["errorCode"] == error_code
+
+
 def test_workbook_contains_metadata_and_utc_timestamp() -> None:
     workbook = Workbook(
         id=uuid4(),
@@ -110,6 +135,22 @@ def test_workbook_contains_metadata_and_utc_timestamp() -> None:
         lambda: CellCoordinate(1, 0),
         lambda: Formula(""),
         lambda: MergedRange(CellCoordinate(2, 1), CellCoordinate(1, 1)),
+        lambda: Cell(
+            coordinate=CellCoordinate(1, 1),
+            row_index=1,
+            column_index=1,
+            value_type=ValueType.ERROR,
+            raw_value=None,
+            error_code="FORMULA_ERROR_REF",
+        ),
+        lambda: Cell(
+            coordinate=CellCoordinate(1, 1),
+            row_index=1,
+            column_index=1,
+            value_type=ValueType.ERROR,
+            raw_value="#REF!",
+            error_code="#REF!",
+        ),
         lambda: Row(index=1, cells=(_cell(2, 1, "wrong row"),)),
         lambda: Sheet(
             name="Data",

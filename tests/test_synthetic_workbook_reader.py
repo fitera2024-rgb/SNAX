@@ -2,10 +2,15 @@ from __future__ import annotations
 
 import json
 from io import BytesIO
+from pathlib import Path
 from typing import Any
+
+from jsonschema import Draft202012Validator
 
 from snax_import.adapters.workbook.synthetic import SyntheticWorkbookReader
 from snax_import.ports.workbook_reader import ReaderIssueCode, ReaderOptions
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def _fixture(*events: dict[str, Any]) -> BytesIO:
@@ -80,7 +85,7 @@ def _row(index: int) -> dict[str, Any]:
                         "displayValue": "#REF!",
                         "formula": None,
                         "cachedValue": None,
-                        "errorCode": "#REF!",
+                        "errorCode": "FORMULA_ERROR_REF",
                     }
                 ]
                 if index == 2
@@ -138,6 +143,13 @@ def test_hidden_sheet_formula_and_merged_range_are_reported_without_execution() 
     assert result.statistics.formula_cells == 2
     assert result.statistics.error_cells == 1
     assert result.statistics.skipped_sheets == 1
+    error_cell = result.workbook.sheets[0].rows[1].cells[2]
+    assert error_cell.raw_value == "#REF!"
+    assert error_cell.error_code == "FORMULA_ERROR_REF"
+    schema = json.loads(
+        (ROOT / "contracts" / "raw-workbook.schema.json").read_text(encoding="utf-8")
+    )
+    Draft202012Validator(schema).validate(result.to_dict())
     assert {issue.code for issue in result.warnings} == {
         ReaderIssueCode.FORMULA_PRESENT,
         ReaderIssueCode.FORMULA_ERROR,

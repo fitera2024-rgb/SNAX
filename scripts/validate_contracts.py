@@ -18,6 +18,7 @@ PAIRS = (
         "examples/processing-job-message.example.json",
     ),
     ("raw-workbook.schema.json", "examples/raw-workbook.example.json"),
+    ("raw-workbook.schema.json", "examples/raw-workbook-error.example.json"),
 )
 INVALID_PAIRS = (
     (
@@ -26,6 +27,7 @@ INVALID_PAIRS = (
     ),
     ("raw-workbook.schema.json", "invalid/raw-workbook-invalid-value-type.json"),
     ("raw-workbook.schema.json", "invalid/raw-workbook-missing-workbook.json"),
+    ("raw-workbook.schema.json", "invalid/raw-workbook-error-token-as-code.json"),
 )
 
 

@@ -61,12 +61,33 @@
         "rowIndex": { "type": "integer", "minimum": 1 },
         "columnIndex": { "type": "integer", "minimum": 1 },
         "valueType": { "type": "string", "enum": ["STRING", "INTEGER", "DECIMAL", "DATE", "DATETIME", "BOOLEAN", "FORMULA", "ERROR", "EMPTY", "UNKNOWN"] },
-        "rawValue": { "$ref": "#/$defs/rawValue" },
+        "rawValue": {
+          "$ref": "#/$defs/rawValue",
+          "description": "Exact source value; Excel error tokens such as #REF! are preserved here."
+        },
         "displayValue": { "type": ["string", "null"] },
         "formula": { "anyOf": [{ "$ref": "#/$defs/formula" }, { "type": "null" }] },
         "cachedValue": { "$ref": "#/$defs/rawValue" },
-        "errorCode": { "type": ["string", "null"], "pattern": "^[A-Z0-9_]+$" }
-      }
+        "errorCode": {
+          "type": ["string", "null"],
+          "pattern": "^[A-Z][A-Z0-9_]*$",
+          "description": "Stable machine code for an error; the original Excel token belongs in rawValue."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "valueType": { "const": "ERROR" } },
+            "required": ["valueType"]
+          },
+          "then": {
+            "properties": {
+              "rawValue": { "type": "string", "minLength": 1 },
+              "errorCode": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]*$" }
+            }
+          }
+        }
+      ]
     },
     "row": {
       "type": "object",

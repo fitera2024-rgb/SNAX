@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
@@ -11,6 +12,8 @@ from uuid import UUID
 from snax_import.domain.errors import InvalidValue
 
 type RawValue = str | int | Decimal | date | datetime | bool | None
+
+_MACHINE_CODE_PATTERN = re.compile(r"^[A-Z][A-Z0-9_]*$")
 
 
 class ValueType(StrEnum):
@@ -53,6 +56,12 @@ def _require_non_negative(value: int, field: str) -> None:
 def _require_non_blank(value: str, field: str) -> None:
     if not isinstance(value, str) or not value.strip():
         raise InvalidValue(field, "Значение обязательно")
+
+
+def _require_machine_code(value: str, field: str) -> None:
+    _require_non_blank(value, field)
+    if _MACHINE_CODE_PATTERN.fullmatch(value) is None:
+        raise InvalidValue(field, "Код должен быть стабильным machine code")
 
 
 def _require_utc(value: datetime, field: str) -> None:
@@ -172,10 +181,13 @@ class Cell:
             raise InvalidValue(
                 "cell.cachedValue", "cachedValue должен совпадать с formula.cachedResult"
             )
-        if self.value_type is ValueType.ERROR and not self.error_code:
-            raise InvalidValue("cell.errorCode", "Для ERROR требуется стабильный error code")
+        if self.value_type is ValueType.ERROR:
+            if not isinstance(self.raw_value, str) or not self.raw_value.strip():
+                raise InvalidValue("cell.rawValue", "Для ERROR требуется исходное значение ошибки")
+            if not self.error_code:
+                raise InvalidValue("cell.errorCode", "Для ERROR требуется стабильный error code")
         if self.error_code is not None:
-            _require_non_blank(self.error_code, "cell.errorCode")
+            _require_machine_code(self.error_code, "cell.errorCode")
 
     def to_dict(self) -> dict[str, object]:
         return {
