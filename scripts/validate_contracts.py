@@ -13,6 +13,16 @@ PAIRS = (
     ("schemas/import-package.schema.json", "examples/import-package.example.json"),
     ("schemas/mapping-sync.schema.json", "examples/mapping-sync.example.json"),
     ("schemas/receipt-package.schema.json", "examples/receipt-package.example.json"),
+    (
+        "schemas/processing-job-message.schema.json",
+        "examples/processing-job-message.example.json",
+    ),
+)
+INVALID_PAIRS = (
+    (
+        "schemas/processing-job-message.schema.json",
+        "invalid/processing-job-message-dangerous-payload.json",
+    ),
 )
 
 
@@ -30,6 +40,12 @@ def main() -> None:
         Draft202012Validator.check_schema(schema)
         Draft202012Validator(schema).validate(example)
         print(f"validated {example_path} against {schema_path}")
+    for schema_path, example_path in INVALID_PAIRS:
+        schema = load_json(schema_path)
+        example = load_json(example_path)
+        if not list(Draft202012Validator(schema).iter_errors(example)):
+            raise SystemExit(f"invalid fixture unexpectedly passed: {example_path}")
+        print(f"rejected {example_path} against {schema_path}")
     print("validated contracts/openapi.yaml")
 
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from itertools import product
 from uuid import uuid4
@@ -123,15 +124,10 @@ def test_events_and_processing_runs_enforce_domain_invariants() -> None:
     with pytest.raises(InvalidValue):
         ProcessingRun.create(uuid4(), 0)
     with pytest.raises(InvalidValue):
-        ProcessingRun(
-            id=uuid4(),
-            import_id=uuid4(),
-            run_number=1,
-            status="PROCESSING",
+        replace(
+            ProcessingRun.create(uuid4(), 1, now=now),
             started_at=now,
             completed_at=now - timedelta(seconds=1),
-            failure_code=None,
-            failure_reason=None,
         )
 
 

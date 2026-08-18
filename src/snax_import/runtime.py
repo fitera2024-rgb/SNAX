@@ -16,6 +16,7 @@ from snax_import.domain.ports import ObjectStoragePort, UnitOfWorkPort
 class Runtime:
     service: ImportRegistrationService
     storage: ObjectStoragePort
+    uow_factory: object
     database_engine: object | None = None
 
 
@@ -56,8 +57,10 @@ def build_runtime(config: Settings) -> Runtime:
                 storage=storage,
                 max_upload_bytes=config.max_upload_bytes,
                 temp_directory=temp_directory,
+                processing_autostart=config.processing_autostart,
             ),
             storage=storage,
+            uow_factory=sql_uow_factory,
             database_engine=engine,
         )
 
@@ -75,6 +78,8 @@ def build_runtime(config: Settings) -> Runtime:
             storage=storage,
             max_upload_bytes=config.max_upload_bytes,
             temp_directory=temp_directory,
+            processing_autostart=config.processing_autostart,
         ),
         storage=storage,
+        uow_factory=memory_uow_factory,
     )

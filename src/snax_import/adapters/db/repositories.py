@@ -65,8 +65,11 @@ class SqlAlchemyImportRepository(ImportRepositoryPort):
     def _query(self) -> Select[tuple[ImportModel]]:
         return select(ImportModel).options(selectinload(ImportModel.events))
 
-    def by_id(self, import_id: UUID) -> Import | None:
-        model = self.session.scalar(self._query().where(ImportModel.id == import_id))
+    def by_id(self, import_id: UUID, *, for_update: bool = False) -> Import | None:
+        query = self._query().where(ImportModel.id == import_id)
+        if for_update:
+            query = query.with_for_update()
+        model = self.session.scalar(query)
         return _import_from_model(model) if model is not None else None
 
     def by_idempotency(self, key: str) -> Import | None:
@@ -88,6 +91,16 @@ class SqlAlchemyImportRepository(ImportRepositoryPort):
             .where(ImportModel.id == import_id)
         )
         return _source_from_model(model) if model is not None else None
+
+    def claim_stored_batch(self, *, limit: int) -> Sequence[Import]:
+        models = self.session.scalars(
+            self._query()
+            .where(ImportModel.status == ImportStatus.STORED.value)
+            .order_by(ImportModel.created_at, ImportModel.id)
+            .limit(limit)
+            .with_for_update(skip_locked=True)
+        ).all()
+        return [_import_from_model(model) for model in models]
 
     def save_registration(
         self, source_file: SourceFile, aggregate: Import, events: Sequence[ImportStatusEvent]

@@ -3,9 +3,16 @@ from __future__ import annotations
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session, sessionmaker
 
+from snax_import.adapters.db.outbox_repository import SqlAlchemyOutboxRepository
+from snax_import.adapters.db.processing_repository import SqlAlchemyProcessingRunRepository
 from snax_import.adapters.db.repositories import SqlAlchemyImportRepository
 from snax_import.domain.errors import PersistenceConflict
-from snax_import.domain.ports import ImportRepositoryPort, UnitOfWorkPort
+from snax_import.domain.ports import (
+    ImportRepositoryPort,
+    OutboxRepositoryPort,
+    ProcessingRunRepositoryPort,
+    UnitOfWorkPort,
+)
 
 
 class SqlAlchemyUnitOfWork:
@@ -13,10 +20,14 @@ class SqlAlchemyUnitOfWork:
         self.factory = factory
         self.session: Session | None = None
         self.imports: ImportRepositoryPort
+        self.processing_runs: ProcessingRunRepositoryPort
+        self.outbox: OutboxRepositoryPort
 
     def __enter__(self) -> UnitOfWorkPort:
         self.session = self.factory()
         self.imports = SqlAlchemyImportRepository(self.session)
+        self.processing_runs = SqlAlchemyProcessingRunRepository(self.session)
+        self.outbox = SqlAlchemyOutboxRepository(self.session)
         return self
 
     def __exit__(self, exc_type: object, exc_value: object, traceback: object) -> None:
