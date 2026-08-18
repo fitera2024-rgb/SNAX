@@ -61,7 +61,10 @@ def _build_service() -> tuple[ImportRegistrationService, S3ObjectStorage]:
     )
 
 
-@pytest.mark.skipif(not _integration_available(), reason="PostgreSQL and MinIO settings are required")
+@pytest.mark.skipif(
+    not _integration_available(),
+    reason="PostgreSQL and MinIO settings are required",
+)
 def test_concurrent_duplicate_registration_creates_one_import_and_one_object() -> None:
     payload = f"postgres-minio-race-{uuid4()}".encode()
     digest = Sha256Digest(hashlib.sha256(payload).hexdigest())
