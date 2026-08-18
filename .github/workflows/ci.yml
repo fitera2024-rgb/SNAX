@@ -20,6 +20,11 @@ jobs:
       - run: ruff format --check .
       - run: mypy src
       - run: pytest -q -m "not integration"
+      - name: Raw workbook model and synthetic reader tests
+        run: >-
+          pytest -q tests/test_raw_workbook.py
+          tests/test_raw_workbook_properties.py
+          tests/test_synthetic_workbook_reader.py
       - run: python scripts/validate_contracts.py
       - run: python scripts/validate_manifest.py
       # The first-party editable distribution is not published on PyPI; audit all
