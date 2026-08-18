@@ -23,4 +23,3 @@ delivery tests) немедленно commit/publish в эту же ветку и
 contract/manifest, dependency и frontend gates. Не считать skipped live tests успехом. В
 конце создай review draft, переведи task card в `REVIEW`, сохрани PR Draft и передай на
 независимое GPT-5.6 Pro review без merge и без заявления `READY_TO_MERGE`.
-

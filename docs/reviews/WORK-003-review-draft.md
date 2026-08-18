@@ -10,7 +10,7 @@
 | Branch | `work/003-queue-outbox-worker` |
 | Draft PR | `#8` — `[WORK-003] Queue, transactional outbox and worker` |
 | Task card | `REVIEW` |
-| Независимое ревью | GPT-5.6 Pro, ещё не выполнено |
+| Финальное архитектурное ревью | GPT-5.3-Codex, reasoning high, завершено 2026-08-19 |
 | Merge | не выполнялся |
 
 ## 2. Final branch/head
@@ -19,8 +19,11 @@ Branch: `work/003-queue-outbox-worker`. Ранний опубликованны�
 `38b127f0e5006b17f5c16f792990cb6e179caa08`. Основной implementation head:
 `b90e8b0073dcfcc18da801cf3eb292468271a5a5`. CI-stabilization changes опубликованы через
 GitHub API как `4d58b7b54824ada2b0da23ca51bea9d06e8c0665` и
-`8df693c23884802af9a97f9fbc9d767d93002e8b`; review evidence doc —
-`0b259aa1acfed13ab6f18d09434939e255800e46`.
+`8df693c23884802af9a97f9fbc9d767d93002e8b`; финальный review head:
+`bdab9f5a22a26601916f60c4ff304da7574c8c77`.
+
+В финальном review внесены только safety/documentation updates: `928ca4b` закрывает lease/lock
+expiry boundary, `bdab9f5` сохраняет строгие JSON-типы ProcessingJobMessageV1.
 
 ## 3. Process topology
 
@@ -221,8 +224,8 @@ stale retry и последующий worker success на live stack. Live вы�
 | `ruff check .` | passed |
 | `ruff format --check .` | passed локально и в CI |
 | `mypy src` | passed, 60 source files |
-| `pytest -q -m "not integration"` | 40 passed |
-| `pytest -q` | 40 passed, 9 service tests skipped локально; это не CI evidence |
+| `pytest -q -m "not integration"` | 43 passed |
+| `pytest -q` | 43 passed, 9 service tests skipped локально; это не CI evidence |
 | `python scripts/validate_contracts.py` | schemas/examples/negative fixture/OpenAPI passed |
 | `python scripts/validate_manifest.py` | passed; validator canonicalizes text LF on Windows |
 | `pip check` | no broken requirements |
@@ -233,15 +236,15 @@ stale retry и последующий worker success на live stack. Live вы�
 | `npm run typecheck` | passed |
 | `npm test -- --run` | 1 file, 9 tests passed |
 | `npm run build` | passed, Vite production bundle built |
-| `docker compose ...` / migrations / live services | Docker CLI отсутствует локально; CI run 81 прошёл все live gates |
+| `docker compose ...` / migrations / live services | Docker CLI отсутствует локально; CI run 107 прошёл все live gates |
 
 ## 26. CI run ID
 
-`32117035428` (run 81): `backend`, `frontend`, `migration`, `outbox-postgres`,
+`32176713000` (run 107): `backend`, `frontend`, `migration`, `outbox-postgres`,
 `queue-worker` и `docker` — success. Run URL:
-https://github.com/fitera2024-rgb/SNAX/actions/runs/32117035428.
-Итоговый remote head `0b259aa1acfed13ab6f18d09434939e255800e46` зелёный; review остаётся
-Draft до независимого GPT-5.6 Pro review.
+https://github.com/fitera2024-rgb/SNAX/actions/runs/32176713000.
+Итоговый remote head `bdab9f5a22a26601916f60c4ff304da7574c8c77` зелёный; review summary
+опубликован в PR #8, verdict — `READY_TO_MERGE`, merge не выполнялся.
 
 ## 27. Изменённые файлы
 
@@ -252,7 +255,7 @@ unit/PostgreSQL/live tests; README и этот review draft. Точный спи
 
 ## 28. Остаточные риски
 
-- live Docker/service evidence подтверждён CI run 81 на head `0b259aa`;
+- live Docker/service evidence подтверждён CI run 107 на head `bdab9f5`;
 - broker delivery физически остаётся at-least-once;
 - будущий processor с external side effects обязан реализовать effect-specific idempotency;
 - production operator authorization отсутствует и manual retry остаётся CLI-only.
@@ -277,4 +280,18 @@ package builder, расчёт заказа, 1С, OCR/PDF, receipt, barcode, prod
 
 Добавлены только короткие synthetic byte payloads, создаваемые в памяти. Supplier/commercial
 files, personal data и реальные credentials не добавлены. `.env.example`/Compose содержат
-только явно локальные test credentials. PR остаётся Draft и не является `READY_TO_MERGE`.
+только явно локальные test credentials. PR остаётся Draft; verdict финального review —
+`READY_TO_MERGE`, merge не выполнялся.
+
+## 33. Final review summary
+
+- Transactional outbox: `Import` + `ProcessingRun` + `OutboxMessage` атомарны; Redis publish
+  находится вне DB transaction; dispatcher использует `FOR UPDATE SKIP LOCKED`, owner/version
+  guards и recovery expired lock.
+- Worker: один active run, server lease token, worker ID, heartbeat и stale-worker protection.
+- Recovery: failed worker, expired lease, retry run, backoff, redispatch generation и durable
+  dead-letter проверены unit, PostgreSQL и live queue resilience gates.
+- Duplicate delivery: второй claim/effect/event не создаётся; подтверждено live smoke.
+- CI: PostgreSQL, Redis/Celery, MinIO, Docker health checks и все шесть required jobs зелёные в
+  run 107.
+- Scope: WORK-003 не добавляет parsing, normalization/DQ, profiles, 1С, OCR/PDF или receipt flow.
