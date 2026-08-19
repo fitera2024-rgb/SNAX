@@ -540,9 +540,7 @@ class XlsWorkbookReader(WorkbookReader):
         return time.monotonic() - started > options.timeout_seconds
 
     @staticmethod
-    def _failed_result(
-        issues: list[ReaderIssue], bytes_read: int, started: float
-    ) -> ReaderResult:
+    def _failed_result(issues: list[ReaderIssue], bytes_read: int, started: float) -> ReaderResult:
         return ReaderResult(
             workbook=None,
             issues=tuple(issues),

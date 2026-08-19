@@ -61,6 +61,10 @@ class ReaderOptions:
     max_cells: int = 10_000_000
     timeout_seconds: float = 60.0
     memory_limit: int = 512 * 1024 * 1024
+    csv_encoding: str | None = None
+    csv_dialect: str | None = None
+    csv_delimiter: str | None = None
+    csv_quotechar: str | None = None
 
     def __post_init__(self) -> None:
         for field_name in (
@@ -74,6 +78,20 @@ class ReaderOptions:
             _positive(getattr(self, field_name), field_name)
         if isinstance(self.timeout_seconds, bool) or self.timeout_seconds <= 0:
             raise InvalidValue("timeoutSeconds", "Timeout должен быть положительным числом")
+        for field_name in ("csv_encoding", "csv_dialect"):
+            value = getattr(self, field_name)
+            if value is not None:
+                _non_blank(value, field_name)
+        for field_name in ("csv_delimiter", "csv_quotechar"):
+            value = getattr(self, field_name)
+            if value is not None and (not isinstance(value, str) or len(value) != 1):
+                raise InvalidValue(field_name, "CSV separator должен состоять из одного символа")
+            if value in {"\r", "\n"}:
+                raise InvalidValue(
+                    field_name, "Перевод строки нельзя использовать как CSV separator"
+                )
+        if self.csv_delimiter is not None and self.csv_delimiter == self.csv_quotechar:
+            raise InvalidValue("csvDelimiter", "CSV delimiter и quote character должны отличаться")
 
 
 @dataclass(frozen=True, slots=True)
