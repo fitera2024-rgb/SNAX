@@ -1,0 +1,35 @@
+name: Temporary Whisper model artifact
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package-model:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Download multilingual Whisper small q5_1 model
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -L --fail --retry 5 --retry-delay 5 \
+            -o ggml-small-q5_1.bin \
+            https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small-q5_1.bin
+          test -s ggml-small-q5_1.bin
+          sha256sum ggml-small-q5_1.bin | tee SHA256SUMS.txt
+
+      - name: Upload model as short-lived artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ggml-small-q5_1
+          path: |
+            ggml-small-q5_1.bin
+            SHA256SUMS.txt
+          retention-days: 1
+          compression-level: 0
