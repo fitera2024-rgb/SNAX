@@ -201,6 +201,12 @@
           "type": "string",
           "enum": [
             "FILE_TOO_LARGE",
+            "XLS_TOO_LARGE",
+            "XLS_CORRUPTED",
+            "XLS_UNSUPPORTED",
+            "XLS_PASSWORD_PROTECTED",
+            "ROW_LIMIT_EXCEEDED",
+            "SHEET_LIMIT_EXCEEDED",
             "WORKBOOK_TOO_MANY_SHEETS",
             "WORKBOOK_TOO_MANY_ROWS",
             "WORKBOOK_TOO_MANY_COLUMNS",
