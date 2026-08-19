@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from enum import StrEnum
@@ -11,7 +11,7 @@ from uuid import UUID
 
 from snax_import.domain.errors import InvalidValue
 
-type RawValue = str | int | Decimal | date | datetime | bool | None
+RawValue = str | int | Decimal | date | datetime | bool | None
 
 _MACHINE_CODE_PATTERN = re.compile(r"^[A-Z][A-Z0-9_]*$")
 
@@ -321,7 +321,7 @@ class Workbook:
     format: WorkbookFormat
     created_at: datetime
     sheets: tuple[Sheet, ...] = ()
-    workbook_metadata: Mapping[str, str] = MappingProxyType({})
+    workbook_metadata: Mapping[str, str] = field(default_factory=lambda: MappingProxyType({}))
 
     def __post_init__(self) -> None:
         _require_utc(self.created_at, "workbook.createdAt")
