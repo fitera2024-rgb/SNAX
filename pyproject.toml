@@ -19,6 +19,7 @@ dependencies = [
   "psycopg[binary]>=3.2.0",
   "jsonschema>=4.23.0",
   "pyyaml>=6.0.1",
+  "openpyxl>=3.1.5",
   "requests>=2.31.0",
   "redis>=5.0.0,<7.0.0",
   "sqlalchemy>=2.0.36",
@@ -45,6 +46,7 @@ where = ["src"]
 [tool.pytest.ini_options]
 addopts = "-q"
 testpaths = ["tests"]
+pythonpath = ["src"]
 markers = [
   "integration: requires PostgreSQL/MinIO or an explicit integration environment",
 ]
