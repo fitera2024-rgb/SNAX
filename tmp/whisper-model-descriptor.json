@@ -1,0 +1,9 @@
+{
+  "suggestedFilename": "ggml-small-q5_1.zip",
+  "files": [
+    {
+      "url": "https://github.com/Bagani/rec2text-models/raw/refs/heads/main/ggml-small-q5_1.bin",
+      "zipPath": "ggml-small-q5_1.bin"
+    }
+  ]
+}
