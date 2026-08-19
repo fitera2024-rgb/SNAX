@@ -1,0 +1,40 @@
+{
+  "id": "33333333-3333-4333-8333-333333333331",
+  "supplierId": "SUPPLIER-VERSIONED",
+  "name": "Versioned synthetic profile",
+  "description": "Historical version is retained",
+  "status": "ACTIVE",
+  "currentVersion": 2,
+  "createdAt": "2026-08-18T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z",
+  "versions": [
+    {
+      "id": "33333333-3333-4333-8333-333333333332",
+      "profileId": "33333333-3333-4333-8333-333333333331",
+      "versionNumber": 1,
+      "schemaVersion": "1.0.0",
+      "effectiveFrom": "2026-08-18T00:00:00Z",
+      "effectiveTo": "2026-08-19T00:00:00Z",
+      "createdAt": "2026-08-18T00:00:00Z",
+      "createdBy": "synthetic-test",
+      "fileRules": [],
+      "sheetMappings": [],
+      "columnMappings": [],
+      "validationRules": []
+    },
+    {
+      "id": "33333333-3333-4333-8333-333333333333",
+      "profileId": "33333333-3333-4333-8333-333333333331",
+      "versionNumber": 2,
+      "schemaVersion": "1.1.0",
+      "effectiveFrom": "2026-08-19T00:00:00Z",
+      "effectiveTo": null,
+      "createdAt": "2026-08-19T00:00:00Z",
+      "createdBy": "synthetic-test",
+      "fileRules": [],
+      "sheetMappings": [],
+      "columnMappings": [],
+      "validationRules": []
+    }
+  ]
+}

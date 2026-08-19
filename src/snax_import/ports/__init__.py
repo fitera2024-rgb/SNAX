@@ -1,5 +1,6 @@
 """Ports used by application services and infrastructure adapters."""
 
+from snax_import.ports.supplier_profile_repository import SupplierProfileRepository
 from snax_import.ports.workbook_reader import (
     RawWorkbookResult,
     ReaderIssue,
@@ -18,4 +19,5 @@ __all__ = [
     "ReaderResult",
     "ReaderStatistics",
     "WorkbookReader",
+    "SupplierProfileRepository",
 ]

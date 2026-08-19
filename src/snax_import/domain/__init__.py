@@ -1,1 +1,43 @@
 """Framework-neutral import domain."""
+
+from snax_import.domain.supplier_profile import (
+    DataType,
+    ProfileStatus,
+    SheetPurpose,
+    SupplierColumnMapping,
+    SupplierDataType,
+    SupplierFileRule,
+    SupplierProfile,
+    SupplierProfileStatus,
+    SupplierProfileValidationIssue,
+    SupplierProfileValidator,
+    SupplierProfileVersion,
+    SupplierSheetMapping,
+    SupplierTargetField,
+    SupplierValidationRule,
+    SupplierValidationRuleType,
+    TargetField,
+    ValidationRuleType,
+    ValidationSeverity,
+)
+
+__all__ = [
+    "DataType",
+    "ProfileStatus",
+    "SheetPurpose",
+    "SupplierColumnMapping",
+    "SupplierDataType",
+    "SupplierFileRule",
+    "SupplierProfile",
+    "SupplierProfileStatus",
+    "SupplierProfileValidationIssue",
+    "SupplierProfileValidator",
+    "SupplierProfileVersion",
+    "SupplierSheetMapping",
+    "SupplierTargetField",
+    "SupplierValidationRule",
+    "SupplierValidationRuleType",
+    "TargetField",
+    "ValidationRuleType",
+    "ValidationSeverity",
+]

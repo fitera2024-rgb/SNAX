@@ -1,0 +1,68 @@
+{
+  "id": "22222222-2222-4222-8222-222222222221",
+  "supplierId": "SUPPLIER-MULTI",
+  "name": "Multi sheet synthetic profile",
+  "description": null,
+  "status": "ACTIVE",
+  "currentVersion": 1,
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z",
+  "versions": [
+    {
+      "id": "22222222-2222-4222-8222-222222222222",
+      "profileId": "22222222-2222-4222-8222-222222222221",
+      "versionNumber": 1,
+      "schemaVersion": "1.0.0",
+      "effectiveFrom": "2026-08-19T00:00:00Z",
+      "effectiveTo": null,
+      "createdAt": "2026-08-19T00:00:00Z",
+      "createdBy": "synthetic-test",
+      "fileRules": [
+        {
+          "extensions": [".xlsx"],
+          "mediaTypes": ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+          "filenamePattern": "multi-price*",
+          "expectedSheets": ["Price", "Stock"]
+        }
+      ],
+      "sheetMappings": [
+        {
+          "sheetName": "Price",
+          "purpose": "PRODUCT_PRICE",
+          "required": true,
+          "priority": 1
+        },
+        {
+          "sheetName": "Stock",
+          "purpose": "STOCK",
+          "required": false,
+          "priority": 2
+        }
+      ],
+      "columnMappings": [
+        {
+          "sourceColumn": "Code",
+          "targetField": "SUPPLIER_CODE",
+          "dataType": "STRING",
+          "required": true,
+          "description": null
+        },
+        {
+          "sourceColumn": "Available",
+          "targetField": "STOCK",
+          "dataType": "INTEGER",
+          "required": false,
+          "description": "Raw stock value; no conversion in profile layer"
+        }
+      ],
+      "validationRules": [
+        {
+          "field": "Code",
+          "ruleType": "MAX_LENGTH",
+          "value": 64,
+          "severity": "WARNING"
+        }
+      ]
+    }
+  ]
+}

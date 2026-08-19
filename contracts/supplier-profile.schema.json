@@ -1,0 +1,414 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snax.example/contracts/supplier-profile.schema.json",
+  "title": "SNAX Supplier Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "supplierId",
+    "name",
+    "description",
+    "status",
+    "currentVersion",
+    "createdAt",
+    "updatedAt",
+    "versions"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "supplierId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 2000
+    },
+    "status": {
+      "enum": [
+        "DRAFT",
+        "ACTIVE",
+        "ARCHIVED"
+      ]
+    },
+    "currentVersion": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "versions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/profileVersion"
+      }
+    }
+  },
+  "$defs": {
+    "fileRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "extensions",
+        "mediaTypes",
+        "filenamePattern",
+        "expectedSheets"
+      ],
+      "properties": {
+        "extensions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^\\."
+          },
+          "uniqueItems": true
+        },
+        "mediaTypes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "filenamePattern": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "expectedSheets": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "sheetMapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sheetName",
+        "purpose",
+        "required",
+        "priority"
+      ],
+      "properties": {
+        "sheetName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "purpose": {
+          "enum": [
+            "PRODUCT_PRICE",
+            "STOCK",
+            "CATALOG",
+            "REFERENCE",
+            "UNKNOWN"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "priority": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "columnMapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceColumn",
+        "targetField",
+        "dataType",
+        "required",
+        "description"
+      ],
+      "properties": {
+        "sourceColumn": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "targetField": {
+          "enum": [
+            "SUPPLIER_CODE",
+            "NAME",
+            "DESCRIPTION",
+            "PRICE",
+            "STOCK",
+            "BARCODE",
+            "UNIT",
+            "CATEGORY",
+            "UNKNOWN"
+          ]
+        },
+        "dataType": {
+          "enum": [
+            "STRING",
+            "INTEGER",
+            "DECIMAL",
+            "DATE",
+            "BOOLEAN",
+            "UNKNOWN"
+          ]
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1000
+        }
+      }
+    },
+    "validationRule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "field",
+        "ruleType",
+        "value",
+        "severity"
+      ],
+      "properties": {
+        "field": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "ruleType": {
+          "enum": [
+            "REQUIRED",
+            "MAX_LENGTH",
+            "REGEX",
+            "VALUE_RANGE"
+          ]
+        },
+        "value": {},
+        "severity": {
+          "enum": [
+            "ERROR",
+            "WARNING",
+            "INFO",
+            "CRITICAL"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "ruleType": {
+                "const": "REQUIRED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "ruleType": {
+                "const": "MAX_LENGTH"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "ruleType": {
+                "const": "REGEX"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "ruleType": {
+                "const": "VALUE_RANGE"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": false,
+                "properties": {
+                  "minimum": {},
+                  "maximum": {}
+                },
+                "anyOf": [
+                  {
+                    "required": ["minimum"]
+                  },
+                  {
+                    "required": ["maximum"]
+                  }
+                ]
+                }
+              }
+            }
+          }
+      ]
+    },
+    "profileVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "profileId",
+        "versionNumber",
+        "schemaVersion",
+        "effectiveFrom",
+        "effectiveTo",
+        "createdAt",
+        "createdBy",
+        "fileRules",
+        "sheetMappings",
+        "columnMappings",
+        "validationRules"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "profileId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "versionNumber": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "schemaVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 50
+        },
+        "effectiveFrom": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "effectiveTo": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdBy": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "fileRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fileRule"
+          }
+        },
+        "sheetMappings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sheetMapping"
+          }
+        },
+        "columnMappings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/columnMapping"
+          }
+        },
+        "validationRules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/validationRule"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "effectiveTo": {
+                "type": "string"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "effectiveFrom": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

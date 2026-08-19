@@ -1,0 +1,26 @@
+{
+  "id": "44444444-4444-4444-8444-444444444442",
+  "supplierId": "SUPPLIER-INVALID",
+  "name": "Invalid profile",
+  "description": null,
+  "status": "PUBLISHED",
+  "currentVersion": 1,
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z",
+  "versions": [
+    {
+      "id": "44444444-4444-4444-8444-444444444443",
+      "profileId": "44444444-4444-4444-8444-444444444442",
+      "versionNumber": 1,
+      "schemaVersion": "1.0.0",
+      "effectiveFrom": null,
+      "effectiveTo": null,
+      "createdAt": "2026-08-19T00:00:00Z",
+      "createdBy": "synthetic-test",
+      "fileRules": [],
+      "sheetMappings": [],
+      "columnMappings": [],
+      "validationRules": []
+    }
+  ]
+}

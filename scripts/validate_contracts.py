@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 import yaml
-from jsonschema import Draft202012Validator
+from jsonschema import Draft202012Validator, FormatChecker
 from openapi_spec_validator import validate
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,6 +19,18 @@ PAIRS = (
     ),
     ("raw-workbook.schema.json", "examples/raw-workbook.example.json"),
     ("raw-workbook.schema.json", "examples/raw-workbook-error.example.json"),
+    (
+        "supplier-profile.schema.json",
+        "examples/supplier-profile.simple_supplier_profile.json",
+    ),
+    (
+        "supplier-profile.schema.json",
+        "examples/supplier-profile.multi_sheet_profile.json",
+    ),
+    (
+        "supplier-profile.schema.json",
+        "examples/supplier-profile.versioned_profile.json",
+    ),
 )
 INVALID_PAIRS = (
     (
@@ -36,7 +48,33 @@ INVALID_PAIRS = (
         "raw-workbook.schema.json",
         "invalid/raw-workbook-formula-metadata-missing.json",
     ),
+    (
+        "supplier-profile.schema.json",
+        "invalid/supplier-profile.missing-supplier-id.json",
+    ),
+    (
+        "supplier-profile.schema.json",
+        "invalid/supplier-profile.invalid-status.json",
+    ),
+    (
+        "supplier-profile.schema.json",
+        "invalid/supplier-profile.invalid-target-field.json",
+    ),
+    (
+        "supplier-profile.schema.json",
+        "invalid/supplier-profile.invalid-version.json",
+    ),
+    (
+        "supplier-profile.schema.json",
+        "invalid/supplier-profile.invalid-uuid.json",
+    ),
+    (
+        "supplier-profile.schema.json",
+        "invalid/supplier-profile.invalid-datetime.json",
+    ),
 )
+
+FORMAT_CHECKER = FormatChecker()
 
 
 def load_json(relative_path: str) -> object:
@@ -51,12 +89,14 @@ def main() -> None:
         schema = load_json(schema_path)
         example = load_json(example_path)
         Draft202012Validator.check_schema(schema)
-        Draft202012Validator(schema).validate(example)
+        Draft202012Validator(schema, format_checker=FORMAT_CHECKER).validate(example)
         print(f"validated {example_path} against {schema_path}")
     for schema_path, example_path in INVALID_PAIRS:
         schema = load_json(schema_path)
         example = load_json(example_path)
-        if not list(Draft202012Validator(schema).iter_errors(example)):
+        if not list(
+            Draft202012Validator(schema, format_checker=FORMAT_CHECKER).iter_errors(example)
+        ):
             raise SystemExit(f"invalid fixture unexpectedly passed: {example_path}")
         print(f"rejected {example_path} against {schema_path}")
     print("validated contracts/openapi.yaml")

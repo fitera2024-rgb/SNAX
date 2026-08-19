@@ -1,0 +1,26 @@
+{
+  "id": "not-a-uuid",
+  "supplierId": "SUPPLIER-INVALID",
+  "name": "Invalid UUID profile",
+  "description": null,
+  "status": "DRAFT",
+  "currentVersion": 1,
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z",
+  "versions": [
+    {
+      "id": "66666666-6666-4666-8666-666666666661",
+      "profileId": "77777777-7777-4777-8777-777777777771",
+      "versionNumber": 1,
+      "schemaVersion": "1.0.0",
+      "effectiveFrom": null,
+      "effectiveTo": null,
+      "createdAt": "2026-08-19T00:00:00Z",
+      "createdBy": "synthetic-test",
+      "fileRules": [],
+      "sheetMappings": [],
+      "columnMappings": [],
+      "validationRules": []
+    }
+  ]
+}

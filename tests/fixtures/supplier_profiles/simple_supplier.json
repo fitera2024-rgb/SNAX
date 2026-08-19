@@ -1,0 +1,26 @@
+{
+  "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+  "supplierId": "SYNTHETIC-SIMPLE",
+  "name": "Synthetic simple profile",
+  "description": "No real supplier data",
+  "status": "DRAFT",
+  "currentVersion": 1,
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z",
+  "versions": [
+    {
+      "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa2",
+      "profileId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+      "versionNumber": 1,
+      "schemaVersion": "1.0.0",
+      "effectiveFrom": null,
+      "effectiveTo": null,
+      "createdAt": "2026-08-19T00:00:00Z",
+      "createdBy": "fixture",
+      "fileRules": [],
+      "sheetMappings": [],
+      "columnMappings": [],
+      "validationRules": []
+    }
+  ]
+}
