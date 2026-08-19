@@ -9,7 +9,10 @@ from fnmatch import fnmatchcase
 from snax_import.domain.profile_detection import (
     DetectionConfidence,
     DetectionResult,
+    DetectionStatus,
+    ProfileFingerprint,
     ProfileMatchCandidate,
+    ScoreComponent,
     confidence_for_score,
 )
 from snax_import.domain.raw_workbook import RawWorkbook, Workbook
@@ -84,6 +87,7 @@ class ProfileDetectionConfig:
     ambiguity_margin: float = 0.05
     high_confidence_threshold: float = 0.80
     medium_confidence_threshold: float = 0.50
+    structural_compatibility_threshold: float = 0.50
 
     def __post_init__(self) -> None:
         for field_name in (
@@ -91,6 +95,7 @@ class ProfileDetectionConfig:
             "ambiguity_margin",
             "high_confidence_threshold",
             "medium_confidence_threshold",
+            "structural_compatibility_threshold",
         ):
             _validate_ratio(float(getattr(self, field_name)), field_name)
         if self.medium_confidence_threshold > self.high_confidence_threshold:
@@ -101,6 +106,7 @@ class ProfileDetectionConfig:
 class _ScoredProfile:
     profile: SupplierProfile
     candidate: ProfileMatchCandidate
+    component_ratios: dict[str, float]
 
 
 class SupplierProfileDetector:
@@ -129,6 +135,7 @@ class SupplierProfileDetector:
         if not scored_profiles:
             return DetectionResult(
                 selected_profile=None,
+                status=DetectionStatus.PROFILE_NOT_FOUND,
                 candidates=(),
                 confidence=DetectionConfidence.LOW,
                 issues=(
@@ -140,9 +147,27 @@ class SupplierProfileDetector:
             )
 
         best = scored_profiles[0]
+        if self._is_template_changed(best):
+            return DetectionResult(
+                selected_profile=None,
+                status=DetectionStatus.TEMPLATE_CHANGED,
+                candidates=candidates,
+                confidence=self._confidence_without_selection(best.candidate.confidence),
+                issues=(
+                    self._issue(
+                        ReaderIssueCode.TEMPLATE_CHANGED,
+                        "Поставщик найден, но структура файла не соответствует активному профилю",
+                        details={
+                            "profileId": str(best.candidate.profile_id),
+                            "totalScore": f"{best.candidate.total_score:.2f}",
+                        },
+                    ),
+                ),
+            )
         if best.candidate.score < self.config.selection_threshold:
             return DetectionResult(
                 selected_profile=None,
+                status=DetectionStatus.PROFILE_NOT_FOUND,
                 candidates=candidates,
                 confidence=self._confidence_without_selection(best.candidate.confidence),
                 issues=(
@@ -163,6 +188,7 @@ class SupplierProfileDetector:
             if score_gap < self.config.ambiguity_margin:
                 return DetectionResult(
                     selected_profile=None,
+                    status=DetectionStatus.AMBIGUOUS_PROFILE,
                     candidates=candidates,
                     confidence=self._confidence_without_selection(best.candidate.confidence),
                     issues=(
@@ -182,6 +208,7 @@ class SupplierProfileDetector:
 
         return DetectionResult(
             selected_profile=best.profile,
+            status=DetectionStatus.MATCHED,
             candidates=candidates,
             confidence=best.candidate.confidence,
         )
@@ -203,20 +230,21 @@ class SupplierProfileDetector:
             return None
 
         version = profile.active_version
-        column_score, column_reason = self._column_score(workbook, version)
         best: _ScoredProfile | None = None
         for file_rule in version.file_rules:
+            fingerprint = self._profile_fingerprint(version, file_rule)
+            column_score, column_reason = self._column_score(workbook, fingerprint)
             component_scores = {
-                "filename": self._filename_score(workbook, file_rule),
-                "sheet": self._sheet_score(workbook, version, file_rule),
+                "filename": self._filename_score(workbook, fingerprint),
+                "sheet": self._sheet_score(workbook, fingerprint),
                 "columns": column_score,
-                "extension": self._extension_score(workbook, file_rule),
-                "media_type": self._media_type_score(workbook, file_rule),
+                "extension": self._extension_score(workbook, fingerprint),
+                "media_type": self._media_type_score(workbook, fingerprint),
             }
             active_features = [
                 feature
                 for feature in self._FEATURES
-                if self._feature_is_declared(feature, version, file_rule)
+                if self._feature_is_declared(feature, fingerprint)
                 and self.config.weights.for_feature(feature) > 0.0
             ]
             denominator = sum(
@@ -224,30 +252,59 @@ class SupplierProfileDetector:
             )
             if denominator == 0.0:
                 continue
-            score = (
-                sum(
-                    component_scores[feature] * self.config.weights.for_feature(feature)
-                    for feature in active_features
+            component_points = {
+                feature: round(
+                    component_scores[feature]
+                    * self.config.weights.for_feature(feature)
+                    / denominator
+                    * 100.0,
+                    2,
                 )
-                / denominator
-            )
-            score = round(max(0.0, min(1.0, score)), 6)
+                for feature in active_features
+            }
+            component_weights = {
+                feature: round(
+                    self.config.weights.for_feature(feature) / denominator * 100.0,
+                    2,
+                )
+                for feature in active_features
+            }
+            total_score = round(sum(component_points.values()), 2)
             reasons = tuple(
                 self._reason(feature, component_scores[feature], file_rule, column_reason)
                 for feature in active_features
             )
+            component_names = {
+                "filename": "filename",
+                "sheet": "sheets",
+                "columns": "columns",
+                "extension": "extension",
+                "media_type": "mediaType",
+            }
             candidate = ProfileMatchCandidate(
                 profile_id=profile.id,
                 version=version.version_number,
-                score=score,
+                total_score=total_score,
                 confidence=confidence_for_score(
-                    score,
+                    total_score / 100.0,
                     high_threshold=self.config.high_confidence_threshold,
                     medium_threshold=self.config.medium_confidence_threshold,
                 ),
+                fingerprint=fingerprint,
                 reasons=reasons,
+                score_components={
+                    component_names[feature]: ScoreComponent(
+                        score=component_points.get(feature, 0.0),
+                        weight=component_weights.get(feature, 0.0),
+                    )
+                    for feature in self._FEATURES
+                },
             )
-            current = _ScoredProfile(profile=profile, candidate=candidate)
+            current = _ScoredProfile(
+                profile=profile,
+                candidate=candidate,
+                component_ratios=component_scores,
+            )
             if best is None or candidate.score > best.candidate.score:
                 best = current
 
@@ -256,29 +313,44 @@ class SupplierProfileDetector:
     @staticmethod
     def _feature_is_declared(
         feature: str,
-        version: SupplierProfileVersion,
-        file_rule: SupplierFileRule,
+        fingerprint: ProfileFingerprint,
     ) -> bool:
         if feature == "filename":
-            return file_rule.filename_pattern is not None
+            return fingerprint.filename_pattern is not None
         if feature == "sheet":
-            return bool(
-                file_rule.expected_sheets
-                or tuple(
-                    mapping.sheet_name for mapping in version.sheet_mappings if mapping.required
-                )
-            )
+            return bool(fingerprint.sheet_names)
         if feature == "columns":
-            return bool(version.column_mappings)
+            return bool(fingerprint.column_names)
         if feature == "extension":
-            return bool(file_rule.extensions)
+            return bool(fingerprint.extensions)
         if feature == "media_type":
-            return bool(file_rule.media_types)
+            return bool(fingerprint.media_types)
         raise ValueError(f"Unknown feature: {feature}")
 
     @staticmethod
-    def _filename_score(workbook: Workbook, file_rule: SupplierFileRule) -> float:
-        pattern = file_rule.filename_pattern
+    def _profile_fingerprint(
+        version: SupplierProfileVersion,
+        file_rule: SupplierFileRule,
+    ) -> ProfileFingerprint:
+        sheet_names = file_rule.expected_sheets or tuple(
+            mapping.sheet_name for mapping in version.sheet_mappings if mapping.required
+        )
+        return ProfileFingerprint(
+            filename_pattern=file_rule.filename_pattern,
+            extensions=tuple(item.casefold() for item in file_rule.extensions),
+            media_types=tuple(
+                item.split(";", 1)[0].strip().casefold() for item in file_rule.media_types
+            ),
+            sheet_names=tuple(SupplierProfileDetector._normalize(item) for item in sheet_names),
+            column_names=tuple(
+                SupplierProfileDetector._normalize(mapping.source_column)
+                for mapping in version.column_mappings
+            ),
+        )
+
+    @staticmethod
+    def _filename_score(workbook: Workbook, fingerprint: ProfileFingerprint) -> float:
+        pattern = fingerprint.filename_pattern
         if pattern is None:
             return 0.0
         filename = SupplierProfileDetector._basename(workbook.filename.name)
@@ -291,44 +363,37 @@ class SupplierProfileDetector:
             return 0.0
 
     @staticmethod
-    def _extension_score(workbook: Workbook, file_rule: SupplierFileRule) -> float:
+    def _extension_score(workbook: Workbook, fingerprint: ProfileFingerprint) -> float:
         extension = SupplierProfileDetector._extension(workbook.filename.name)
-        expected = {item.casefold() for item in file_rule.extensions}
+        expected = set(fingerprint.extensions)
         return 1.0 if extension is not None and extension.casefold() in expected else 0.0
 
     @staticmethod
-    def _media_type_score(workbook: Workbook, file_rule: SupplierFileRule) -> float:
+    def _media_type_score(workbook: Workbook, fingerprint: ProfileFingerprint) -> float:
         media_type = workbook.filename.media_type
         if media_type is None:
             return 0.0
         normalized = media_type.split(";", 1)[0].strip().casefold()
-        expected = {item.split(";", 1)[0].strip().casefold() for item in file_rule.media_types}
+        expected = set(fingerprint.media_types)
         return 1.0 if normalized in expected else 0.0
 
     @staticmethod
     def _sheet_score(
         workbook: Workbook,
-        version: SupplierProfileVersion,
-        file_rule: SupplierFileRule,
+        fingerprint: ProfileFingerprint,
     ) -> float:
-        expected_names = file_rule.expected_sheets or tuple(
-            mapping.sheet_name for mapping in version.sheet_mappings if mapping.required
-        )
-        if not expected_names:
+        if not fingerprint.sheet_names:
             return 0.0
         actual_names = {SupplierProfileDetector._normalize(sheet.name) for sheet in workbook.sheets}
-        expected = {SupplierProfileDetector._normalize(name) for name in expected_names}
+        expected = set(fingerprint.sheet_names)
         return len(expected & actual_names) / len(expected)
 
     @staticmethod
     def _column_score(
         workbook: Workbook,
-        version: SupplierProfileVersion,
+        fingerprint: ProfileFingerprint,
     ) -> tuple[float, str]:
-        expected = {
-            SupplierProfileDetector._normalize(mapping.source_column)
-            for mapping in version.column_mappings
-        }
+        expected = set(fingerprint.column_names)
         if not expected:
             return 0.0, "columns: no declared columns"
 
@@ -345,6 +410,40 @@ class SupplierProfileDetector:
                     best_matches = matches
         score = len(best_matches) / len(expected)
         return score, f"columns: {len(best_matches)}/{len(expected)} matched"
+
+    def _is_template_changed(self, scored: _ScoredProfile) -> bool:
+        fingerprint = scored.candidate.fingerprint
+        ratios = scored.component_ratios
+        if fingerprint.filename_pattern is None or ratios["filename"] < 1.0:
+            return False
+        declared_format = [
+            feature
+            for feature, values in (
+                ("extension", fingerprint.extensions),
+                ("media_type", fingerprint.media_types),
+            )
+            if values
+        ]
+        if declared_format and not any(ratios[feature] == 1.0 for feature in declared_format):
+            return False
+        structural = [
+            feature
+            for feature, values in (
+                ("sheet", fingerprint.sheet_names),
+                ("columns", fingerprint.column_names),
+            )
+            if values and self.config.weights.for_feature(feature) > 0.0
+        ]
+        if not structural:
+            return False
+        denominator = sum(self.config.weights.for_feature(feature) for feature in structural)
+        compatibility = (
+            sum(
+                ratios[feature] * self.config.weights.for_feature(feature) for feature in structural
+            )
+            / denominator
+        )
+        return compatibility < self.config.structural_compatibility_threshold
 
     @staticmethod
     def _cell_text(cell: object) -> str | None:

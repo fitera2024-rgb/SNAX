@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import cast
@@ -17,6 +18,7 @@ from snax_import.domain.errors import InvalidValue
 from snax_import.domain.profile_detection import (
     DetectionConfidence,
     DetectionResult,
+    DetectionStatus,
     confidence_for_score,
 )
 from snax_import.domain.raw_workbook import (
@@ -208,17 +210,25 @@ def test_confidence_thresholds_are_explicit() -> None:
     assert confidence_for_score(0.30) is DetectionConfidence.LOW
 
 
-def test_simple_match_returns_supplier_profile_and_explain_reasons() -> None:
+def test_det_001_known_supplier_returns_profile_and_explainable_score() -> None:
     workbook = _workbook(_fixture("supplier_a_match.json"))
     profile = _supplier_a_profile()
 
     result = SupplierProfileDetector().detect(workbook, (profile,))
 
     assert result.selected_profile == profile
+    assert result.status is DetectionStatus.MATCHED
     assert result.confidence is DetectionConfidence.HIGH
     assert {"filename pattern: matched", "sheet names: matched", "extension: matched"}.issubset(
         result.candidates[0].reasons
     )
+    candidate = result.candidates[0]
+    assert candidate.total_score == 100.0
+    assert candidate.fingerprint.filename_pattern == "price*"
+    assert candidate.fingerprint.sheet_names == ("прайс",)
+    assert candidate.fingerprint.column_names == ("артикул", "цена", "остаток")
+    assert candidate.score_components["filename"].to_dict() == {"score": 20.0, "weight": 20.0}
+    assert candidate.score_components["columns"].to_dict() == {"score": 40.0, "weight": 40.0}
     assert not result.issues
 
 
@@ -234,18 +244,19 @@ def test_multiple_candidates_are_returned_without_losing_ranked_scores() -> None
     assert result.selected_profile is None
 
 
-def test_no_match_returns_profile_not_found_reader_issue() -> None:
+def test_det_002_unknown_supplier_returns_profile_not_found() -> None:
     workbook = _workbook(_fixture("unknown.json"))
     profile = _supplier_a_profile()
 
     result = SupplierProfileDetector().detect(workbook, (profile,))
 
     assert result.selected_profile is None
+    assert result.status is DetectionStatus.PROFILE_NOT_FOUND
     assert not result.candidates
     assert result.issues[0].code is ReaderIssueCode.PROFILE_NOT_FOUND
 
 
-def test_ambiguous_match_never_selects_a_profile() -> None:
+def test_det_003_ambiguous_profiles_never_select_a_profile() -> None:
     workbook = _workbook(_fixture("ambiguous.json"))
     columns = (
         ("Артикул", SupplierTargetField.SUPPLIER_CODE, DataType.STRING),
@@ -279,6 +290,7 @@ def test_ambiguous_match_never_selects_a_profile() -> None:
     result = SupplierProfileDetector(config).detect(workbook, (first, second))
 
     assert result.selected_profile is None
+    assert result.status is DetectionStatus.AMBIGUOUS_PROFILE
     assert result.issues[0].code is ReaderIssueCode.AMBIGUOUS_PROFILE
     assert result.candidates[0].score == 0.82
     assert result.candidates[1].score == 0.80
@@ -337,7 +349,7 @@ def test_extra_sheets_do_not_penalize_a_profile_match() -> None:
     assert result.candidates[0].score == 1.0
 
 
-def test_partial_sheet_match_is_reported_as_a_fractional_score() -> None:
+def test_det_005_partial_match_is_reported_as_a_fractional_score() -> None:
     workbook = _workbook(_fixture("partial_sheet.json"))
     profile = _profile(
         name="Partial sheet profile",
@@ -385,16 +397,79 @@ def test_media_type_weight_changes_the_detection_score() -> None:
     assert weighted.issues[0].code is ReaderIssueCode.PROFILE_NOT_FOUND
 
 
-def test_changed_template_is_not_selected_automatically() -> None:
+def test_det_004_changed_template_has_distinct_blocking_status() -> None:
     workbook = _workbook(_fixture("template_changed.json"))
     profile = _supplier_a_profile()
 
     result = SupplierProfileDetector().detect(workbook, (profile,))
 
     assert result.selected_profile is None
+    assert result.status is DetectionStatus.TEMPLATE_CHANGED
     assert result.confidence is DetectionConfidence.LOW
     assert result.candidates[0].score == 0.3
-    assert result.issues[0].code is ReaderIssueCode.PROFILE_NOT_FOUND
+    assert result.issues[0].code is ReaderIssueCode.TEMPLATE_CHANGED
+
+
+def test_det_006_invalid_file_is_not_misclassified_as_a_supplier() -> None:
+    workbook = _workbook(_fixture("unknown.json"))
+
+    result = SupplierProfileDetector().detect(workbook, (_supplier_a_profile(),))
+
+    assert result.status is DetectionStatus.PROFILE_NOT_FOUND
+    assert result.selected_profile is None
+
+
+def test_det_007_large_workbook_is_detected_without_losing_fingerprint() -> None:
+    workbook = _workbook(_fixture("supplier_a_match.json"))
+    header = workbook.sheets[0].rows[0]
+    rows = (header,) + tuple(
+        Row(
+            index=index,
+            cells=(
+                Cell(
+                    coordinate=CellCoordinate(index, 1),
+                    row_index=index,
+                    column_index=1,
+                    value_type=ValueType.STRING,
+                    raw_value=f"SKU-{index}",
+                ),
+            ),
+        )
+        for index in range(2, 5_002)
+    )
+    large_sheet = replace(workbook.sheets[0], max_row=5_001, rows=rows)
+    large_workbook = replace(workbook, sheets=(large_sheet,))
+
+    result = SupplierProfileDetector().detect(large_workbook, (_supplier_a_profile(),))
+
+    assert result.status is DetectionStatus.MATCHED
+    assert result.candidates[0].fingerprint.column_names == ("артикул", "цена", "остаток")
+
+
+def test_det_008_result_contract_contains_ui_explanation_fields() -> None:
+    result = SupplierProfileDetector().detect(
+        _workbook(_fixture("supplier_a_match.json")),
+        (_supplier_a_profile(),),
+    )
+
+    payload = result.to_dict()
+    candidate = cast(list[dict[str, object]], payload["candidates"])[0]
+    assert payload["status"] == "MATCHED"
+    assert {"profileId", "totalScore", "confidence", "reasons", "scoreComponents"} <= set(candidate)
+
+
+def test_det_009_manager_approval_has_ranked_candidates_without_auto_selection() -> None:
+    workbook = _workbook(_fixture("supplier_a_match.json"))
+    first = _supplier_a_profile(filename_pattern="price*")
+    second = _supplier_a_profile(filename_pattern="*.xlsx")
+
+    result = SupplierProfileDetector().detect(workbook, (first, second))
+
+    assert result.status is DetectionStatus.AMBIGUOUS_PROFILE
+    assert result.selected_profile is None
+    assert [candidate.profile_id for candidate in result.candidates] == sorted(
+        (first.id, second.id), key=str
+    )
 
 
 def test_no_profile_result_is_low_confidence() -> None:

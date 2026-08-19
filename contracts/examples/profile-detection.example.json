@@ -25,13 +25,28 @@
       }
     ]
   },
+  "status": "MATCHED",
   "candidates": [
     {
       "profileId": "11111111-1111-4111-8111-111111111111",
       "version": 1,
-      "score": 0.95,
+      "totalScore": 98,
       "confidence": "HIGH",
-      "reasons": ["filename pattern: matched", "sheet names: matched", "columns: 3/3 matched"]
+      "fingerprint": {
+        "filenamePattern": "price*",
+        "extensions": [".xlsx"],
+        "mediaTypes": ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+        "sheetNames": ["прайс"],
+        "columnNames": ["артикул", "цена", "остаток"]
+      },
+      "reasons": ["filename pattern: matched", "sheet names: matched", "columns: 3/3 matched"],
+      "scoreComponents": {
+        "filename": { "score": 20, "weight": 20 },
+        "extension": { "score": 10, "weight": 10 },
+        "mediaType": { "score": 0, "weight": 0 },
+        "sheets": { "score": 30, "weight": 30 },
+        "columns": { "score": 38, "weight": 40 }
+      }
     }
   ],
   "confidence": "HIGH",

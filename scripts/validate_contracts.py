@@ -32,6 +32,12 @@ PAIRS = (
         "examples/supplier-profile.versioned_profile.json",
     ),
     ("profile-detection.schema.json", "examples/profile-detection.example.json"),
+    ("profile-detection.schema.json", "examples/profile-detection.ambiguous.example.json"),
+    (
+        "profile-detection.schema.json",
+        "examples/profile-detection.template-changed.example.json",
+    ),
+    ("profile-detection.schema.json", "examples/profile-detection.unknown.example.json"),
 )
 INVALID_PAIRS = (
     (

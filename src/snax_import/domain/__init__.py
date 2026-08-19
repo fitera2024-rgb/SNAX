@@ -3,7 +3,10 @@
 from snax_import.domain.profile_detection import (
     DetectionConfidence,
     DetectionResult,
+    DetectionStatus,
+    ProfileFingerprint,
     ProfileMatchCandidate,
+    ScoreComponent,
     confidence_for_score,
 )
 from snax_import.domain.supplier_profile import (
@@ -30,7 +33,10 @@ from snax_import.domain.supplier_profile import (
 __all__ = [
     "DetectionConfidence",
     "DetectionResult",
+    "DetectionStatus",
+    "ProfileFingerprint",
     "ProfileMatchCandidate",
+    "ScoreComponent",
     "DataType",
     "ProfileStatus",
     "SheetPurpose",

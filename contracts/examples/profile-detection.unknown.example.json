@@ -2,10 +2,10 @@
   "selectedProfile": null,
   "status": "PROFILE_NOT_FOUND",
   "candidates": [],
-  "confidence": "HIGH",
+  "confidence": "LOW",
   "issues": [
     {
-      "issueId": "profile-detection-profile-not-found",
+      "issueId": "profile-detection-profile_not_found",
       "code": "PROFILE_NOT_FOUND",
       "severity": "ERROR",
       "message": "Профиль поставщика не найден",

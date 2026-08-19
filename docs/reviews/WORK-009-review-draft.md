@@ -1,6 +1,6 @@
 # WORK-009 — Supplier Profile Detection review draft
 
-Status: `REVIEW`
+Status: `READY_TO_MERGE`
 
 Branch: `work/009-supplier-profile-detection`
 
@@ -20,13 +20,18 @@ Reader -> RawWorkbook -> SupplierProfileDetector -> DetectionResult
 Detector рассматривает только активную текущую версию профиля. В работу входят
 filename pattern, extension, sheet names, declared column names и media type.
 
+Для каждого file rule строится отдельный `ProfileFingerprint`: filename pattern,
+extensions, media types, нормализованные sheet names и column names. Этот объект
+используется всеми компонентами сравнения и сохраняется в explain result кандидата.
+
 В работу не входят product matching, номенклатура, 1С, normalization, order
 calculation, AI matching, fuzzy matching и чтение файлов.
 
 ## 2. Архитектура
 
 `src/snax_import/domain/profile_detection.py` содержит framework-neutral immutable
-модели `ProfileMatchCandidate` и `DetectionResult`, а также enum confidence.
+модели `ProfileFingerprint`, `ScoreComponent`, `ProfileMatchCandidate` и
+`DetectionResult`, а также enum confidence и domain status.
 `src/snax_import/application/profile_detector.py` содержит orchestration и сравнение
 `RawWorkbook` с декларативными правилами `SupplierProfileVersion`.
 
@@ -54,11 +59,15 @@ Reader остаётся ответственным только за постр�
 
 ## 4. Scoring
 
-Компонентный score каждого признака находится в диапазоне `0..1`. Итог:
+Внутренний компонентный ratio каждого признака находится в диапазоне `0..1`. Итог:
 
 ```text
 score = sum(component_score * active_weight) / sum(active_weight)
 ```
+
+В контракте результат представлен как `totalScore` в диапазоне `0..100` и
+`scoreComponents`. Каждый компонент содержит начисленный `score` и максимальный
+`weight`; domain model проверяет, что сумма начисленных баллов равна `totalScore`.
 
 Весы задаются через `ProfileDetectionWeights`. Значения по умолчанию:
 
@@ -95,7 +104,21 @@ score = sum(component_score * active_weight) / sum(active_weight)
 результата без selected profile итоговый confidence принудительно ограничен `MEDIUM`;
 `HIGH` допустим только вместе с выбранным профилем.
 
-## 6. Примеры
+Domain status принимает `MATCHED`, `PROFILE_NOT_FOUND`, `AMBIGUOUS_PROFILE` или
+`TEMPLATE_CHANGED` и согласован с наличием selected profile.
+
+## 6. TEMPLATE_CHANGED
+
+Если filename pattern распознаёт поставщика, совпадает хотя бы один объявленный
+форматный признак (extension/media type), но weighted structural compatibility листов
+и колонок ниже `structural_compatibility_threshold` (`0.50`), detector возвращает
+`TEMPLATE_CHANGED`, `selectedProfile = null` и одноимённый blocking issue.
+
+Так `price_alfa.xlsx` с ожидаемыми листом `Прайс` и колонками
+`Артикул / Цена / Остаток`, пришедший с листом `Новый шаблон` и колонками
+`SKU / Unit price / Available`, не маскируется как неизвестный поставщик.
+
+## 7. Примеры
 
 Для `price_alfa.xlsx` с листом `Прайс` и колонками `Артикул`, `Цена`, `Остаток`
 профиль с соответствующими правилами получает score `1.0`, confidence `HIGH` и
@@ -105,7 +128,10 @@ score = sum(component_score * active_weight) / sum(active_weight)
 содержит оба `ProfileMatchCandidate`, `MEDIUM` confidence и issue
 `AMBIGUOUS_PROFILE`; ни один профиль не selected.
 
-## 7. Tests and fixtures
+Success contract example содержит `totalScore = 98` и component points
+`filename=20/20`, `extension=10/10`, `sheets=30/30`, `columns=38/40`.
+
+## 8. Tests and fixtures
 
 Добавлены unit/integration-like tests в `tests/test_profile_detection.py`:
 
@@ -128,18 +154,21 @@ score = sum(component_score * active_weight) / sum(active_weight)
 Synthetic fixtures находятся в `tests/fixtures/profile_detection/` и не содержат
 коммерческих данных.
 
-## 8. Contract
+Матрица `docs/qa/detection-test-matrix.md` связывает DET-001…DET-009 с automated
+tests, включая invalid metadata, workbook 5 001 rows, UI serialization contract и
+manager approval hand-off без автоматического выбора.
 
-Добавлены `contracts/profile-detection.schema.json` и synthetic example
-`contracts/examples/profile-detection.example.json`. Schema проверяет candidates,
- confidence, selected profile shape, запрет `HIGH` без selected profile и
- `PROFILE_NOT_FOUND`/`AMBIGUOUS_PROFILE` issues. `scripts/validate_contracts.py`
- подключает валидный example и negative fixture к общему contract gate.
+## 9. Contract
 
-## 9. Limitations and follow-up
+Schema проверяет status, candidates, fingerprint, weighted score explanation,
+confidence, selected profile shape, запрет `HIGH` без selected profile и все три
+blocking issues. Contract gate включает четыре positive examples: success, ambiguous,
+template changed и unknown, а также negative fixture для `HIGH` без selection.
 
-1. Structural fingerprint, ranges, header aliases, row classification и profile drift
-   checks остаются отдельной последующей задачей.
+## 10. Limitations and follow-up
+
+1. Ranges, header aliases, row classification и semantic validation остаются
+   последующими задачами; fingerprint TASK-011 покрывает технические признаки.
 2. Detector использует только active current profile version; draft/archived profiles
    не участвуют в автоматическом выборе.
 3. Header detection ищет совпадение среди raw rows и не выполняет normalization или
@@ -147,7 +176,7 @@ Synthetic fixtures находятся в `tests/fixtures/profile_detection/` и 
 4. Media type по умолчанию выключен в score и должен быть включён в deployment-specific
    configuration, если он является различающим признаком.
 
-## 10. Verification
+## 11. Verification
 
 Финальный локальный quality gate:
 
@@ -155,7 +184,7 @@ Synthetic fixtures находятся в `tests/fixtures/profile_detection/` и 
 ruff check .                 PASS
 ruff format --check .        PASS
 mypy src                     PASS
-pytest -q                    PASS (9 existing integration tests skipped)
+pytest -q                    PASS (141 passed, 9 integration tests skipped)
 python scripts/validate_contracts.py PASS
 python scripts/validate_manifest.py  PASS
 git diff --check             PASS

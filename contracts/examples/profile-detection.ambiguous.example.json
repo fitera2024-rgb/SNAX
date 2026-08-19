@@ -1,0 +1,62 @@
+{
+  "selectedProfile": null,
+  "status": "AMBIGUOUS_PROFILE",
+  "candidates": [
+    {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "version": 3,
+      "totalScore": 82,
+      "confidence": "HIGH",
+      "fingerprint": {
+        "filenamePattern": "price*",
+        "extensions": [".xlsx"],
+        "mediaTypes": ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+        "sheetNames": ["прайс"],
+        "columnNames": ["артикул", "цена"]
+      },
+      "reasons": ["filename pattern: matched", "extension: not matched", "sheet names: matched", "columns: 2/2 matched"],
+      "scoreComponents": {
+        "filename": { "score": 20, "weight": 20 },
+        "extension": { "score": 0, "weight": 18 },
+        "mediaType": { "score": 0, "weight": 0 },
+        "sheets": { "score": 30, "weight": 30 },
+        "columns": { "score": 32, "weight": 32 }
+      }
+    },
+    {
+      "profileId": "33333333-3333-4333-8333-333333333333",
+      "version": 1,
+      "totalScore": 80,
+      "confidence": "HIGH",
+      "fingerprint": {
+        "filenamePattern": "price*",
+        "extensions": [".csv"],
+        "mediaTypes": ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+        "sheetNames": ["прайс"],
+        "columnNames": ["артикул", "цена"]
+      },
+      "reasons": ["filename pattern: not matched", "extension: matched", "sheet names: matched", "columns: 2/2 matched"],
+      "scoreComponents": {
+        "filename": { "score": 0, "weight": 20 },
+        "extension": { "score": 18, "weight": 18 },
+        "mediaType": { "score": 0, "weight": 0 },
+        "sheets": { "score": 30, "weight": 30 },
+        "columns": { "score": 32, "weight": 32 }
+      }
+    }
+  ],
+  "confidence": "MEDIUM",
+  "issues": [
+    {
+      "issueId": "profile-detection-ambiguous_profile",
+      "code": "AMBIGUOUS_PROFILE",
+      "severity": "ERROR",
+      "message": "Несколько профилей имеют близкие технические оценки",
+      "sheetName": null,
+      "rowIndex": null,
+      "cellCoordinate": null,
+      "retryable": false,
+      "details": { "bestScore": "0.820000", "secondScore": "0.800000" }
+    }
+  ]
+}

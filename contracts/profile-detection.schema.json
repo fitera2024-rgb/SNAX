@@ -4,7 +4,7 @@
   "title": "SNAX profile detection result",
   "type": "object",
   "additionalProperties": false,
-  "required": ["selectedProfile", "candidates", "confidence", "issues"],
+  "required": ["selectedProfile", "status", "candidates", "confidence", "issues"],
   "properties": {
     "selectedProfile": {
       "anyOf": [
@@ -15,6 +15,10 @@
     "candidates": {
       "type": "array",
       "items": { "$ref": "#/$defs/candidate" }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["MATCHED", "PROFILE_NOT_FOUND", "AMBIGUOUS_PROFILE", "TEMPLATE_CHANGED"]
     },
     "confidence": {
       "type": "string",
@@ -37,17 +41,30 @@
           "confidence": { "enum": ["MEDIUM", "LOW"] }
         }
       }
+    },
+    {
+      "if": { "properties": { "status": { "const": "MATCHED" } } },
+      "then": { "properties": { "selectedProfile": { "$ref": "#/$defs/profile" } } },
+      "else": { "properties": { "selectedProfile": { "type": "null" } } }
     }
   ],
   "$defs": {
     "candidate": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["profileId", "version", "score", "confidence", "reasons"],
+      "required": [
+        "profileId",
+        "version",
+        "totalScore",
+        "confidence",
+        "fingerprint",
+        "reasons",
+        "scoreComponents"
+      ],
       "properties": {
         "profileId": { "type": "string", "format": "uuid" },
         "version": { "type": "integer", "minimum": 1 },
-        "score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "totalScore": { "type": "number", "minimum": 0, "maximum": 100 },
         "confidence": {
           "type": "string",
           "enum": ["HIGH", "MEDIUM", "LOW"]
@@ -55,7 +72,42 @@
         "reasons": {
           "type": "array",
           "items": { "type": "string", "minLength": 1 }
-        }
+        },
+        "fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "scoreComponents": { "$ref": "#/$defs/scoreComponents" }
+      }
+    },
+    "fingerprint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["filenamePattern", "extensions", "mediaTypes", "sheetNames", "columnNames"],
+      "properties": {
+        "filenamePattern": { "type": ["string", "null"], "minLength": 1 },
+        "extensions": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "mediaTypes": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "sheetNames": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "columnNames": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "scoreComponent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["score", "weight"],
+      "properties": {
+        "score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "weight": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "scoreComponents": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["filename", "extension", "mediaType", "sheets", "columns"],
+      "properties": {
+        "filename": { "$ref": "#/$defs/scoreComponent" },
+        "extension": { "$ref": "#/$defs/scoreComponent" },
+        "mediaType": { "$ref": "#/$defs/scoreComponent" },
+        "sheets": { "$ref": "#/$defs/scoreComponent" },
+        "columns": { "$ref": "#/$defs/scoreComponent" }
       }
     },
     "profile": {
@@ -100,7 +152,10 @@
       ],
       "properties": {
         "issueId": { "type": "string", "minLength": 1 },
-        "code": { "type": "string", "enum": ["PROFILE_NOT_FOUND", "AMBIGUOUS_PROFILE"] },
+        "code": {
+          "type": "string",
+          "enum": ["PROFILE_NOT_FOUND", "AMBIGUOUS_PROFILE", "TEMPLATE_CHANGED"]
+        },
         "severity": { "type": "string", "enum": ["ERROR"] },
         "message": { "type": "string", "minLength": 1 },
         "sheetName": { "type": ["string", "null"] },

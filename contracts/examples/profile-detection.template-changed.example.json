@@ -1,0 +1,41 @@
+{
+  "selectedProfile": null,
+  "status": "TEMPLATE_CHANGED",
+  "candidates": [
+    {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "version": 3,
+      "totalScore": 30,
+      "confidence": "LOW",
+      "fingerprint": {
+        "filenamePattern": "price*",
+        "extensions": [".xlsx"],
+        "mediaTypes": ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+        "sheetNames": ["прайс"],
+        "columnNames": ["артикул", "цена", "остаток"]
+      },
+      "reasons": ["filename pattern: matched", "extension: matched", "sheet names: not matched", "columns: 0/3 matched"],
+      "scoreComponents": {
+        "filename": { "score": 20, "weight": 20 },
+        "extension": { "score": 10, "weight": 10 },
+        "mediaType": { "score": 0, "weight": 0 },
+        "sheets": { "score": 0, "weight": 30 },
+        "columns": { "score": 0, "weight": 40 }
+      }
+    }
+  ],
+  "confidence": "LOW",
+  "issues": [
+    {
+      "issueId": "profile-detection-template_changed",
+      "code": "TEMPLATE_CHANGED",
+      "severity": "ERROR",
+      "message": "Поставщик найден, но структура файла не соответствует активному профилю",
+      "sheetName": null,
+      "rowIndex": null,
+      "cellCoordinate": null,
+      "retryable": false,
+      "details": { "profileId": "11111111-1111-4111-8111-111111111111", "totalScore": "30.00" }
+    }
+  ]
+}
