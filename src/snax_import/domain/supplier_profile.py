@@ -5,6 +5,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
+from types import MappingProxyType
 from typing import Self
 from uuid import UUID, uuid4
 
@@ -36,6 +37,26 @@ def _require_enum(value: object, enum_type: type[StrEnum], field_name: str) -> N
 
 def _iso(value: datetime | None) -> str | None:
     return value.isoformat() if value is not None else None
+
+
+def _freeze_value(value: object) -> object:
+    if isinstance(value, Mapping):
+        return MappingProxyType({key: _freeze_value(item) for key, item in value.items()})
+    if isinstance(value, list):
+        return tuple(_freeze_value(item) for item in value)
+    if isinstance(value, tuple):
+        return tuple(_freeze_value(item) for item in value)
+    if isinstance(value, set):
+        return frozenset(_freeze_value(item) for item in value)
+    return value
+
+
+def _thaw_value(value: object) -> object:
+    if isinstance(value, Mapping):
+        return {key: _thaw_value(item) for key, item in value.items()}
+    if isinstance(value, (tuple, frozenset)):
+        return [_thaw_value(item) for item in value]
+    return value
 
 
 class ProfileStatus(StrEnum):
@@ -219,12 +240,13 @@ class SupplierValidationRule:
             or not ("minimum" in self.value or "maximum" in self.value)
         ):
             raise InvalidValue("value", "VALUE_RANGE требует minimum или maximum")
+        object.__setattr__(self, "value", _freeze_value(self.value))
 
     def to_dict(self) -> dict[str, object]:
         return {
             "field": self.field,
             "ruleType": self.rule_type.value,
-            "value": self.value,
+            "value": _thaw_value(self.value),
             "severity": self.severity.value,
         }
 
@@ -245,7 +267,11 @@ class SupplierProfileVersion:
     validation_rules: tuple[SupplierValidationRule, ...] = ()
 
     def __post_init__(self) -> None:
-        if self.version_number < 1:
+        if (
+            isinstance(self.version_number, bool)
+            or not isinstance(self.version_number, int)
+            or self.version_number < 1
+        ):
             raise InvalidValue("versionNumber", "Номер версии должен быть >= 1")
         _require_text(self.schema_version, "schemaVersion", maximum=50)
         _require_text(self.created_by, "createdBy", maximum=200)
@@ -256,6 +282,8 @@ class SupplierProfileVersion:
         ):
             if value is not None:
                 _validate_utc(value, field_name)
+        if self.effective_to is not None and self.effective_from is None:
+            raise InvalidValue("effectiveTo", "effectiveTo требует effectiveFrom")
         if (
             self.effective_from is not None
             and self.effective_to is not None
@@ -362,20 +390,43 @@ class SupplierProfile:
             raise InvalidValue("versions", "Номера версий не должны повторяться")
         if version_numbers != sorted(version_numbers):
             raise InvalidValue("versions", "Версии должны быть упорядочены")
-        if version_numbers and version_numbers != list(range(1, len(version_numbers) + 1)):
+        if not version_numbers:
+            raise InvalidValue("versions", "Профиль должен содержать первую версию")
+        if version_numbers != list(range(1, len(version_numbers) + 1)):
             raise InvalidValue("versions", "Версии должны начинаться с 1 и идти последовательно")
         if any(version.profile_id != self.id for version in versions):
             raise InvalidValue("versions", "Версия должна ссылаться на свой профиль")
-        if self.current_version is not None and self.current_version not in version_numbers:
+        if self.current_version is None:
+            raise InvalidValue("currentVersion", "Профиль требует текущую версию")
+        if self.current_version not in version_numbers:
             raise InvalidValue("currentVersion", "Текущая версия отсутствует в истории")
-        if self.current_version is not None and self.current_version < 1:
+        if self.current_version < 1:
             raise InvalidValue("currentVersion", "Текущая версия должна быть >= 1")
+        if self.current_version != version_numbers[-1]:
+            raise InvalidValue("currentVersion", "Текущая версия должна быть последней в истории")
+        open_versions = [
+            version
+            for version in versions
+            if version.effective_from is not None and version.effective_to is None
+        ]
+        for previous, current in zip(versions, versions[1:], strict=False):
+            if previous.effective_from is not None and current.effective_from is None:
+                raise InvalidValue("versions", "Эффективные версии должны идти последовательно")
+            if previous.effective_from is not None and current.effective_from is not None:
+                if previous.effective_to is None:
+                    raise InvalidValue("versions", "Эффективные версии не должны пересекаться")
+                if previous.effective_to > current.effective_from:
+                    raise InvalidValue("versions", "Эффективные версии не должны пересекаться")
+        if len(open_versions) > 1:
+            raise InvalidValue("versions", "История не может содержать несколько открытых версий")
+        if self.status is ProfileStatus.DRAFT and open_versions:
+            raise InvalidValue("status", "DRAFT профиль не может иметь активную версию")
         if self.status is ProfileStatus.ACTIVE:
-            if self.current_version is None:
-                raise InvalidValue("currentVersion", "ACTIVE профиль требует текущую версию")
             current = self.version(self.current_version)
             if current.effective_from is None or current.effective_to is not None:
                 raise InvalidValue("currentVersion", "ACTIVE профиль требует активную версию")
+            if len(open_versions) != 1:
+                raise InvalidValue("versions", "ACTIVE профиль требует ровно одну открытую версию")
 
     @classmethod
     def create(
@@ -386,17 +437,36 @@ class SupplierProfile:
         description: str | None = None,
         profile_id: UUID | None = None,
         now: datetime | None = None,
+        schema_version: str = "1.0.0",
+        created_by: str = "system",
+        file_rules: tuple[SupplierFileRule, ...] = (),
+        sheet_mappings: tuple[SupplierSheetMapping, ...] = (),
+        column_mappings: tuple[SupplierColumnMapping, ...] = (),
+        validation_rules: tuple[SupplierValidationRule, ...] = (),
     ) -> Self:
         timestamp = _timestamp(now)
+        aggregate_id = profile_id or uuid4()
+        first_version = SupplierProfileVersion.create(
+            profile_id=aggregate_id,
+            version_number=1,
+            schema_version=schema_version,
+            created_by=created_by,
+            now=timestamp,
+            file_rules=file_rules,
+            sheet_mappings=sheet_mappings,
+            column_mappings=column_mappings,
+            validation_rules=validation_rules,
+        )
         return cls(
-            id=profile_id or uuid4(),
+            id=aggregate_id,
             supplier_id=supplier_id,
             name=name,
             description=description,
             status=ProfileStatus.DRAFT,
-            current_version=None,
+            current_version=1,
             created_at=timestamp,
             updated_at=timestamp,
+            versions=(first_version,),
         )
 
     def version(self, version_number: int | None = None) -> SupplierProfileVersion:
@@ -518,10 +588,60 @@ class SupplierProfileValidator:
     def collect(self, profile: SupplierProfile) -> tuple[SupplierProfileValidationIssue, ...]:
         issues: list[SupplierProfileValidationIssue] = []
         version_numbers = [version.version_number for version in profile.versions]
-        if version_numbers and version_numbers != list(range(1, len(version_numbers) + 1)):
+        if not version_numbers:
+            issues.append(
+                SupplierProfileValidationIssue("versions", "Профиль должен содержать первую версию")
+            )
+        elif version_numbers != list(range(1, len(version_numbers) + 1)):
             issues.append(
                 SupplierProfileValidationIssue(
                     "versions", "Номера версий должны начинаться с 1 и идти последовательно"
+                )
+            )
+        if profile.current_version is None:
+            issues.append(
+                SupplierProfileValidationIssue("currentVersion", "Профиль требует текущую версию")
+            )
+        elif version_numbers and profile.current_version != version_numbers[-1]:
+            issues.append(
+                SupplierProfileValidationIssue(
+                    "currentVersion", "Текущая версия должна быть последней в истории"
+                )
+            )
+        open_versions = [
+            version
+            for version in profile.versions
+            if version.effective_from is not None and version.effective_to is None
+        ]
+        if len(open_versions) > 1:
+            issues.append(
+                SupplierProfileValidationIssue(
+                    "versions", "История не может содержать несколько открытых версий"
+                )
+            )
+        for previous, current in zip(profile.versions, profile.versions[1:], strict=False):
+            if previous.effective_from is not None and current.effective_from is None:
+                issues.append(
+                    SupplierProfileValidationIssue(
+                        "versions", "Эффективные версии должны идти последовательно"
+                    )
+                )
+            elif (
+                previous.effective_from is not None
+                and current.effective_from is not None
+                and (
+                    previous.effective_to is None or previous.effective_to > current.effective_from
+                )
+            ):
+                issues.append(
+                    SupplierProfileValidationIssue(
+                        "versions", "Эффективные версии не должны пересекаться"
+                    )
+                )
+        if profile.status is ProfileStatus.DRAFT and open_versions:
+            issues.append(
+                SupplierProfileValidationIssue(
+                    "status", "DRAFT профиль не может иметь активную версию"
                 )
             )
         if profile.status is ProfileStatus.ACTIVE and profile.active_version is None:

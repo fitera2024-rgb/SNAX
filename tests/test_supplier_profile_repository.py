@@ -40,6 +40,22 @@ def test_active_profile_cannot_be_edited_directly() -> None:
         repository.save(edited)
 
 
+def test_archive_cannot_mutate_active_aggregate() -> None:
+    repository = InMemorySupplierProfileRepository()
+    active = SupplierProfile.create(supplier_id="SYNTHETIC-A", name="A", now=NOW).activate(now=NOW)
+    repository.save(active)
+
+    forged_archive = replace(
+        active,
+        status=ProfileStatus.ARCHIVED,
+        name="edited",
+        updated_at=NOW + timedelta(minutes=1),
+    )
+    with pytest.raises(InvalidTransition):
+        repository.save(forged_archive)
+    assert repository.get(active.id) == active
+
+
 def test_active_profile_allows_append_only_new_version() -> None:
     repository = InMemorySupplierProfileRepository()
     active = (
@@ -54,3 +70,22 @@ def test_active_profile_allows_append_only_new_version() -> None:
 
     assert repository.save(updated) == updated
     assert repository.get(active.id) == updated
+
+
+def test_active_version_append_cannot_rewrite_history() -> None:
+    repository = InMemorySupplierProfileRepository()
+    active = SupplierProfile.create(supplier_id="SYNTHETIC-A", name="A", now=NOW).activate(now=NOW)
+    repository.save(active)
+    updated = active.create_version(
+        schema_version="1.1.0", created_by="tester", now=NOW + timedelta(hours=1)
+    )
+    rewritten_history = replace(
+        updated,
+        versions=(
+            replace(updated.versions[0], effective_to=NOW + timedelta(minutes=30)),
+            updated.versions[1],
+        ),
+    )
+
+    with pytest.raises(InvalidTransition):
+        repository.save(rewritten_history)

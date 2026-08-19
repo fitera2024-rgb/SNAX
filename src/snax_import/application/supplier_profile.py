@@ -39,22 +39,19 @@ class CreateSupplierProfile:
         validation_rules: tuple[SupplierValidationRule, ...] = (),
         now: datetime | None = None,
     ) -> SupplierProfile:
+        initial_schema_version = schema_version if schema_version is not None else "1.0.0"
         profile = SupplierProfile.create(
             supplier_id=supplier_id,
             name=name,
             description=description,
             now=now,
+            schema_version=initial_schema_version,
+            created_by=created_by,
+            file_rules=file_rules,
+            sheet_mappings=sheet_mappings,
+            column_mappings=column_mappings,
+            validation_rules=validation_rules,
         )
-        if schema_version is not None:
-            profile = profile.create_version(
-                schema_version=schema_version,
-                created_by=created_by,
-                now=now,
-                file_rules=file_rules,
-                sheet_mappings=sheet_mappings,
-                column_mappings=column_mappings,
-                validation_rules=validation_rules,
-            )
         self.validator.validate_or_raise(profile)
         return self.repository.save(profile)
 

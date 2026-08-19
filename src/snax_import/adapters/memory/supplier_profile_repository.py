@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from datetime import datetime
 from uuid import UUID
 
@@ -22,12 +23,16 @@ class InMemorySupplierProfileRepository:
         if existing is not None and existing != profile:
             if existing.status is ProfileStatus.ARCHIVED:
                 raise InvalidTransition(existing.status.value, "EDIT")
-            if (
-                existing.status is ProfileStatus.ACTIVE
-                and profile.status is not ProfileStatus.ARCHIVED
-                and not self._is_version_append(existing, profile)
+            if profile.status is ProfileStatus.ARCHIVED:
+                if not self._is_archive_transition(existing, profile):
+                    raise InvalidTransition(existing.status.value, "ARCHIVE")
+            elif existing.status is ProfileStatus.ACTIVE:
+                if not self._is_version_append(existing, profile):
+                    raise InvalidTransition(existing.status.value, "EDIT")
+            elif profile.status is ProfileStatus.ACTIVE and not self._is_activation(
+                existing, profile
             ):
-                raise InvalidTransition(existing.status.value, "EDIT")
+                raise InvalidTransition(existing.status.value, "ACTIVATE")
         self._profiles[profile.id] = profile
         return profile
 
@@ -53,30 +58,69 @@ class InMemorySupplierProfileRepository:
             candidate.status is not ProfileStatus.ACTIVE
             or candidate.current_version != (existing.current_version or 0) + 1
             or len(candidate.versions) != len(existing.versions) + 1
+            or candidate.created_at != existing.created_at
+            or candidate.updated_at < existing.updated_at
             or candidate.name != existing.name
             or candidate.description != existing.description
             or candidate.supplier_id != existing.supplier_id
         ):
             return False
+        current = existing.version()
         for before, after in zip(existing.versions, candidate.versions[:-1], strict=True):
-            if before.id != after.id:
-                return False
-            if before.effective_to is None and after.effective_to is None:
-                return False
-            if before.effective_from != after.effective_from:
-                return False
-            if before.schema_version != after.schema_version:
-                return False
-            if before.file_rules != after.file_rules:
-                return False
-            if before.sheet_mappings != after.sheet_mappings:
-                return False
-            if before.column_mappings != after.column_mappings:
-                return False
-            if before.validation_rules != after.validation_rules:
+            if before.version_number == current.version_number:
+                if before.effective_to is not None:
+                    return False
+                if after != replace(before, effective_to=candidate.updated_at):
+                    return False
+            elif before != after:
                 return False
         newest = candidate.versions[-1]
-        return newest.version_number == candidate.current_version and newest.effective_to is None
+        return (
+            newest.profile_id == existing.id
+            and newest.version_number == candidate.current_version
+            and newest.created_at == candidate.updated_at
+            and newest.effective_from == candidate.updated_at
+            and newest.effective_to is None
+        )
+
+    @staticmethod
+    def _is_activation(existing: SupplierProfile, candidate: SupplierProfile) -> bool:
+        if (
+            candidate.status is not ProfileStatus.ACTIVE
+            or candidate.current_version != existing.current_version
+            or candidate.created_at != existing.created_at
+            or candidate.updated_at < existing.updated_at
+            or candidate.name != existing.name
+            or candidate.description != existing.description
+            or candidate.supplier_id != existing.supplier_id
+            or len(candidate.versions) != len(existing.versions)
+        ):
+            return False
+        current = existing.version()
+        activated = replace(current, effective_from=candidate.updated_at)
+        for before, after in zip(existing.versions, candidate.versions, strict=True):
+            if before.version_number == current.version_number:
+                if before.effective_from is not None or before.effective_to is not None:
+                    return False
+                if after != activated:
+                    return False
+            elif before != after:
+                return False
+        return True
+
+    @staticmethod
+    def _is_archive_transition(existing: SupplierProfile, candidate: SupplierProfile) -> bool:
+        return (
+            candidate.status is ProfileStatus.ARCHIVED
+            and candidate.updated_at >= existing.updated_at
+            and candidate.id == existing.id
+            and candidate.supplier_id == existing.supplier_id
+            and candidate.name == existing.name
+            and candidate.description == existing.description
+            and candidate.created_at == existing.created_at
+            and candidate.current_version == existing.current_version
+            and candidate.versions == existing.versions
+        )
 
 
 __all__ = ["InMemorySupplierProfileRepository"]

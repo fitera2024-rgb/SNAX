@@ -1,15 +1,16 @@
 {
-  "id": "44444444-4444-4444-8444-444444444441",
-  "name": "Invalid profile",
+  "id": "88888888-8888-4888-8888-888888888881",
+  "supplierId": "SUPPLIER-INVALID",
+  "name": "Invalid datetime profile",
   "description": null,
   "status": "DRAFT",
   "currentVersion": 1,
-  "createdAt": "2026-08-19T00:00:00Z",
+  "createdAt": "not-a-datetime",
   "updatedAt": "2026-08-19T00:00:00Z",
   "versions": [
     {
-      "id": "44444444-4444-4444-8444-444444444442",
-      "profileId": "44444444-4444-4444-8444-444444444441",
+      "id": "88888888-8888-4888-8888-888888888882",
+      "profileId": "88888888-8888-4888-8888-888888888881",
       "versionNumber": 1,
       "schemaVersion": "1.0.0",
       "effectiveFrom": null,

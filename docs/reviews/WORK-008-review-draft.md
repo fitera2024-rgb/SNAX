@@ -35,12 +35,14 @@ version, effective interval, author и декларативное содержи
 
 ## 4. Versioning
 
-Номер версии начинается с 1 и монотонно увеличивается. Draft profile может получить новую
-версию; activation переводит профиль в `ACTIVE`. Создание следующей версии у active profile
-закрывает предыдущую через `effective_to` и оставляет новый snapshot открытым. Frozen
-dataclasses и in-memory repository запрещают прямое редактирование active profile. Archive
-меняет aggregate status и `updated_at`, не переписывая version snapshots, поэтому история
-сохраняется byte-for-byte на уровне domain objects.
+Номер версии начинается с 1 и монотонно увеличивается. При создании профиля автоматически
+создаётся первая версия `version_number=1`; поэтому DRAFT-профиль не бывает без истории.
+Draft profile может получить следующую версию; activation переводит профиль в `ACTIVE`.
+Создание следующей версии у active profile закрывает предыдущую через `effective_to` и
+оставляет новый snapshot открытым. Frozen dataclasses, deep-frozen rule values и in-memory
+repository запрещают прямое редактирование active profile. Archive меняет aggregate status и
+`updated_at`, не переписывая version snapshots, поэтому история сохраняется byte-for-byte на
+уровне domain objects.
 
 ## 5. File rules
 
@@ -83,7 +85,8 @@ version.
 Добавлены unit tests для lifecycle, append-only versioning, archive history, mapping/rule
 failures, repository immutability и application contracts. Property-style tests генерируют
 1–30 последовательных versions и проверяют positive version numbers и history preservation.
-Contract tests валидируют все three valid examples и отклоняют four invalid fixtures.
+Contract tests валидируют все three valid examples и отклоняют six invalid fixtures, включая
+некорректные UUID и date-time. Format checks выполняются с явным `FormatChecker`.
 Fixtures synthetic; реальные прайсы и коммерческие данные не добавлялись.
 
 ## 11. Results
@@ -97,6 +100,7 @@ mypy src                     PASS
 pytest -q                   PASS
 python scripts/validate_contracts.py PASS
 python scripts/validate_manifest.py   PASS after manifest update
+git diff --check             PASS
 ```
 
 Во время разработки исправлен только формат `scripts/validate_contracts.py`; reader
@@ -109,8 +113,9 @@ adapters и `RawWorkbook` не изменялись.
 2. Repository — in-memory test adapter; PostgreSQL persistence не реализуется в этой работе.
 3. Application contract использует existing project command style; HTTP and SQL adapters
    отсутствуют.
-4. `jsonschema` format checks остаются зависимыми от validator configuration; domain tests
-   отдельно проверяют timezone-aware UTC timestamps.
+4. JSON Schema проверяет formats через явный `FormatChecker`; domain tests отдельно проверяют
+   timezone-aware UTC timestamps и temporal invariants. Persistent repository и transaction
+   boundary остаются отдельной задачей.
 
 ## 13. Technical debt
 
@@ -119,3 +124,23 @@ adapters и `RawWorkbook` не изменялись.
 - Добавить structural fingerprint, profile matching и explain log в WORK-009.
 - Согласовать окончательный profile semver policy с contract compatibility matrix.
 - После независимого review обновить этот draft фактическим commit/CI/PR результатом.
+
+## 14. WORK-008-FIX — lifecycle hardening
+
+Финальное ревью выявило три блокера: schema не представляла поддерживаемый DRAFT без версии,
+`SupplierValidationRule.value` позволял менять snapshot через исходный mapping, а repository
+принимал forged archive с изменённым aggregate. Дополнительно были усилены temporal и format
+проверки.
+
+Исправления:
+
+- `SupplierProfile.create()` атомарно создаёт DRAFT с первой версией `1`, а schema требует
+  непустую историю и `currentVersion`;
+- rule values deep-freeze вложенные mappings/lists, а `to_dict()` возвращает безопасную копию;
+- repository принимает только канонические archive/activation transitions и append-only
+  version updates без переписывания старой истории;
+- domain запрещает `effectiveTo` без `effectiveFrom`, пересечения и несколько открытых версий;
+- contract tests и validator используют `FormatChecker`, добавлены invalid UUID/datetime
+  fixtures и rule-specific schema guards.
+
+Merge не выполнялся. Статус review остаётся `REVIEW` до независимого подтверждения фикса.

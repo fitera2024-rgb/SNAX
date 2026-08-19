@@ -45,10 +45,7 @@
       ]
     },
     "currentVersion": {
-      "type": [
-        "integer",
-        "null"
-      ],
+      "type": "integer",
       "minimum": 1
     },
     "createdAt": {
@@ -227,7 +224,89 @@
             "CRITICAL"
           ]
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "ruleType": {
+                "const": "REQUIRED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "ruleType": {
+                "const": "MAX_LENGTH"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "ruleType": {
+                "const": "REGEX"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "ruleType": {
+                "const": "VALUE_RANGE"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": false,
+                "properties": {
+                  "minimum": {},
+                  "maximum": {}
+                },
+                "anyOf": [
+                  {
+                    "required": ["minimum"]
+                  },
+                  {
+                    "required": ["maximum"]
+                  }
+                ]
+                }
+              }
+            }
+          }
+      ]
     },
     "profileVersion": {
       "type": "object",
@@ -311,7 +390,25 @@
             "$ref": "#/$defs/validationRule"
           }
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "effectiveTo": {
+                "type": "string"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "effectiveFrom": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

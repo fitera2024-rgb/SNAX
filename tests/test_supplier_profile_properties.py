@@ -11,7 +11,7 @@ def test_generated_version_sequences_are_positive_and_archive_is_lossless() -> N
         profile = SupplierProfile.create(
             supplier_id=f"SYNTHETIC-{count}", name="Generated", now=base
         )
-        for version_number in range(count):
+        for version_number in range(1, count):
             profile = profile.create_version(
                 schema_version=f"1.{version_number}.0",
                 created_by="property-test",
