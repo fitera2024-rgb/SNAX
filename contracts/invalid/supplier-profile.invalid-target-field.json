@@ -1,0 +1,34 @@
+{
+  "id": "44444444-4444-4444-8444-444444444443",
+  "supplierId": "SUPPLIER-INVALID",
+  "name": "Invalid profile",
+  "description": null,
+  "status": "ACTIVE",
+  "currentVersion": 1,
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z",
+  "versions": [
+    {
+      "id": "44444444-4444-4444-8444-444444444444",
+      "profileId": "44444444-4444-4444-8444-444444444443",
+      "versionNumber": 1,
+      "schemaVersion": "1.0.0",
+      "effectiveFrom": "2026-08-19T00:00:00Z",
+      "effectiveTo": null,
+      "createdAt": "2026-08-19T00:00:00Z",
+      "createdBy": "synthetic-test",
+      "fileRules": [],
+      "sheetMappings": [],
+      "columnMappings": [
+        {
+          "sourceColumn": "Code",
+          "targetField": "NOT_A_TARGET_FIELD",
+          "dataType": "STRING",
+          "required": true,
+          "description": null
+        }
+      ],
+      "validationRules": []
+    }
+  ]
+}

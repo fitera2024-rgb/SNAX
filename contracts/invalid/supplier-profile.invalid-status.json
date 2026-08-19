@@ -1,0 +1,11 @@
+{
+  "id": "44444444-4444-4444-8444-444444444442",
+  "supplierId": "SUPPLIER-INVALID",
+  "name": "Invalid profile",
+  "description": null,
+  "status": "PUBLISHED",
+  "currentVersion": null,
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z",
+  "versions": []
+}

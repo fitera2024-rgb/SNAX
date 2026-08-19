@@ -1,0 +1,11 @@
+{
+  "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+  "supplierId": "SYNTHETIC-SIMPLE",
+  "name": "Synthetic simple profile",
+  "description": "No real supplier data",
+  "status": "DRAFT",
+  "currentVersion": null,
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z",
+  "versions": []
+}

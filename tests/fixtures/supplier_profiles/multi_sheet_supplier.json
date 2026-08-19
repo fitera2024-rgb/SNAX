@@ -1,0 +1,32 @@
+{
+  "id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1",
+  "supplierId": "SYNTHETIC-MULTI",
+  "name": "Synthetic multi-sheet profile",
+  "description": null,
+  "status": "ACTIVE",
+  "currentVersion": 1,
+  "createdAt": "2026-08-19T00:00:00Z",
+  "updatedAt": "2026-08-19T00:00:00Z",
+  "versions": [
+    {
+      "id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb2",
+      "profileId": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1",
+      "versionNumber": 1,
+      "schemaVersion": "1.0.0",
+      "effectiveFrom": "2026-08-19T00:00:00Z",
+      "effectiveTo": null,
+      "createdAt": "2026-08-19T00:00:00Z",
+      "createdBy": "fixture",
+      "fileRules": [],
+      "sheetMappings": [
+        {"sheetName": "Price", "purpose": "PRODUCT_PRICE", "required": true, "priority": 1},
+        {"sheetName": "Stock", "purpose": "STOCK", "required": false, "priority": 2}
+      ],
+      "columnMappings": [
+        {"sourceColumn": "Code", "targetField": "SUPPLIER_CODE", "dataType": "STRING", "required": true, "description": null},
+        {"sourceColumn": "Name", "targetField": "NAME", "dataType": "STRING", "required": true, "description": null}
+      ],
+      "validationRules": []
+    }
+  ]
+}

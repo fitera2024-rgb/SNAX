@@ -5,6 +5,7 @@
 - `schemas/mapping-sync.schema.json` — дельта подтверждённых связей из 1С.
 - `schemas/receipt-package.schema.json` — канонический пакет документа поставки для staging приемки.
 - `raw-workbook.schema.json` — framework-neutral raw workbook result для reader protocol.
+- `supplier-profile.schema.json` — declarative supplier profile and immutable version snapshots.
 - `examples/` — валидные примеры для contract tests.
 - `invalid/` — примеры, которые обязаны быть отклонены схемой.
 

@@ -19,6 +19,18 @@ PAIRS = (
     ),
     ("raw-workbook.schema.json", "examples/raw-workbook.example.json"),
     ("raw-workbook.schema.json", "examples/raw-workbook-error.example.json"),
+    (
+        "supplier-profile.schema.json",
+        "examples/supplier-profile.simple_supplier_profile.json",
+    ),
+    (
+        "supplier-profile.schema.json",
+        "examples/supplier-profile.multi_sheet_profile.json",
+    ),
+    (
+        "supplier-profile.schema.json",
+        "examples/supplier-profile.versioned_profile.json",
+    ),
 )
 INVALID_PAIRS = (
     (
@@ -35,6 +47,22 @@ INVALID_PAIRS = (
     (
         "raw-workbook.schema.json",
         "invalid/raw-workbook-formula-metadata-missing.json",
+    ),
+    (
+        "supplier-profile.schema.json",
+        "invalid/supplier-profile.missing-supplier-id.json",
+    ),
+    (
+        "supplier-profile.schema.json",
+        "invalid/supplier-profile.invalid-status.json",
+    ),
+    (
+        "supplier-profile.schema.json",
+        "invalid/supplier-profile.invalid-target-field.json",
+    ),
+    (
+        "supplier-profile.schema.json",
+        "invalid/supplier-profile.invalid-version.json",
     ),
 )
 
