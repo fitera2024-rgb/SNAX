@@ -46,6 +46,7 @@ where = ["src"]
 [tool.pytest.ini_options]
 addopts = "-q"
 testpaths = ["tests"]
+pythonpath = ["src"]
 markers = [
   "integration: requires PostgreSQL/MinIO or an explicit integration environment",
 ]
