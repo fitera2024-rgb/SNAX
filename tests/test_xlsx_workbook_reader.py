@@ -3,8 +3,10 @@ from __future__ import annotations
 from io import BytesIO
 from zipfile import ZipFile
 
+import pytest
 from openpyxl import Workbook
 
+import snax_import.adapters.workbook.xlsx_reader as xlsx_reader_module
 from snax_import.adapters.workbook import XlsxWorkbookReader
 from snax_import.domain.raw_workbook import SheetVisibility, ValueType
 from snax_import.ports.workbook_reader import ReaderIssueCode, ReaderOptions
@@ -86,6 +88,7 @@ def test_xlsx_reader_supports_xlsx_media_and_extensions_only() -> None:
     )
     assert reader.supports(extension=".XLSM")
     assert not reader.supports("application/pdf")
+    assert not reader.supports("application/pdf", ".xlsx")
     assert not reader.supports()
 
 
@@ -104,6 +107,7 @@ def test_xlsx_reader_reads_hidden_sheet_formulas_error_cells_and_merged_ranges()
     assert visible.max_row >= 3
     assert len(visible.merged_ranges) == 1
     assert visible.rows[0].cells[0].raw_value == "001234"
+    assert visible.rows[0].cells[0].value_type is ValueType.STRING
 
     formula_cell = next(
         cell for row in visible.rows for cell in row.cells if cell.value_type is ValueType.FORMULA
@@ -154,9 +158,113 @@ def test_xlsx_reader_stops_on_cells_limit_with_error_issue() -> None:
     assert result.statistics.cells_read == 2
 
 
-def test_xlsx_reader_returns_error_on_invalid_source() -> None:
-    result = XlsxWorkbookReader().read(BytesIO(b"not-an-xlsx"), ReaderOptions())
+def test_xlsx_reader_preserves_blank_rows() -> None:
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet["A1"] = "first"
+    sheet["A3"] = "third"
+    buffer = BytesIO()
+    workbook.save(buffer)
 
-    assert not result.success
+    result = XlsxWorkbookReader().read(BytesIO(buffer.getvalue()), ReaderOptions())
+
+    assert result.success
+    assert result.workbook is not None
+    rows = result.workbook.sheets[0].rows
+    assert [row.index for row in rows] == [1, 2, 3]
+    assert rows[1].cells == ()
+
+
+def test_xlsx_reader_enforces_file_row_column_and_memory_limits() -> None:
+    workbook = Workbook()
+    first = workbook.active
+    first["A1"] = "a"
+    first["A2"] = "b"
+    first["C2"] = "c"
+    second = workbook.create_sheet("Second")
+    second["A1"] = "d"
+    second["A2"] = "e"
+    buffer = BytesIO()
+    workbook.save(buffer)
+    source = buffer.getvalue()
+
+    too_large = XlsxWorkbookReader().read(BytesIO(source), ReaderOptions(max_file_size=1))
+    too_many_rows = XlsxWorkbookReader().read(BytesIO(source), ReaderOptions(max_rows=3))
+    too_many_columns = XlsxWorkbookReader().read(BytesIO(source), ReaderOptions(max_columns=2))
+    decompression_limited = XlsxWorkbookReader().read(
+        BytesIO(source), ReaderOptions(memory_limit=len(source) + 100)
+    )
+
+    assert any(issue.code is ReaderIssueCode.FILE_TOO_LARGE for issue in too_large.errors)
+    assert any(
+        issue.code is ReaderIssueCode.WORKBOOK_TOO_MANY_ROWS for issue in too_many_rows.errors
+    )
+    assert too_many_rows.statistics.rows_read == 3
+    assert any(
+        issue.code is ReaderIssueCode.WORKBOOK_TOO_MANY_COLUMNS for issue in too_many_columns.errors
+    )
+    assert any(
+        issue.code is ReaderIssueCode.MEMORY_LIMIT_EXCEEDED
+        for issue in decompression_limited.errors
+    )
+
+
+def test_xlsx_reader_timeout_returns_issue_instead_of_traceback(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ticks = iter((0.0, 2.0, 2.0))
+    monkeypatch.setattr(
+        xlsx_reader_module.time,
+        "monotonic",
+        lambda: next(ticks, 2.0),
+    )
+
+    result = XlsxWorkbookReader().read(
+        BytesIO(_build_sample_workbook()),
+        ReaderOptions(timeout_seconds=1.0),
+    )
+
     assert result.workbook is None
-    assert any(issue.code is ReaderIssueCode.UNSUPPORTED_FORMAT for issue in result.errors)
+    assert any(issue.code is ReaderIssueCode.TIMEOUT_EXCEEDED for issue in result.errors)
+
+
+def test_xlsx_reader_reads_large_synthetic_workbook() -> None:
+    workbook = Workbook(write_only=True)
+    sheet = workbook.create_sheet("Large")
+    for row_index in range(500):
+        sheet.append([f"{row_index:06d}", *range(1, 10)])
+    buffer = BytesIO()
+    workbook.save(buffer)
+
+    result = XlsxWorkbookReader().read(BytesIO(buffer.getvalue()), ReaderOptions())
+
+    assert result.success
+    assert result.workbook is not None
+    assert result.statistics.rows_read == 500
+    assert result.statistics.cells_read == 5_000
+    assert result.workbook.sheets[0].rows[0].cells[0].raw_value == "000000"
+
+
+def test_xlsx_reader_returns_issue_for_invalid_corrupted_and_unsupported_zip() -> None:
+    workbook = Workbook()
+    workbook.active["A1"] = "value"
+    valid = BytesIO()
+    workbook.save(valid)
+
+    unsupported = BytesIO()
+    with ZipFile(unsupported, "w") as archive:
+        archive.writestr("document.txt", "not a workbook")
+
+    results = (
+        XlsxWorkbookReader().read(BytesIO(b"not-an-xlsx"), ReaderOptions()),
+        XlsxWorkbookReader().read(BytesIO(b"PK\x03\x04"), ReaderOptions()),
+        XlsxWorkbookReader().read(
+            BytesIO(valid.getvalue()[: len(valid.getvalue()) // 2]), ReaderOptions()
+        ),
+        XlsxWorkbookReader().read(BytesIO(unsupported.getvalue()), ReaderOptions()),
+    )
+
+    for result in results:
+        assert not result.success
+        assert result.workbook is None
+        assert any(issue.code is ReaderIssueCode.UNSUPPORTED_FORMAT for issue in result.errors)

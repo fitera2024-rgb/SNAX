@@ -98,12 +98,14 @@ class XlsxWorkbookReader(WorkbookReader):
     """Read-only XLSX parser that stores formulas as raw text with cached values."""
 
     def supports(self, media_type: str | None = None, extension: str | None = None) -> bool:
-        media_supported = (
-            media_type is not None and media_type.lower().split(";", 1)[0] in _SUPPORTED_MEDIA_TYPES
+        media_supported = media_type is None or (
+            media_type.lower().split(";", 1)[0] in _SUPPORTED_MEDIA_TYPES
         )
-        extension_supported = extension is not None and extension.lower() in _SUPPORTED_EXTENSIONS
-        return (media_type is not None or extension is not None) and (
-            media_supported or extension_supported
+        extension_supported = extension is None or extension.lower() in _SUPPORTED_EXTENSIONS
+        return (
+            (media_type is not None or extension is not None)
+            and media_supported
+            and extension_supported
         )
 
     def read(self, source: BinaryIO, options: ReaderOptions) -> ReaderResult:
@@ -170,6 +172,17 @@ class XlsxWorkbookReader(WorkbookReader):
                     )
                 bytes_read = copied
                 temp.seek(0)
+                if not self._validate_archive_limits(
+                    source=temp,
+                    options=options,
+                    started=started,
+                    add_issue=add_issue,
+                ):
+                    return ReaderResult(
+                        workbook=None,
+                        issues=tuple(issues),
+                        statistics=self._statistics(bytes_read=bytes_read, started=started),
+                    )
                 parsed = self._parse_workbook(
                     source=temp,
                     source_size=bytes_read,
@@ -353,8 +366,9 @@ class XlsxWorkbookReader(WorkbookReader):
         visibility = self._sheet_visibility(str(getattr(sheet, "sheet_state", "visible")))
         max_row = int(sheet.max_row or 0)
         max_column = int(sheet.max_column or 0)
+        dimensions_known = max_row > 0 and max_column > 0
         remaining_rows = max(0, options.max_rows - rows_read)
-        rows_to_read = min(max_row, remaining_rows)
+        rows_to_read = min(max_row, remaining_rows) if dimensions_known else remaining_rows
         merged_ranges = self._parse_merged_ranges(
             sheet=sheet,
             sheet_name=sheet_name,
@@ -362,15 +376,18 @@ class XlsxWorkbookReader(WorkbookReader):
             add_issue=add_issue,
         )
 
-        if max_row > options.max_rows:
+        if dimensions_known and max_row > remaining_rows:
             add_issue(
                 ReaderIssueCode.WORKBOOK_TOO_MANY_ROWS,
                 IssueSeverity.CRITICAL,
                 "Worksheet exceeds max_rows",
                 sheet_name=sheet_name,
-                details={"limit": str(options.max_rows)},
+                details={
+                    "limit": str(options.max_rows),
+                    "remainingRows": str(remaining_rows),
+                },
             )
-        if max_column > options.max_columns:
+        if dimensions_known and max_column > options.max_columns:
             add_issue(
                 ReaderIssueCode.WORKBOOK_TOO_MANY_COLUMNS,
                 IssueSeverity.CRITICAL,
@@ -379,17 +396,35 @@ class XlsxWorkbookReader(WorkbookReader):
                 details={"limit": str(options.max_columns)},
             )
 
+        rows: list[Row] = []
+
+        def build_sheet() -> Sheet:
+            observed_max_row = max((row.index for row in rows), default=0)
+            observed_max_column = max(
+                (cell.column_index for row in rows for cell in row.cells),
+                default=0,
+            )
+            merged_max_row = max(
+                (merged.end_cell.row for merged in merged_ranges),
+                default=0,
+            )
+            merged_max_column = max(
+                (merged.end_cell.column for merged in merged_ranges),
+                default=0,
+            )
+            return Sheet(
+                name=sheet_name,
+                index=sheet_index,
+                visibility=visibility,
+                max_row=max(max_row, observed_max_row, merged_max_row),
+                max_column=max(max_column, observed_max_column, merged_max_column),
+                merged_ranges=tuple(merged_ranges),
+                rows=tuple(rows),
+            )
+
         if rows_to_read == 0:
             return _ParsedSheetResult(
-                sheet=Sheet(
-                    name=sheet_name,
-                    index=sheet_index,
-                    visibility=visibility,
-                    max_row=max_row,
-                    max_column=max_column,
-                    merged_ranges=tuple(merged_ranges),
-                    rows=(),
-                ),
+                sheet=build_sheet(),
                 rows_read=0,
                 rows_skipped=max_row,
                 cells_read=0,
@@ -398,30 +433,60 @@ class XlsxWorkbookReader(WorkbookReader):
                 stopped=rows_read >= options.max_rows,
             )
 
-        formula_rows = sheet.iter_rows(
-            min_row=1,
-            max_row=rows_to_read,
-            min_col=1,
-            max_col=min(max_column, options.max_columns),
-            values_only=False,
-        )
-        cached_rows = cached_sheet.iter_rows(
-            min_row=1,
-            max_row=rows_to_read,
-            min_col=1,
-            max_col=min(max_column, options.max_columns),
-            values_only=False,
-        )
+        if dimensions_known:
+            formula_rows = sheet.iter_rows(
+                min_row=1,
+                max_row=rows_to_read,
+                min_col=1,
+                max_col=min(max_column, options.max_columns),
+                values_only=False,
+            )
+            cached_rows = cached_sheet.iter_rows(
+                min_row=1,
+                max_row=rows_to_read,
+                min_col=1,
+                max_col=min(max_column, options.max_columns),
+                values_only=False,
+            )
+        else:
+            formula_rows = sheet.iter_rows(values_only=False)
+            cached_rows = cached_sheet.iter_rows(values_only=False)
 
         parsed_rows = 0
         local_cells = 0
         local_formula_cells = 0
         local_error_cells = 0
-        rows: list[Row] = []
         skipped_rows = 0
 
         for formula_row, cached_row in zip_longest(formula_rows, cached_rows, fillvalue=()):
+            if parsed_rows >= remaining_rows:
+                add_issue(
+                    ReaderIssueCode.WORKBOOK_TOO_MANY_ROWS,
+                    IssueSeverity.CRITICAL,
+                    "Workbook exceeds max_rows",
+                    sheet_name=sheet_name,
+                    details={"limit": str(options.max_rows)},
+                )
+                skipped_rows += 1
+                return _ParsedSheetResult(
+                    sheet=build_sheet(),
+                    rows_read=parsed_rows,
+                    rows_skipped=skipped_rows,
+                    cells_read=local_cells,
+                    formula_cells=local_formula_cells,
+                    error_cells=local_error_cells,
+                    stopped=True,
+                )
+
             if not formula_row:
+                add_issue(
+                    ReaderIssueCode.ROW_READ_FAILED,
+                    IssueSeverity.ERROR,
+                    "Formula and cached workbook rows are structurally inconsistent",
+                    sheet_name=sheet_name,
+                    row_index=parsed_rows + 1,
+                )
+                rows.append(Row(index=parsed_rows + 1))
                 parsed_rows += 1
                 continue
 
@@ -432,17 +497,10 @@ class XlsxWorkbookReader(WorkbookReader):
                     "XLSX reader timeout exceeded",
                     retryable=True,
                 )
-                skipped_rows += rows_to_read - parsed_rows
+                if dimensions_known:
+                    skipped_rows += max(0, max_row - parsed_rows)
                 return _ParsedSheetResult(
-                    sheet=Sheet(
-                        name=sheet_name,
-                        index=sheet_index,
-                        visibility=visibility,
-                        max_row=max_row,
-                        max_column=max_column,
-                        merged_ranges=tuple(merged_ranges),
-                        rows=tuple(rows),
-                    ),
+                    sheet=build_sheet(),
                     rows_read=parsed_rows,
                     rows_skipped=skipped_rows,
                     cells_read=local_cells,
@@ -455,6 +513,7 @@ class XlsxWorkbookReader(WorkbookReader):
                 formula_row=tuple(formula_row),
                 cached_row=tuple(cached_row) if cached_row else (),
                 sheet_name=sheet_name,
+                row_index=parsed_rows + 1,
                 options=options,
                 cells_read=cells_read + local_cells,
                 add_issue=add_issue,
@@ -468,17 +527,10 @@ class XlsxWorkbookReader(WorkbookReader):
                 local_error_cells += row_result.error_cells
 
             if row_result.stopped:
-                skipped_rows += rows_to_read - parsed_rows
+                if dimensions_known:
+                    skipped_rows += max(0, max_row - parsed_rows)
                 return _ParsedSheetResult(
-                    sheet=Sheet(
-                        name=sheet_name,
-                        index=sheet_index,
-                        visibility=visibility,
-                        max_row=max_row,
-                        max_column=max_column,
-                        merged_ranges=tuple(merged_ranges),
-                        rows=tuple(rows),
-                    ),
+                    sheet=build_sheet(),
                     rows_read=parsed_rows,
                     rows_skipped=skipped_rows,
                     cells_read=local_cells,
@@ -495,17 +547,10 @@ class XlsxWorkbookReader(WorkbookReader):
                     sheet_name=sheet_name,
                     details={"limit": str(options.max_rows)},
                 )
-                skipped_rows += rows_to_read - parsed_rows
+                if dimensions_known:
+                    skipped_rows += max(0, max_row - parsed_rows)
                 return _ParsedSheetResult(
-                    sheet=Sheet(
-                        name=sheet_name,
-                        index=sheet_index,
-                        visibility=visibility,
-                        max_row=max_row,
-                        max_column=max_column,
-                        merged_ranges=tuple(merged_ranges),
-                        rows=tuple(rows),
-                    ),
+                    sheet=build_sheet(),
                     rows_read=parsed_rows,
                     rows_skipped=skipped_rows,
                     cells_read=local_cells,
@@ -522,17 +567,10 @@ class XlsxWorkbookReader(WorkbookReader):
                     sheet_name=sheet_name,
                     details={"limit": str(options.max_cells)},
                 )
-                skipped_rows += rows_to_read - parsed_rows
+                if dimensions_known:
+                    skipped_rows += max(0, max_row - parsed_rows)
                 return _ParsedSheetResult(
-                    sheet=Sheet(
-                        name=sheet_name,
-                        index=sheet_index,
-                        visibility=visibility,
-                        max_row=max_row,
-                        max_column=max_column,
-                        merged_ranges=tuple(merged_ranges),
-                        rows=tuple(rows),
-                    ),
+                    sheet=build_sheet(),
                     rows_read=parsed_rows,
                     rows_skipped=skipped_rows,
                     cells_read=local_cells,
@@ -542,21 +580,13 @@ class XlsxWorkbookReader(WorkbookReader):
                 )
 
         return _ParsedSheetResult(
-            sheet=Sheet(
-                name=sheet_name,
-                index=sheet_index,
-                visibility=visibility,
-                max_row=max_row,
-                max_column=max_column,
-                merged_ranges=tuple(merged_ranges),
-                rows=tuple(rows),
-            ),
+            sheet=build_sheet(),
             rows_read=parsed_rows,
-            rows_skipped=max_row - rows_to_read,
+            rows_skipped=max(0, max_row - rows_to_read) if dimensions_known else 0,
             cells_read=local_cells,
             formula_cells=local_formula_cells,
             error_cells=local_error_cells,
-            stopped=False,
+            stopped=dimensions_known and max_row > rows_to_read,
         )
 
     def _parse_row(
@@ -565,6 +595,7 @@ class XlsxWorkbookReader(WorkbookReader):
         formula_row: tuple[Any, ...],
         cached_row: tuple[Any, ...],
         sheet_name: str,
+        row_index: int,
         options: ReaderOptions,
         cells_read: int,
         add_issue: Any,
@@ -580,16 +611,14 @@ class XlsxWorkbookReader(WorkbookReader):
             ),
             None,
         )
-        if first_cell is None:
-            return _ParsedRowResult(row=None, parsed_cells=0, formula_cells=0, error_cells=0)
-
-        row_index = int(first_cell.row)
         cells: list[Cell] = []
         parsed_cells = 0
         formula_cells = 0
         error_cells = 0
 
         try:
+            if first_cell is None:
+                raise LookupError("Blank row has no source cell")
             row_dimensions = first_cell.parent.row_dimensions[row_index]
             row_hidden = bool(getattr(row_dimensions, "hidden", False))
             raw_height = getattr(row_dimensions, "height", None)
@@ -709,8 +738,6 @@ class XlsxWorkbookReader(WorkbookReader):
             formula_cells += parsed_cell.value_type is ValueType.FORMULA
             error_cells += parsed_cell.value_type is ValueType.ERROR
 
-        if not cells:
-            return _ParsedRowResult(row=None, parsed_cells=0, formula_cells=0, error_cells=0)
         return _ParsedRowResult(
             row=Row(index=row_index, cells=tuple(cells), hidden=row_hidden, height=row_height),
             parsed_cells=parsed_cells,
@@ -929,6 +956,43 @@ class XlsxWorkbookReader(WorkbookReader):
             destination.write(chunk)
         destination.flush()
         return bytes_read
+
+    def _validate_archive_limits(
+        self,
+        *,
+        source: Any,
+        options: ReaderOptions,
+        started: float,
+        add_issue: Any,
+    ) -> bool:
+        total_uncompressed = 0
+        source.seek(0)
+        try:
+            with ZipFile(source) as archive:
+                for entry in archive.infolist():
+                    if self._is_timeout(started, options):
+                        add_issue(
+                            ReaderIssueCode.TIMEOUT_EXCEEDED,
+                            IssueSeverity.CRITICAL,
+                            "XLSX reader timeout exceeded during archive preflight",
+                            retryable=True,
+                        )
+                        return False
+                    total_uncompressed += entry.file_size
+                    if total_uncompressed > options.memory_limit:
+                        add_issue(
+                            ReaderIssueCode.MEMORY_LIMIT_EXCEEDED,
+                            IssueSeverity.CRITICAL,
+                            "XLSX uncompressed content exceeds memory budget",
+                            details={
+                                "limitBytes": str(options.memory_limit),
+                                "uncompressedBytes": str(total_uncompressed),
+                            },
+                        )
+                        return False
+        finally:
+            source.seek(0)
+        return True
 
     @staticmethod
     def _sheet_visibility(raw_state: str) -> SheetVisibility:
