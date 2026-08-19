@@ -1,0 +1,172 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snax.example.com/contracts/profile-detection.schema.json",
+  "title": "SNAX profile detection result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["selectedProfile", "status", "candidates", "confidence", "issues"],
+  "properties": {
+    "selectedProfile": {
+      "anyOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/profile" }
+      ]
+    },
+    "candidates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/candidate" }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["MATCHED", "PROFILE_NOT_FOUND", "AMBIGUOUS_PROFILE", "TEMPLATE_CHANGED"]
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["HIGH", "MEDIUM", "LOW"]
+    },
+    "issues": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/issue" }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "selectedProfile": { "type": "null" }
+        }
+      },
+      "then": {
+        "properties": {
+          "confidence": { "enum": ["MEDIUM", "LOW"] }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "status": { "const": "MATCHED" } } },
+      "then": { "properties": { "selectedProfile": { "$ref": "#/$defs/profile" } } },
+      "else": { "properties": { "selectedProfile": { "type": "null" } } }
+    }
+  ],
+  "$defs": {
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "profileId",
+        "version",
+        "totalScore",
+        "confidence",
+        "fingerprint",
+        "reasons",
+        "scoreComponents"
+      ],
+      "properties": {
+        "profileId": { "type": "string", "format": "uuid" },
+        "version": { "type": "integer", "minimum": 1 },
+        "totalScore": { "type": "number", "minimum": 0, "maximum": 100 },
+        "confidence": {
+          "type": "string",
+          "enum": ["HIGH", "MEDIUM", "LOW"]
+        },
+        "reasons": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "fingerprint": { "$ref": "#/$defs/fingerprint" },
+        "scoreComponents": { "$ref": "#/$defs/scoreComponents" }
+      }
+    },
+    "fingerprint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["filenamePattern", "extensions", "mediaTypes", "sheetNames", "columnNames"],
+      "properties": {
+        "filenamePattern": { "type": ["string", "null"], "minLength": 1 },
+        "extensions": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "mediaTypes": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "sheetNames": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+        "columnNames": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    },
+    "scoreComponent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["score", "weight"],
+      "properties": {
+        "score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "weight": { "type": "number", "minimum": 0, "maximum": 100 }
+      }
+    },
+    "scoreComponents": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["filename", "extension", "mediaType", "sheets", "columns"],
+      "properties": {
+        "filename": { "$ref": "#/$defs/scoreComponent" },
+        "extension": { "$ref": "#/$defs/scoreComponent" },
+        "mediaType": { "$ref": "#/$defs/scoreComponent" },
+        "sheets": { "$ref": "#/$defs/scoreComponent" },
+        "columns": { "$ref": "#/$defs/scoreComponent" }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "required": [
+        "id",
+        "supplierId",
+        "name",
+        "description",
+        "status",
+        "currentVersion",
+        "createdAt",
+        "updatedAt",
+        "versions"
+      ],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "supplierId": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "description": { "type": ["string", "null"] },
+        "status": { "type": "string", "enum": ["DRAFT", "ACTIVE", "ARCHIVED"] },
+        "currentVersion": { "type": "integer", "minimum": 1 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "versions": { "type": "array", "minItems": 1 }
+      },
+      "additionalProperties": true
+    },
+    "issue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "issueId",
+        "code",
+        "severity",
+        "message",
+        "sheetName",
+        "rowIndex",
+        "cellCoordinate",
+        "retryable",
+        "details"
+      ],
+      "properties": {
+        "issueId": { "type": "string", "minLength": 1 },
+        "code": {
+          "type": "string",
+          "enum": ["PROFILE_NOT_FOUND", "AMBIGUOUS_PROFILE", "TEMPLATE_CHANGED"]
+        },
+        "severity": { "type": "string", "enum": ["ERROR"] },
+        "message": { "type": "string", "minLength": 1 },
+        "sheetName": { "type": ["string", "null"] },
+        "rowIndex": { "type": ["integer", "null"], "minimum": 1 },
+        "cellCoordinate": { "type": ["object", "null"] },
+        "retryable": { "type": "boolean" },
+        "details": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    }
+  }
+}

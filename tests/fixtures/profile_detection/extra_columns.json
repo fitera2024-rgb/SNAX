@@ -1,0 +1,11 @@
+{
+  "filename": "price_alfa.xlsx",
+  "mediaType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  "format": "XLSX",
+  "sheets": [
+    {
+      "name": "Прайс",
+      "headers": ["Артикул", "Цена", "Остаток", "Описание", "Категория"]
+    }
+  ]
+}
