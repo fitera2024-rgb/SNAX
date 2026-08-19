@@ -31,6 +31,7 @@ PAIRS = (
         "supplier-profile.schema.json",
         "examples/supplier-profile.versioned_profile.json",
     ),
+    ("profile-detection.schema.json", "examples/profile-detection.example.json"),
 )
 INVALID_PAIRS = (
     (
@@ -71,6 +72,10 @@ INVALID_PAIRS = (
     (
         "supplier-profile.schema.json",
         "invalid/supplier-profile.invalid-datetime.json",
+    ),
+    (
+        "profile-detection.schema.json",
+        "invalid/profile-detection.high-without-selection.json",
     ),
 )
 

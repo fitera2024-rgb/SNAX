@@ -11,6 +11,8 @@ from snax_import.domain.raw_workbook import CellCoordinate, Workbook
 
 
 class ReaderIssueCode(StrEnum):
+    PROFILE_NOT_FOUND = "PROFILE_NOT_FOUND"
+    AMBIGUOUS_PROFILE = "AMBIGUOUS_PROFILE"
     XLS_TOO_LARGE = "XLS_TOO_LARGE"
     XLS_CORRUPTED = "XLS_CORRUPTED"
     XLS_UNSUPPORTED = "XLS_UNSUPPORTED"

@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snax.example.com/contracts/profile-detection.schema.json",
+  "title": "SNAX profile detection result",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["selectedProfile", "candidates", "confidence", "issues"],
+  "properties": {
+    "selectedProfile": {
+      "anyOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/profile" }
+      ]
+    },
+    "candidates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/candidate" }
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["HIGH", "MEDIUM", "LOW"]
+    },
+    "issues": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/issue" }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "selectedProfile": { "type": "null" }
+        }
+      },
+      "then": {
+        "properties": {
+          "confidence": { "enum": ["MEDIUM", "LOW"] }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["profileId", "version", "score", "confidence", "reasons"],
+      "properties": {
+        "profileId": { "type": "string", "format": "uuid" },
+        "version": { "type": "integer", "minimum": 1 },
+        "score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "confidence": {
+          "type": "string",
+          "enum": ["HIGH", "MEDIUM", "LOW"]
+        },
+        "reasons": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "required": [
+        "id",
+        "supplierId",
+        "name",
+        "description",
+        "status",
+        "currentVersion",
+        "createdAt",
+        "updatedAt",
+        "versions"
+      ],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "supplierId": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "description": { "type": ["string", "null"] },
+        "status": { "type": "string", "enum": ["DRAFT", "ACTIVE", "ARCHIVED"] },
+        "currentVersion": { "type": "integer", "minimum": 1 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "versions": { "type": "array", "minItems": 1 }
+      },
+      "additionalProperties": true
+    },
+    "issue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "issueId",
+        "code",
+        "severity",
+        "message",
+        "sheetName",
+        "rowIndex",
+        "cellCoordinate",
+        "retryable",
+        "details"
+      ],
+      "properties": {
+        "issueId": { "type": "string", "minLength": 1 },
+        "code": { "type": "string", "enum": ["PROFILE_NOT_FOUND", "AMBIGUOUS_PROFILE"] },
+        "severity": { "type": "string", "enum": ["ERROR"] },
+        "message": { "type": "string", "minLength": 1 },
+        "sheetName": { "type": ["string", "null"] },
+        "rowIndex": { "type": ["integer", "null"], "minimum": 1 },
+        "cellCoordinate": { "type": ["object", "null"] },
+        "retryable": { "type": "boolean" },
+        "details": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    }
+  }
+}

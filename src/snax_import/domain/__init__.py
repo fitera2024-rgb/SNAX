@@ -1,5 +1,11 @@
 """Framework-neutral import domain."""
 
+from snax_import.domain.profile_detection import (
+    DetectionConfidence,
+    DetectionResult,
+    ProfileMatchCandidate,
+    confidence_for_score,
+)
 from snax_import.domain.supplier_profile import (
     DataType,
     ProfileStatus,
@@ -22,6 +28,9 @@ from snax_import.domain.supplier_profile import (
 )
 
 __all__ = [
+    "DetectionConfidence",
+    "DetectionResult",
+    "ProfileMatchCandidate",
     "DataType",
     "ProfileStatus",
     "SheetPurpose",
@@ -40,4 +49,5 @@ __all__ = [
     "TargetField",
     "ValidationRuleType",
     "ValidationSeverity",
+    "confidence_for_score",
 ]

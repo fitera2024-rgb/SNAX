@@ -1,0 +1,18 @@
+{
+  "selectedProfile": null,
+  "candidates": [],
+  "confidence": "HIGH",
+  "issues": [
+    {
+      "issueId": "profile-detection-profile-not-found",
+      "code": "PROFILE_NOT_FOUND",
+      "severity": "ERROR",
+      "message": "Профиль поставщика не найден",
+      "sheetName": null,
+      "rowIndex": null,
+      "cellCoordinate": null,
+      "retryable": false,
+      "details": {}
+    }
+  ]
+}

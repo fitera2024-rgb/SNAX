@@ -1,0 +1,11 @@
+{
+  "filename": "readme.txt",
+  "mediaType": "text/plain",
+  "format": "UNKNOWN",
+  "sheets": [
+    {
+      "name": "Data",
+      "headers": ["Value"]
+    }
+  ]
+}

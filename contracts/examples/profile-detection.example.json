@@ -1,0 +1,39 @@
+{
+  "selectedProfile": {
+    "id": "11111111-1111-4111-8111-111111111111",
+    "supplierId": "SYNTHETIC-A",
+    "name": "Synthetic Supplier A",
+    "description": "Contract-only example",
+    "status": "ACTIVE",
+    "currentVersion": 1,
+    "createdAt": "2026-08-19T00:00:00Z",
+    "updatedAt": "2026-08-19T00:00:00Z",
+    "versions": [
+      {
+        "id": "22222222-2222-4222-8222-222222222222",
+        "profileId": "11111111-1111-4111-8111-111111111111",
+        "versionNumber": 1,
+        "schemaVersion": "1.0.0",
+        "effectiveFrom": "2026-08-19T00:00:00Z",
+        "effectiveTo": null,
+        "createdAt": "2026-08-19T00:00:00Z",
+        "createdBy": "contract-test",
+        "fileRules": [],
+        "sheetMappings": [],
+        "columnMappings": [],
+        "validationRules": []
+      }
+    ]
+  },
+  "candidates": [
+    {
+      "profileId": "11111111-1111-4111-8111-111111111111",
+      "version": 1,
+      "score": 0.95,
+      "confidence": "HIGH",
+      "reasons": ["filename pattern: matched", "sheet names: matched", "columns: 3/3 matched"]
+    }
+  ],
+  "confidence": "HIGH",
+  "issues": []
+}
