@@ -95,11 +95,12 @@ def test_enforces_file_sheet_row_and_column_limits() -> None:
     too_many_columns = _read("simple.xls", ReaderOptions(max_columns=1))
 
     assert any(issue.code is ReaderIssueCode.XLS_TOO_LARGE for issue in too_large.errors)
-    assert any(issue.code is ReaderIssueCode.SHEET_LIMIT_EXCEEDED for issue in too_many_sheets.errors)
+    assert any(
+        issue.code is ReaderIssueCode.SHEET_LIMIT_EXCEEDED for issue in too_many_sheets.errors
+    )
     assert any(issue.code is ReaderIssueCode.ROW_LIMIT_EXCEEDED for issue in too_many_rows.errors)
     assert any(
-        issue.code is ReaderIssueCode.WORKBOOK_TOO_MANY_COLUMNS
-        for issue in too_many_columns.errors
+        issue.code is ReaderIssueCode.WORKBOOK_TOO_MANY_COLUMNS for issue in too_many_columns.errors
     )
 
 
