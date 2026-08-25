@@ -52,3 +52,6 @@ fixtures/raw/
 
 # Generated project packs
 *_Codex_Project_Pack_*.zip
+
+# 1c-rules local project parameters (may contain infobase credentials)
+.dev.env
