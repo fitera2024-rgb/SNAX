@@ -55,3 +55,6 @@ fixtures/raw/
 
 # 1c-rules local project parameters (may contain infobase credentials)
 .dev.env
+
+# 1C infobase lists (connection strings; may point at live clusters)
+*.v8i

@@ -16,6 +16,13 @@ preserve original 1C identifiers (objects, modules, attributes) as-is:
 - **Why:** A renamed id breaks `mcp-1c-tools` routing. Starting images without LICENSE_KEY fails. Mixing OneMCP with Docker search servers confuses install/debug.
 - **Source:** user pointed at https://docs.onerpa.ru/mcp-servery-1c after 1c-rules install.
 
+## 2026-08-25 — SNAX 1C cluster catalog is local-only
+
+- **Scope:** 1C Designer / infobase operations (`INFOBASE_PATH`, `/update1cbase`, `/restore-testbase`, `/loadfrom1cbase`).
+- **Rule:** The user-supplied `ibases.v8i` catalog and IB credentials live only in gitignored `.dev.env` and `.local/ibases/`. The default working pair is server **УТ**. Treat these cluster bases as live: do not dump, load, update DB config, or kill sessions unless the user names a dedicated test copy. Розница uses a separate user pair in `.dev.env` (`IB_USER_ROZN`), not the default `IB_USER`.
+- **Why:** Pointing mutating Designer commands at the live УТ / Розница cluster overwrites production data. Committing `.v8i` or passwords leaks infrastructure and admin credentials.
+- **Source:** user uploaded `ibases_SNAX.v8i` and the two administrator accounts.
+
 <!--
 ## YYYY-MM-DD — <short rule title>
 
