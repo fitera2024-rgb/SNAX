@@ -1666,12 +1666,14 @@
     "USER-RULES.md": {
       "source": "USER-RULES.md",
       "template": true,
-      "installedHash": "b7138c7baee7e7feebee60b91721ccebe237ddd1e3f185ff9e6845967640bac8"
+      "userModified": true,
+      "installedHash": "cc9e0a6c5ffddeab3df95e07737ab7ad08d85df01d11af3056b68aad72b65196"
     },
     "memory.md": {
       "source": "memory.md",
       "template": true,
-      "installedHash": "5c7962c80a1a4077377302551ef4594ddf00f4a666592d0aced47be2ac5ec3e1"
+      "userModified": true,
+      "installedHash": "c9fd3972daa905c88f991ad3f13fbbf61ae832503db126ac050c41c8ef15989f"
     },
     "LLM-RULES.md": {
       "source": "LLM-RULES.md",
