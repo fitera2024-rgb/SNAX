@@ -114,3 +114,20 @@ Golden snapshot не обновляй автоматически. В PR объя
 - менять схему БД вручную без migration;
 - создавать второй расчёт потребности во внешнем сервисе.
 <!-- end of migrated content -->
+
+## MCP-серверы 1С
+
+Каноническая документация Docker-серверов: [docs.onerpa.ru/mcp-servery-1c](https://docs.onerpa.ru/mcp-servery-1c). Клиентская регистрация уже стоит в `.cursor/mcp.json`. Имена серверов — из каталога 1c-rules (`mcp-1c-tools`), их не переименовывать под примеры OneRPA.
+
+| OneRPA | id в проекте | Порт |
+|---|---|---|
+| SyntaxCheckServer | `1c-syntax-checker-mcp` | 8002 |
+| HelpSearchServer | `1C-docs-mcp` | 8003 |
+| SSLSearchServer | `1c-ssl-mcp` | 8008 |
+| TemplatesSearchServer | `1c-templates-mcp` | 8004 |
+| CodeMetadataSearchServer | `1c-code-metadata-mcp` | 8000 |
+| Graph Metadata Search | `1c-graph-metadata-mcp` | 8006 |
+| 1CCodeChecker | `1c-code-check-mcp` | 8007 |
+| OneMCP (HTTP-сервис ИБ, не Docker) | `1c-data-mcp` | `{INFOBASE_PUBLISH_URL}/hs/mcp` |
+
+Контейнеры на этой машине не запускаются: нужен `LICENSE_KEY` и Docker на рабочей станции разработчика. Образы `comol/*` без ключа не стартуют. После запуска контейнеров — перезапуск Cursor.
