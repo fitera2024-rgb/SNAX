@@ -26,7 +26,7 @@ SNAX · ПРОГРАММА СТАБИЛИЗАЦИИ ДАННЫХ, ЗАКУПОК
 | Исполнитель | ООО «ФИТЭРА» |  |  |
 
 ::: {custom-style="Callout"}
-**Назначение.** Краткая форма для руководителя и подписи — [PROJECT_CONTRACT_EXEC.md](PROJECT_CONTRACT_EXEC.md). Детальный технический контракт по всем потокам — [PROJECT_CONTRACT_TECH.md](PROJECT_CONTRACT_TECH.md). Подробный план действий по архитектуре и доработкам — [TECHNICAL_ACTION_PLAN.md](TECHNICAL_ACTION_PLAN.md). Настоящий документ фиксирует устав: *что* считается предметом программы SNAX, какие результаты обязательны, какие инварианты нельзя нарушать, как принимаются этапы и как пересчитаны сроки. Детали API, readers и приёмки остаются в [TZ.md](TZ.md), [TZ_ADDENDUM_RECEIVING.md](TZ_ADDENDUM_RECEIVING.md) и [SPEC.md](SPEC.md). Сквозная спецификация программы — [SPEC_PROGRAM.md](SPEC_PROGRAM.md). Календарь — [SCHEDULE.md](SCHEDULE.md).
+**Назначение.** Краткая форма для руководителя и подписи — [PROJECT_CONTRACT_EXEC.md](PROJECT_CONTRACT_EXEC.md). Технический контракт языком руководителя — [PROJECT_CONTRACT_TECH_EXEC.md](PROJECT_CONTRACT_TECH_EXEC.md). Детальный технический контракт по всем потокам — [PROJECT_CONTRACT_TECH.md](PROJECT_CONTRACT_TECH.md). Подробный план действий по архитектуре и доработкам — [TECHNICAL_ACTION_PLAN.md](TECHNICAL_ACTION_PLAN.md). Настоящий документ фиксирует устав: *что* считается предметом программы SNAX, какие результаты обязательны, какие инварианты нельзя нарушать, как принимаются этапы и как пересчитаны сроки. Детали API, readers и приёмки остаются в [TZ.md](TZ.md), [TZ_ADDENDUM_RECEIVING.md](TZ_ADDENDUM_RECEIVING.md) и [SPEC.md](SPEC.md). Сквозная спецификация программы — [SPEC_PROGRAM.md](SPEC_PROGRAM.md). Календарь — [SCHEDULE.md](SCHEDULE.md).
 :::
 
 ::: {custom-style="Callout"}

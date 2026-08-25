@@ -23,6 +23,7 @@ SNAX · СПЕЦИФИКАЦИЯ ПРОГРАММЫ
 | **SPEC_PROGRAM.md v3.0** | Топология «Форус», выгрузки баз, НСИ, обмены, финансы, продажи, BI, расширения 1С, масштабирование |
 | [PROJECT_CONTRACT.md](PROJECT_CONTRACT.md) | Устав, обязательства, gates |
 | [PROJECT_CONTRACT_TECH.md](PROJECT_CONTRACT_TECH.md) v3.0-tech | Сводный детальный технический контракт всех потоков и инвариантов |
+| [PROJECT_CONTRACT_TECH_EXEC.md](PROJECT_CONTRACT_TECH_EXEC.md) v3.0-tech-exec | То же для руководителя, без инженерного жаргона |
 | [TECHNICAL_ACTION_PLAN.md](TECHNICAL_ACTION_PLAN.md) v3.0-plan | Очередь работ: архитектура и доработки AS-IS, пакеты AP-0…AP-8 |
 | [DATA_DUMP_INTAKE.md](DATA_DUMP_INTAKE.md) | Процедура приёма выгрузок |
 | [SCHEDULE.md](SCHEDULE.md) | Календарь |

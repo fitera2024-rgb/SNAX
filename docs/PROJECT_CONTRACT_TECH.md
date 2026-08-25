@@ -22,7 +22,7 @@ SNAX · ДЕТАЛЬНЫЙ ТЕХНИЧЕСКИЙ КОНТРАКТ ПРОГРА�
 **Выгрузки баз.** Рабочие DT/CF 1С:УТ / Розница / БП на дату контракта не переданы. Появление выгрузки наполняет каталоги, а не ломает инварианты раздела 3. Payload в Git запрещён.
 :::
 
-Краткая форма для руководителя: [PROJECT_CONTRACT_EXEC.md](PROJECT_CONTRACT_EXEC.md). Устав программы: [PROJECT_CONTRACT.md](PROJECT_CONTRACT.md).
+Краткая форма программного контракта: [PROJECT_CONTRACT_EXEC.md](PROJECT_CONTRACT_EXEC.md). Понятное изложение этого технического контракта для руководителя: [PROJECT_CONTRACT_TECH_EXEC.md](PROJECT_CONTRACT_TECH_EXEC.md) · [Word](ФИТЭРА_SNAX_Технический_контракт_для_руководителя_v3.0.docx). Устав программы: [PROJECT_CONTRACT.md](PROJECT_CONTRACT.md).
 
 # 0. Карта документов и приоритет при расхождении
 
@@ -30,6 +30,7 @@ SNAX · ДЕТАЛЬНЫЙ ТЕХНИЧЕСКИЙ КОНТРАКТ ПРОГРА�
 |---|---|---|
 | Реестр Excel v1.2 | Формулировки 185 требований, риски, решения | Требование бизнеса |
 | Настоящий TECH v3.0 | Сводка техники программы | Техническая сборка |
+| [PROJECT_CONTRACT_TECH_EXEC.md](PROJECT_CONTRACT_TECH_EXEC.md) | То же языком руководителя | Для подписи правил без жаргона |
 | [SPEC.md](SPEC.md) v2.0 | Readers, raw workbook, профили, package, API импорта | Детали сервиса импорта |
 | [TZ_ADDENDUM_RECEIVING.md](TZ_ADDENDUM_RECEIVING.md) v2.1 | Приёмка, receipt-package, РМ магазина | Детали приёмки |
 | [SPEC_PROGRAM.md](SPEC_PROGRAM.md) v3.0 | Топология, дампы, финансы, BI, расширения | Программные потоки вне импорта |

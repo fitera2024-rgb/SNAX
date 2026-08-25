@@ -29,6 +29,7 @@ SNAX · ПОДРОБНЫЙ ТЕХНИЧЕСКИЙ ПЛАН ДЕЙСТВИЙ
 | Документ | Роль относительно этого плана |
 |---|---|
 | Настоящий план v3.0-plan | **Очередь работ**: пакеты AP-0…AP-8, действия, владельцы, DoD |
+| [PROJECT_CONTRACT_TECH_EXEC.md](PROJECT_CONTRACT_TECH_EXEC.md) | Технический контракт языком руководителя |
 | [SCHEDULE.md](SCHEDULE.md) | Когда: T0 01.09.2026 → G7 14.05.2027, dumpLagWeeks |
 | [SPEC.md](SPEC.md) / [TZ.md](TZ.md) | Как устроен сервис импорта (readers, package, API) |
 | [TZ_ADDENDUM_RECEIVING.md](TZ_ADDENDUM_RECEIVING.md) | Как устроена приёмка |
