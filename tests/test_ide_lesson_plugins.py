@@ -30,3 +30,10 @@ def test_lesson_mcp_servers_use_npx_packages() -> None:
         "command": "npx",
         "args": ["-y", "@modelcontextprotocol/server-memory"],
     }
+
+
+def test_installed_1c_mcp_servers_are_wired() -> None:
+    servers = json.loads((ROOT / ".cursor" / "mcp.json").read_text(encoding="utf-8"))["mcpServers"]
+    assert servers["1c-syntax-checker-mcp"]["url"] == "http://localhost:8002/mcp"
+    assert servers["1c-templates-mcp"]["url"] == "http://localhost:8004/mcp"
+    assert servers["1c-ssl-mcp"]["url"] == "http://localhost:8008/mcp"
