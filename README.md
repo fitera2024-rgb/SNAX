@@ -19,11 +19,17 @@
 
 ## Главные документы
 
+- [Программный контракт v3.0](docs/PROJECT_CONTRACT.md)
+- [Спецификация программы v3.0](docs/SPEC_PROGRAM.md)
+- [Календарный график v3.0](docs/SCHEDULE.md)
+- [Приём выгрузок баз](docs/DATA_DUMP_INTAKE.md)
+- [Реестр требований v1.2](docs/research/2026-08-26/README.md)
 - [Техническое задание](docs/TZ.md)
-- [Функционально-техническая спецификация](docs/SPEC.md)
+- [Функционально-техническая спецификация сервиса](docs/SPEC.md)
 - [Дополнение 2.1: автоматизация приемки](docs/TZ_ADDENDUM_RECEIVING.md)
 - [Архитектурное решение](adr/ADR-001-hybrid-architecture.md)
 - [ADR-002: приемка поставки](adr/ADR-002-receiving-workflow.md)
+- [ADR-004: топология Форус](adr/ADR-004-forus-topology.md)
 - [Программный backlog](tasks/IMPLEMENTATION_BACKLOG.md)
 - [Процесс выполнения работ](docs/WORK_PROCESS.md)
 - [WORK-001: bootstrap web-сервиса](tasks/WORK-001-web-bootstrap.md)
@@ -35,10 +41,11 @@
 - [JSON Schema пакета](contracts/schemas/import-package.schema.json)
 - [JSON Schema синхронизации связей](contracts/schemas/mapping-sync.schema.json)
 - [JSON Schema профиля](profiles/schema/profile.schema.json)
+- [JSON Schema манифеста выгрузки баз](contracts/schemas/config-dump-manifest.schema.json)
 
 ## Статус
 
-Этот пакет — baseline v2.1. В WORK-001 добавлен запускаемый внешний scaffold: FastAPI API, React web shell, локальная инфраструктура Docker Compose и проверки качества. Это не production-код и он не читает файлы поставщиков.
+Этот пакет — baseline v2.1 сервиса импорта и программный baseline v3.0 (контракт, календарь до 14.05.2027, контракты выгрузок баз). В WORK-001 добавлен запускаемый внешний scaffold: FastAPI API, React web shell, локальная инфраструктура Docker Compose и проверки качества. Это не production-код и он не читает файлы поставщиков.
 
 Разработка ведётся двумя связанными уровнями:
 

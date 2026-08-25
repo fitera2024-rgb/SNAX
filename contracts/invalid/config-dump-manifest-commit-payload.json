@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0.0",
+  "intakeId": "7e2b6a10-4c1e-4f8a-9d3b-21c8a0f5b901",
+  "receivedAt": "2026-09-11T10:00:00Z",
+  "sourceOwner": "owner-1c-test",
+  "classification": "CONFIDENTIAL",
+  "gitPolicy": "COMMIT_PAYLOAD",
+  "intendedUse": ["CATALOG"],
+  "bases": [
+    {
+      "baseCode": "UT_CENTRAL",
+      "contour": "UT_CENTRAL",
+      "status": "UNVERIFIED"
+    }
+  ],
+  "artifacts": [
+    {
+      "artifactId": "0c3d91e2-8a77-4b2f-a1d0-6e4f9c8b7012",
+      "fileName": "ut-central.demo.dt",
+      "mediaType": "application/octet-stream",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sizeBytes": 1048576,
+      "kind": "DT",
+      "baseCode": "UT_CENTRAL"
+    }
+  ]
+}

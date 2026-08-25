@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "1.0.0",
+  "catalogId": "c23d5f01-4e66-4b82-8d19-88f2b3c4d5e6",
+  "generatedAt": "2026-09-12T08:15:00Z",
+  "intakeId": "7e2b6a10-4c1e-4f8a-9d3b-21c8a0f5b901",
+  "extensions": [
+    {
+      "passportId": "aaaaaaaa-1111-4222-8333-444444444401",
+      "baseCode": "UT_CENTRAL",
+      "name": "DemoKeepExtension",
+      "active": true,
+      "closedSource": false,
+      "compatibilityMode": "8.3.21",
+      "ownDataObjects": false,
+      "risk": "LOW",
+      "disposition": "KEEP",
+      "sourceAnalysisName": "СуммарныйВесОбъемПлощадь",
+      "status": "UNVERIFIED",
+      "notes": null
+    },
+    {
+      "passportId": "aaaaaaaa-1111-4222-8333-444444444402",
+      "baseCode": "UT_CENTRAL",
+      "name": "DemoClosedPurchasingAssistant",
+      "active": true,
+      "closedSource": true,
+      "compatibilityMode": "8.3.12",
+      "ownDataObjects": true,
+      "risk": "CRITICAL",
+      "disposition": "UNDECIDED",
+      "sourceAnalysisName": "ПомощникЗакупок",
+      "status": "UNVERIFIED",
+      "notes": "Do not migrate as a black box."
+    },
+    {
+      "passportId": "aaaaaaaa-1111-4222-8333-444444444403",
+      "baseCode": "UT_CENTRAL",
+      "name": "DemoImportExtension",
+      "active": true,
+      "closedSource": false,
+      "compatibilityMode": "8.3.21",
+      "ownDataObjects": true,
+      "risk": "HIGH",
+      "disposition": "MIGRATE_DATA",
+      "sourceAnalysisName": "ДоработкаИмпорта",
+      "status": "UNVERIFIED",
+      "notes": null
+    }
+  ]
+}

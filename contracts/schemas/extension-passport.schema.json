@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snax.example/contracts/extension-passport.schema.json",
+  "title": "SNAX 1C Extension Passport Catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "catalogId",
+    "generatedAt",
+    "intakeId",
+    "extensions"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^1\\.[0-9]+\\.[0-9]+$"
+    },
+    "catalogId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "intakeId": {
+      "type": ["string", "null"],
+      "format": "uuid"
+    },
+    "extensions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "passportId",
+          "baseCode",
+          "name",
+          "active",
+          "closedSource",
+          "risk",
+          "disposition",
+          "status"
+        ],
+        "properties": {
+          "passportId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "baseCode": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "closedSource": {
+            "type": "boolean"
+          },
+          "compatibilityMode": {
+            "type": ["string", "null"],
+            "maxLength": 32
+          },
+          "ownDataObjects": {
+            "type": "boolean"
+          },
+          "risk": {
+            "type": "string",
+            "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]
+          },
+          "disposition": {
+            "type": "string",
+            "enum": [
+              "UNDECIDED",
+              "KEEP",
+              "REFACTOR",
+              "REPLACE",
+              "RETIRE",
+              "MIGRATE_DATA"
+            ]
+          },
+          "sourceAnalysisName": {
+            "type": ["string", "null"],
+            "maxLength": 200
+          },
+          "status": {
+            "type": "string",
+            "enum": ["UNVERIFIED", "VERIFIED"]
+          },
+          "notes": {
+            "type": ["string", "null"],
+            "maxLength": 2000
+          }
+        }
+      }
+    }
+  }
+}

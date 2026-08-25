@@ -232,3 +232,42 @@
 **Результат:** выполняется только после ADR: OCR hints, structured UПД XML/EDI and confidence/review flow.
 
 **Acceptance:** OCR cannot auto-post or overwrite physical fact; human review and source coordinates are mandatory.
+
+
+# Программа v3.0 — выгрузки баз и каталоги
+
+Задачи не разбирают production DT/CF в Git. До появления выгрузок реализуются схемы и synthetic examples.
+
+## TASK-037 — Приём манифеста выгрузки
+
+**Цель:** зарегистрировать out-of-band dump без payload в репозитории.
+
+**Результат:** валидация `config-dump-manifest`, идемпотентность по SHA-256, статусы RECEIVED→REGISTERED, отклонение `gitPolicy != DO_NOT_COMMIT_PAYLOAD`.
+
+**Не входит:** загрузка DT в PostgreSQL сервиса, прямой доступ к БД 1С.
+
+**Acceptance:** DI-AC-001…003; valid example проходит; invalid commit-payload падает.
+
+## TASK-038 — MDM-каталог из выгрузки
+
+**Результат:** `mdm-object-catalog` для юрлиц, магазинов, складов, касс, узлов; статусы UNVERIFIED/VERIFIED.
+
+**Acceptance:** пустой code отклоняется; повторный upsert идемпотентен; commercial names маскируются по D-08.
+
+## TASK-039 — Паспорта расширений
+
+**Результат:** `extension-passport` сверка с первичным списком 14 расширений; disposition UNDECIDED до D-37.
+
+**Acceptance:** закрытый код и ownDataObjects не теряются; ПомощникЗакупок не получает auto KEEP.
+
+## TASK-040 — Каталог обменов и store-day reconciliation
+
+**Результат:** `exchange-catalog` и `store-day-reconciliation`; суммы строками decimal.
+
+**Acceptance:** float amount отклоняется; непроведённые документы видны как issue, не как успех.
+
+## TASK-041 — Паспорт KPI
+
+**Результат:** хранение утверждённых формул `kpi-passport`; сервис не вычисляет показатель.
+
+**Acceptance:** DRAFT нельзя выдавать за официальный срез; APPROVED требует decisionId.

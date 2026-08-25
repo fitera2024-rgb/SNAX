@@ -4,6 +4,12 @@
 - `schemas/import-package.schema.json` — канонический пакет прайс-листа для 1С.
 - `schemas/mapping-sync.schema.json` — дельта подтверждённых связей из 1С.
 - `schemas/receipt-package.schema.json` — канонический пакет документа поставки для staging приемки.
+- `schemas/config-dump-manifest.schema.json` — манифест выгрузки баз 1С (payload вне Git).
+- `schemas/mdm-object-catalog.schema.json` — каталог соответствий магазинов/складов/касс/узлов.
+- `schemas/extension-passport.schema.json` — паспорта расширений 1С.
+- `schemas/exchange-catalog.schema.json` — маршруты обменов БП–УТ–Розница.
+- `schemas/store-day-reconciliation.schema.json` — протокол контрольного магазина/дня (G1).
+- `schemas/kpi-passport.schema.json` — паспорт утверждённого показателя (сервис не считает KPI).
 - `raw-workbook.schema.json` — framework-neutral raw workbook result для reader protocol.
 - `examples/` — валидные примеры для contract tests.
 - `invalid/` — примеры, которые обязаны быть отклонены схемой.

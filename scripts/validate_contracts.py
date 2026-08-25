@@ -19,11 +19,41 @@ PAIRS = (
     ),
     ("raw-workbook.schema.json", "examples/raw-workbook.example.json"),
     ("raw-workbook.schema.json", "examples/raw-workbook-error.example.json"),
+    (
+        "schemas/config-dump-manifest.schema.json",
+        "examples/config-dump-manifest.example.json",
+    ),
+    (
+        "schemas/mdm-object-catalog.schema.json",
+        "examples/mdm-object-catalog.example.json",
+    ),
+    (
+        "schemas/extension-passport.schema.json",
+        "examples/extension-passport.example.json",
+    ),
+    ("schemas/exchange-catalog.schema.json", "examples/exchange-catalog.example.json"),
+    (
+        "schemas/store-day-reconciliation.schema.json",
+        "examples/store-day-reconciliation.example.json",
+    ),
+    ("schemas/kpi-passport.schema.json", "examples/kpi-passport.example.json"),
 )
 INVALID_PAIRS = (
     (
         "schemas/processing-job-message.schema.json",
         "invalid/processing-job-message-dangerous-payload.json",
+    ),
+    (
+        "schemas/config-dump-manifest.schema.json",
+        "invalid/config-dump-manifest-commit-payload.json",
+    ),
+    (
+        "schemas/store-day-reconciliation.schema.json",
+        "invalid/store-day-reconciliation-float-amount.json",
+    ),
+    (
+        "schemas/mdm-object-catalog.schema.json",
+        "invalid/mdm-object-catalog-empty-code.json",
     ),
     ("raw-workbook.schema.json", "invalid/raw-workbook-invalid-value-type.json"),
     ("raw-workbook.schema.json", "invalid/raw-workbook-missing-workbook.json"),

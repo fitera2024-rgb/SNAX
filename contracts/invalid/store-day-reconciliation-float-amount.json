@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "1.0.0",
+  "reconciliationId": "e45f7123-6088-4da4-af3b-00b4c5d6e7a8",
+  "businessDate": "2026-08-15",
+  "storeCode": "STORE_DEMO_01",
+  "generatedAt": "2026-09-20T16:00:00Z",
+  "status": "MISMATCH",
+  "legs": [
+    {
+      "legId": "aaaaaaaa-1111-4222-8333-666666666601",
+      "baseCode": "UT_CENTRAL",
+      "documentCount": 12,
+      "postedCount": 10,
+      "errorCount": 0,
+      "amountSum": 158430.5,
+      "currency": "RUB"
+    }
+  ]
+}
