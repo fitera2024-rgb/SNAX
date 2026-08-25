@@ -22,6 +22,7 @@ SNAX · СПЕЦИФИКАЦИЯ ПРОГРАММЫ
 | [TZ_ADDENDUM_RECEIVING.md](TZ_ADDENDUM_RECEIVING.md) | Приёмка, receipt-package, РМ магазина |
 | **SPEC_PROGRAM.md v3.0** | Топология «Форус», выгрузки баз, НСИ, обмены, финансы, продажи, BI, расширения 1С, масштабирование |
 | [PROJECT_CONTRACT.md](PROJECT_CONTRACT.md) | Устав, обязательства, gates |
+| [PROJECT_CONTRACT_TECH.md](PROJECT_CONTRACT_TECH.md) v3.0-tech | Сводный детальный технический контракт всех потоков и инвариантов |
 | [DATA_DUMP_INTAKE.md](DATA_DUMP_INTAKE.md) | Процедура приёма выгрузок |
 | [SCHEDULE.md](SCHEDULE.md) | Календарь |
 

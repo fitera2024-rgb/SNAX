@@ -3,7 +3,8 @@
 **Версия 3.0-exec · 25 августа 2026 · для подтверждения на G0**
 
 Печатная форма в стиле ФИТЭРА: [ФИТЭРА_SNAX_Программный_контракт_для_руководителя_v3.0-exec.docx](ФИТЭРА_SNAX_Программный_контракт_для_руководителя_v3.0-exec.docx).  
-Полная техническая редакция: [PROJECT_CONTRACT.md](PROJECT_CONTRACT.md).  
+Детальный технический контракт: [PROJECT_CONTRACT_TECH.md](PROJECT_CONTRACT_TECH.md) · [Word](ФИТЭРА_SNAX_Технический_контракт_программы_v3.0.docx).  
+Устав программы: [PROJECT_CONTRACT.md](PROJECT_CONTRACT.md).  
 Календарь: [SCHEDULE.md](SCHEDULE.md).
 
 ---
