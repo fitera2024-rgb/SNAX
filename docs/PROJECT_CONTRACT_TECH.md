@@ -35,6 +35,7 @@ SNAX · ДЕТАЛЬНЫЙ ТЕХНИЧЕСКИЙ КОНТРАКТ ПРОГРА�
 | [SPEC_PROGRAM.md](SPEC_PROGRAM.md) v3.0 | Топология, дампы, финансы, BI, расширения | Программные потоки вне импорта |
 | ADR-001…004 | Архитектурные решения | Ломающее изменение только новым ADR |
 | [SCHEDULE.md](SCHEDULE.md) | Календарь и сдвиг от дампов | Даты ворот |
+| [TECHNICAL_ACTION_PLAN.md](TECHNICAL_ACTION_PLAN.md) v3.0-plan | Очередь работ AP-0…AP-8, архитектура и доработки AS-IS | Что делать руками |
 | [DATA_DUMP_INTAKE.md](DATA_DUMP_INTAKE.md) | Процедура приёма выгрузок | Операции с DT/CF |
 | JSON Schema / OpenAPI в `contracts/` | Машинный контракт | Breaking = новая major |
 

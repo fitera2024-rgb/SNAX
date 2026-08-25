@@ -21,6 +21,8 @@
 
 - [Программный контракт v3.0](docs/PROJECT_CONTRACT.md)
 - [Контракт для руководителя (на подпись)](docs/PROJECT_CONTRACT_EXEC.md)
+- [Технический контракт программы](docs/PROJECT_CONTRACT_TECH.md)
+- [Технический план действий (архитектура и доработки)](docs/TECHNICAL_ACTION_PLAN.md)
 - [Спецификация программы v3.0](docs/SPEC_PROGRAM.md)
 - [Календарный график v3.0](docs/SCHEDULE.md)
 - [Приём выгрузок баз](docs/DATA_DUMP_INTAKE.md)

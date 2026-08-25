@@ -47,3 +47,5 @@
 8. D-44: единое определение факта продажи.
 
 Выгрузки принимаются по [DATA_DUMP_INTAKE.md](docs/DATA_DUMP_INTAKE.md). Payload DT/CF в Git запрещён.
+
+Очередь работ по архитектуре и доработкам AS-IS: [docs/TECHNICAL_ACTION_PLAN.md](docs/TECHNICAL_ACTION_PLAN.md).

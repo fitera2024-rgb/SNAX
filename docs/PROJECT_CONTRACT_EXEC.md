@@ -4,6 +4,7 @@
 
 Печатная форма в стиле ФИТЭРА: [ФИТЭРА_SNAX_Программный_контракт_для_руководителя_v3.0-exec.docx](ФИТЭРА_SNAX_Программный_контракт_для_руководителя_v3.0-exec.docx).  
 Детальный технический контракт: [PROJECT_CONTRACT_TECH.md](PROJECT_CONTRACT_TECH.md) · [Word](ФИТЭРА_SNAX_Технический_контракт_программы_v3.0.docx).  
+Технический план действий: [TECHNICAL_ACTION_PLAN.md](TECHNICAL_ACTION_PLAN.md) · [Word](ФИТЭРА_SNAX_Технический_план_действий_v3.0.docx).  
 Устав программы: [PROJECT_CONTRACT.md](PROJECT_CONTRACT.md).  
 Календарь: [SCHEDULE.md](SCHEDULE.md).
 
