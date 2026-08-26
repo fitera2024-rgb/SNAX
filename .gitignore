@@ -55,3 +55,8 @@ fixtures/raw/
 
 # Generated project packs
 *_Codex_Project_Pack_*.zip
+
+# 1C dump payloads (never commit)
+*.dt
+*.cf
+*.cfe

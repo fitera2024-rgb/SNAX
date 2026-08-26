@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "1.0.0",
+  "intakeId": "8f3c2a91-6d4e-4b7a-9c12-0e5d8f1a2b33",
+  "receivedAt": "2026-08-26T11:34:00Z",
+  "sourceOwner": "customer-1c",
+  "classification": "RESTRICTED",
+  "gitPolicy": "DO_NOT_COMMIT_PAYLOAD",
+  "intendedUse": ["CATALOG"],
+  "correlationId": "dump-intake-retail-xml-2026-08-26",
+  "notes": "Partial intake. Archive contains 1C configuration files for Catalogs only (MetaDataObject Catalog). No Configuration.xml, Documents, ExchangePlans, CFE or DT. Not infobase data. Payload stays out of Git. Node role (central vs regional) is UNVERIFIED.",
+  "period": null,
+  "sanitization": {
+    "status": "NOT_APPLICABLE",
+    "maskedFields": []
+  },
+  "bases": [
+    {
+      "baseCode": "RETAIL_DUMP_01",
+      "contour": "RETAIL_CENTRAL",
+      "displayName": "Retail XML catalogs (node role unverified)",
+      "platformVersion": null,
+      "configurationName": null,
+      "configurationVersion": null,
+      "supportMode": "UNKNOWN",
+      "unknownReason": "Dump has Catalogs/ only; Configuration.xml and CF are absent so release cannot be verified. Contour RETAIL_CENTRAL is a hypothesis.",
+      "status": "UNVERIFIED"
+    }
+  ],
+  "artifacts": [
+    {
+      "artifactId": "c7e1a0b2-3d44-4f55-8a66-7799aabbcc01",
+      "fileName": "RoznitsaXML.zip",
+      "mediaType": "application/zip",
+      "sha256": "8304f8976638243c3629825b3ab1453f474384cdb8774ae7b76f11fa6c38a4b4",
+      "sizeBytes": 8945862,
+      "kind": "XML_CONFIG",
+      "baseCode": "RETAIL_DUMP_01"
+    }
+  ]
+}

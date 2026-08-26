@@ -39,3 +39,34 @@ def test_mdm_empty_code_is_rejected() -> None:
     validator = Draft202012Validator(_load("schemas/mdm-object-catalog.schema.json"))
     errors = list(validator.iter_errors(_load("invalid/mdm-object-catalog-empty-code.json")))
     assert errors
+
+
+def test_retail_xml_sanitized_manifest_passes() -> None:
+    import json
+
+    validator = Draft202012Validator(_load("schemas/config-dump-manifest.schema.json"))
+    manifest_path = (
+        ROOT / "docs" / "research" / "2026-08-26" / "config-dump-manifest.retail-xml.sanitized.json"
+    )
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert not list(validator.iter_errors(payload))
+    assert payload["gitPolicy"] == "DO_NOT_COMMIT_PAYLOAD"
+    assert payload["artifacts"][0]["kind"] == "XML_CONFIG"
+    assert payload["bases"][0]["status"] == "UNVERIFIED"
+
+
+def test_retail_xml_payload_is_not_in_git_tree() -> None:
+    import subprocess
+
+    listed = subprocess.check_output(
+        ["git", "-C", str(ROOT), "ls-files"],
+        text=True,
+    )
+    lowered = listed.lower()
+    assert "roznitsaxml.zip" not in lowered
+    assert "розницаxml.zip" not in listed.lower()
+    for line in listed.splitlines():
+        assert not line.endswith(".dt")
+        assert not line.endswith(".cf")
+        assert not line.endswith(".cfe")
+        assert "/Catalogs/" not in line

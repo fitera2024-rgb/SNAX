@@ -46,6 +46,8 @@
 7. D-29/D-30: GitHub Actions billing и порядок merge WORK-006…009;
 8. D-44: единое определение факта продажи.
 
-Выгрузки принимаются по [DATA_DUMP_INTAKE.md](docs/DATA_DUMP_INTAKE.md). Payload DT/CF в Git запрещён.
+Выгрузки принимаются по [DATA_DUMP_INTAKE.md](docs/DATA_DUMP_INTAKE.md). Payload DT/CF/XML в Git запрещён.
+
+26.08.2026 принят **частичный** XML Розницы (только метаданные справочников). Это не закрывает D-47: нет релиза, данных магазинов, УТ и БП. Разбор: [docs/research/2026-08-26/dump-intake-RETAIL-XML.md](docs/research/2026-08-26/dump-intake-RETAIL-XML.md).
 
 Очередь работ по архитектуре и доработкам AS-IS: [docs/TECHNICAL_ACTION_PLAN.md](docs/TECHNICAL_ACTION_PLAN.md).

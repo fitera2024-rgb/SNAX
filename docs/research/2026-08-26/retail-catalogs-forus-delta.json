@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "1.0.0",
+  "intakeId": "8f3c2a91-6d4e-4b7a-9c12-0e5d8f1a2b33",
+  "generatedAt": "2026-08-26T11:45:00Z",
+  "sourceArtifactSha256": "8304f8976638243c3629825b3ab1453f474384cdb8774ae7b76f11fa6c38a4b4",
+  "status": "UNVERIFIED",
+  "notes": "Metadata names only. No store titles, INN, prices or documents.",
+  "catalogObjectCount": 735,
+  "mdmRelevantCatalogs": [
+    {
+      "name": "Организации",
+      "uuid": "6a3c1b05-ee48-4aa9-b2c1-4b66e3aeab70",
+      "objectTypeHint": "ORGANIZATION_1C"
+    },
+    {
+      "name": "СтруктурныеЕдиницы",
+      "uuid": "ed14c926-38a5-4a0b-b570-c106d8d9419d",
+      "objectTypeHint": "STORE_OR_WAREHOUSE",
+      "comment": "Typical UNF/Retail store+warehouse catalog. No Catalog.Магазины in this dump."
+    },
+    {
+      "name": "Кассы",
+      "uuid": "33005270-b568-464a-8dd5-c2713d55fc0f",
+      "objectTypeHint": "CASH_DESK"
+    },
+    {
+      "name": "КассыККМ",
+      "uuid": "2dd69f18-777d-4dca-89dc-707359ec3078",
+      "objectTypeHint": "CASH_DESK"
+    },
+    {
+      "name": "ПодразделенияОрганизаций",
+      "uuid": "a220310c-67c9-4f74-b7af-3fb6b9ad0176",
+      "objectTypeHint": "DEPARTMENT"
+    },
+    {
+      "name": "снэксРегионы",
+      "uuid": "6bb685ea-c319-4ddb-bd2b-61fa11409ef2",
+      "objectTypeHint": "REGION",
+      "synonym": "[ФОРУС] Регионы"
+    }
+  ],
+  "offlineEquipmentCatalogs": [
+    "ОфлайнОборудование",
+    "ПравилаОбменаСПодключаемымОборудованиемOffline"
+  ],
+  "forusAttributes": [
+    {
+      "catalog": "снэксРегионы",
+      "kind": "Catalog",
+      "name": "снэксРегионы",
+      "synonym": "[ФОРУС] Регионы"
+    },
+    {
+      "catalog": "СтруктурныеЕдиницы",
+      "kind": "Attribute",
+      "name": "снэксРегион",
+      "synonym": "[ФОРУС] Регион"
+    },
+    {
+      "catalog": "СтруктурныеЕдиницы",
+      "kind": "Attribute",
+      "name": "снэксЗакупочнаяЦена",
+      "synonym": "[ФОРУС] Закупочная цена"
+    },
+    {
+      "catalog": "ВидыЦен",
+      "kind": "Attribute",
+      "name": "снэксРегион",
+      "synonym": "[ФОРУС] Регион"
+    },
+    {
+      "catalog": "Пользователи",
+      "kind": "Attribute",
+      "name": "снэксСклад",
+      "synonym": "[ФОРУС] Структурная единица (склад)"
+    },
+    {
+      "catalog": "Пользователи",
+      "kind": "Attribute",
+      "name": "снэксКассир",
+      "synonym": "[ФОРУС] Это кассир"
+    },
+    {
+      "catalog": "Сотрудники",
+      "kind": "Attribute",
+      "name": "снэксСклад",
+      "synonym": "[ФОРУС] Структурная единица (склад)"
+    },
+    {
+      "catalog": "Сотрудники",
+      "kind": "Attribute",
+      "name": "снэксКассир",
+      "synonym": "[ФОРУС] Это кассир"
+    }
+  ]
+}
