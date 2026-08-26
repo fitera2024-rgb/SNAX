@@ -17,7 +17,7 @@
 | Технический план действий | 3.0-plan | Архитектура и доработки AS-IS, пакеты AP-0…AP-8 | [Markdown](../../TECHNICAL_ACTION_PLAN.md) · [Word](../../ФИТЭРА_SNAX_Технический_план_действий_v3.0.docx) |
 | Спецификация программы | 3.0 | Технический контракт всех потоков + выгрузки баз | [../../SPEC_PROGRAM.md](../../SPEC_PROGRAM.md) |
 | Календарный график | 3.0 | Пересчёт сроков | [../../SCHEDULE.md](../../SCHEDULE.md) |
-| Приём XML Розницы | 26.08.2026 | Частичный dump: только Catalogs, без данных ИБ | [dump-intake-RETAIL-XML.md](dump-intake-RETAIL-XML.md) · [манифест](config-dump-manifest.retail-xml.sanitized.json) |
+| Приём XML Розницы | 26.08.2026 | Частичный dump: только Catalogs, без данных ИБ | [dump-intake-RETAIL-XML.md](dump-intake-RETAIL-XML.md) · [манифест](config-dump-manifest.retail-xml.sanitized.json) · [индекс](retail-catalogs-index.json) |
 
 SHA-256 реестра Excel: `f3306f79184c9d6706b4578ee20d383ff0850a040aa7ba3be0e130a98a70a122`.
 

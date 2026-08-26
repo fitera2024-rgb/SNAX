@@ -96,3 +96,20 @@
 Заказчику: уточнить, это центральная Розница или региональный узел; передать недостающие куски D-47 (хотя бы `Configuration.xml` + расширения + обезличенный срез `Организации`/`СтруктурныеЕдиницы`/`КассыККМ`).
 
 Исполнителю: AP-203/038 не наполнять экземплярами; зафиксировать гипотезу объекта магазина = `СтруктурныеЕдиницы` в backlog 1С.
+
+## 9. Индекс и MCP
+
+Выгрузка проиндексирована: 735 справочников, из них 5 с меткой Форус. В Git — имена, UUID, синонимы, реквизиты, формы и счётчики процедур; **без** имён/тел процедур BSL и без данных ИБ.
+
+| Артефакт | Где |
+|---|---|
+| JSON-индекс | [retail-catalogs-index.json](retail-catalogs-index.json) |
+| Поиск | `python3 scripts/index_retail_xml_dump.py search "касс"` |
+| SQLite FTS | `.local/dumps/index/retail-catalogs.sqlite` (не Git; полный список имён процедур) |
+| MCP Cursor | `.cursor/mcp.json` → сервер `snax-retail-xml` |
+
+Пересобрать индекс (нужен zip в `.local/dumps/incoming/RoznitsaXML.zip`): `python3 scripts/index_retail_xml_dump.py build`.
+
+Проектный MCP ставится файлом `.cursor/mcp.json` (stdio, без npm-пакетов). После `git pull` в локальном Cursor: Settings → MCP → включить `snax-retail-xml`. Инструменты: `search_retail_catalogs`, `get_retail_catalog`, `retail_dump_stats`. Облачный агент этот сервер к уже запущенной сессии не подключает.
+
+Это не установка БСП в базу 1С и не загрузка XML в конфигуратор.
