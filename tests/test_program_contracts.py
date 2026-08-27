@@ -69,8 +69,11 @@ def test_yandex_share_sanitized_manifest_passes() -> None:
     payload = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert not list(validator.iter_errors(payload))
     assert payload["gitPolicy"] == "DO_NOT_COMMIT_PAYLOAD"
-    assert payload["bases"][0]["status"] == "UNVERIFIED"
-    assert payload["bases"][1]["status"] == "UNVERIFIED"
+    assert payload["bases"][0]["status"] == "VERIFIED"
+    assert payload["bases"][1]["status"] == "VERIFIED"
+    assert payload["bases"][0]["platformVersion"] is None
+    assert payload["bases"][1]["platformVersion"] is None
+    assert "Infobase data is not verified" in (payload["notes"] or "")
     assert payload["bases"][0]["configurationVersion"] == "3.0.13.342"
     assert payload["bases"][1]["configurationVersion"] == "11.5.22.164"
     assert {item["kind"] for item in payload["artifacts"]} == {"XML_CONFIG"}

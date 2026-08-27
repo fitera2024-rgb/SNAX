@@ -27,7 +27,21 @@ def test_yandex_manifest_is_schema_valid() -> None:
     versions = {item["baseCode"]: item for item in manifest["bases"]}
     assert versions["RETAIL_DUMP_01"]["configurationVersion"] == "3.0.13.342"
     assert versions["UT_DUMP_01"]["configurationVersion"] == "11.5.22.164"
-    assert versions["RETAIL_DUMP_01"]["status"] == "UNVERIFIED"
+    assert versions["RETAIL_DUMP_01"]["status"] == "VERIFIED"
+    assert versions["UT_DUMP_01"]["status"] == "VERIFIED"
+    assert versions["RETAIL_DUMP_01"]["contour"] == "RETAIL_CENTRAL"
+    assert versions["UT_DUMP_01"]["contour"] == "UT_CENTRAL"
+    assert versions["RETAIL_DUMP_01"]["platformVersion"] is None
+    assert versions["UT_DUMP_01"]["platformVersion"] is None
+    notes = manifest["notes"] or ""
+    assert "Infobase data is not verified" in notes
+    assert "hypothesis" not in notes.lower()
+    for item in manifest["bases"]:
+        reason = (item.get("unknownReason") or "").lower()
+        assert "hypothesis" not in reason
+        assert "platformversion" in reason
+        assert "infobase data is not verified" in reason
+        assert "working set" in reason
     assert {item["fileName"] for item in manifest["artifacts"]} >= {
         "ConfigFiles.zip",
         "YT.zip",
@@ -48,8 +62,34 @@ def test_extension_passport_draft_is_schema_valid() -> None:
     assert passport["intakeId"] == INTAKE_ID
     assert {item["disposition"] for item in passport["extensions"]} == {"UNDECIDED"}
     assert all(item["status"] == "UNVERIFIED" for item in passport["extensions"])
+    assert all(item["active"] is True for item in passport["extensions"])
     names = {item["name"] for item in passport["extensions"]}
     assert "ПомощникЗакупок" not in names
+    for item in passport["extensions"]:
+        notes = item["notes"]
+        assert "work with the six transferred XMLs" in notes
+        assert "IB enabled-list completeness not confirmed" in notes
+        assert "KEEP" not in notes
+        assert "RETIRE" not in notes
+
+
+def test_customer_1_1_answers_are_recorded_without_opening_g1() -> None:
+    plan = (RESEARCH / "ACTION_PLAN.md").read_text(encoding="utf-8")
+    intake = (RESEARCH / "dump-intake-YANDEX-2026-08-27.md").read_text(encoding="utf-8")
+    assert "ответы получены" in plan.lower()
+    assert "**да**" in plan
+    assert "**это будем позже**" in plan
+    assert "**пока какие есть**" in plan
+    assert "dumpLagWeeks" in plan
+    assert "**не** включать" in plan
+    assert "G1 **не открывается**" in plan
+    assert "G1 **не** открывается" in intake
+    assert "`dumpLagWeeks` **не** включать" in intake
+    assert "центральная рабочая Розница" in intake
+    assert "центральная УТ **пилота**" in intake
+    assert "не закрыт" in intake
+    assert "ПомощникЗакупок" in intake
+    assert "отсутствующим в ИБ" in intake
 
 
 def test_compact_indexes_match_configuration_xml_facts() -> None:

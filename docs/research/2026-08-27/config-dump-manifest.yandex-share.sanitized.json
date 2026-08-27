@@ -10,7 +10,7 @@
     "EXTENSION_AUDIT"
   ],
   "correlationId": "dump-intake-yandex-share-2026-08-27",
-  "notes": "Yandex Disk public folder SNAX (https://disk.yandex.ru/d/dfKzWDC27vtTFg). Retail ConfigFiles.zip is a full XML configuration dump (Configuration.xml present; Розница 3.0.13.342). UT YT.zip is a full XML dump (УправлениеТорговлей 11.5.22.164). F/F-2/Forus-1/maxma and YT-1/YT-2 are XML dumps of configuration extensions, not CFE binaries. Inner vendor ParentConfigurations/*.cf stay inside the zips and are not copied to Git. No DT, no infobase data, no BP dump. Catalog set of Retail matches 2026-08-26 Catalogs-only zip (735 names). Node roles (central vs regional) remain UNVERIFIED. A 1C infobase list-file was received and is not an artifact here because it contains connection strings.",
+  "notes": "Yandex Disk public folder SNAX (https://disk.yandex.ru/d/dfKzWDC27vtTFg). Retail ConfigFiles.zip is a full XML configuration dump (Configuration.xml present; Розница 3.0.13.342). UT YT.zip is a full XML dump (УправлениеТорговлей 11.5.22.164). Customer 2026-08-27 confirmed in writing: /Розница + ConfigFiles.zip is the central working Retail; /УТ Новая + YT.zip is the central UT of the pilot (not declared the only live UT forever). Other bases (legacy UT, BP, sn101…) are deferred by the customer, not absent. Infobase data is not verified. F/F-2/Forus-1/maxma and YT-1/YT-2 are XML dumps of configuration extensions, not CFE binaries. Inner vendor ParentConfigurations/*.cf stay inside the zips and are not copied to Git. No DT, no infobase data, no BP dump. Catalog set of Retail matches 2026-08-26 Catalogs-only zip (735 names). Six transferred extension XMLs are the working set for now, not proof of the full enabled-in-IB list. A 1C infobase list-file was received and is not an artifact here because it contains connection strings.",
   "period": null,
   "sanitization": {
     "status": "NOT_APPLICABLE",
@@ -20,24 +20,24 @@
     {
       "baseCode": "RETAIL_DUMP_01",
       "contour": "RETAIL_CENTRAL",
-      "displayName": "Retail XML configuration from folder Розница (node role unverified)",
+      "displayName": "Central working Retail 3.0.13.342 (customer-confirmed RETAIL_CENTRAL)",
       "platformVersion": null,
       "configurationName": "Розница",
       "configurationVersion": "3.0.13.342",
       "supportMode": "PARTIAL",
-      "unknownReason": "Version and name read from Configuration.xml. Contour RETAIL_CENTRAL is a hypothesis (folder name Розница, list-file also has other Retail-named nodes). Platform version is not in the XML dump. Vendor parent CF is present; Forus attributes exist in the main configuration, so support is not treated as clean ON_SUPPORT.",
-      "status": "UNVERIFIED"
+      "unknownReason": "VERIFIED covers XML name+version and customer-confirmed node role only. platformVersion is not in the XML dump. Infobase data is not verified. Six transferred extension XMLs are a working set, not a confirmed full IB list. Vendor parent CF is present; Forus attributes exist in the main configuration, so support is not treated as clean ON_SUPPORT.",
+      "status": "VERIFIED"
     },
     {
       "baseCode": "UT_DUMP_01",
       "contour": "UT_CENTRAL",
-      "displayName": "UT XML configuration from folder УТ Новая (node role unverified)",
+      "displayName": "Central UT of the pilot 11.5.22.164 (customer-confirmed UT_CENTRAL)",
       "platformVersion": null,
       "configurationName": "УправлениеТорговлей",
       "configurationVersion": "11.5.22.164",
       "supportMode": "PARTIAL",
-      "unknownReason": "Version and name read from Configuration.xml. Contour UT_CENTRAL is a hypothesis (folder name УТ Новая). Only two extension XML dumps were in the folder; this is not the source-analysis set of ~14 UT extensions. Platform version is not in the XML dump.",
-      "status": "UNVERIFIED"
+      "unknownReason": "VERIFIED covers XML name+version and customer-confirmed node role only. platformVersion is not in the XML dump. Infobase data is not verified. This dump is the central UT of the pilot, not a claim that legacy UT is retired. Other bases are deferred, not absent. Two transferred UT extension XMLs are a working set, not a confirmed full IB list.",
+      "status": "VERIFIED"
     }
   ],
   "artifacts": [
