@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snax.example/contracts/exchange-catalog.schema.json",
+  "title": "SNAX 1C Exchange Catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "catalogId",
+    "generatedAt",
+    "intakeId",
+    "routes"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^1\\.[0-9]+\\.[0-9]+$"
+    },
+    "catalogId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "intakeId": {
+      "type": ["string", "null"],
+      "format": "uuid"
+    },
+    "routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "routeId",
+          "code",
+          "sourceBase",
+          "targetBase",
+          "direction",
+          "status"
+        ],
+        "properties": {
+          "routeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "sourceBase": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+          },
+          "targetBase": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+          },
+          "direction": {
+            "type": "string",
+            "enum": ["PUSH", "PULL", "BIDIRECTIONAL"]
+          },
+          "schedule": {
+            "type": ["string", "null"],
+            "maxLength": 200
+          },
+          "slaMinutes": {
+            "type": ["integer", "null"],
+            "minimum": 1
+          },
+          "controlFields": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "DOCUMENT_COUNT",
+                "ROW_COUNT",
+                "AMOUNT_SUM",
+                "TAX_SUM",
+                "DEPARTMENT",
+                "WAREHOUSE",
+                "POSTED_FLAG"
+              ]
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": ["UNVERIFIED", "VERIFIED", "DISABLED"]
+          }
+        }
+      }
+    }
+  }
+}

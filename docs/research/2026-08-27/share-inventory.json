@@ -1,0 +1,783 @@
+{
+  "schemaVersion": "1.0.0",
+  "publicUrl": "https://disk.yandex.ru/d/dfKzWDC27vtTFg",
+  "folderName": "SNAX",
+  "listedAt": "2026-08-27T05:24:00Z",
+  "intakeId": "a19e6c40-7b2d-4f11-8c55-2d9a0b47e801",
+  "fileCount": 91,
+  "files": [
+    {
+      "path": "/SNAX_Анализ_конфигурации_UT_SNAX_восстановлено.xlsx",
+      "name": "SNAX_Анализ_конфигурации_UT_SNAX_восстановлено.xlsx",
+      "sizeBytes": 11403,
+      "created": "2026-08-27T04:59:21+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SPREADSHEET"
+    },
+    {
+      "path": "/SNAX_Архитектура_21-08_восстановлено (1).pptx",
+      "name": "SNAX_Архитектура_21-08_восстановлено (1).pptx",
+      "sizeBytes": 250556,
+      "created": "2026-08-27T04:59:16+00:00",
+      "mimeType": "application/zip",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/SNAX_Презентация_архитектуры_2026-08-24 (1).pptx",
+      "name": "SNAX_Презентация_архитектуры_2026-08-24 (1).pptx",
+      "sizeBytes": 3618473,
+      "created": "2026-08-27T04:59:47+00:00",
+      "mimeType": "application/zip",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/SNAX_Принятые_решения_21-08-2026_восстановлено.docx",
+      "name": "SNAX_Принятые_решения_21-08-2026_восстановлено.docx",
+      "sizeBytes": 37560,
+      "created": "2026-08-27T04:59:12+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/SNAX_Срез_проекта_2026-08-20.docx",
+      "name": "SNAX_Срез_проекта_2026-08-20.docx",
+      "sizeBytes": 152134,
+      "created": "2026-08-27T04:59:35+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/ibases_SNAX (1).v8i",
+      "name": "ibases_SNAX (1).v8i",
+      "sizeBytes": 1784,
+      "created": "2026-08-27T04:58:45+00:00",
+      "mimeType": "text/plain",
+      "class": "IBASES_LISTFILE_REDACTED",
+      "sha256": null,
+      "note": "List-file received; connection strings not published; file not in Git."
+    },
+    {
+      "path": "/Дмитрий Ломакин(учредитель)/ФИТЭРА_Интервью_собственник_схемы_бизнес-процессов_AS-IS.docx",
+      "name": "ФИТЭРА_Интервью_собственник_схемы_бизнес-процессов_AS-IS.docx",
+      "sizeBytes": 1601296,
+      "created": "2026-08-17T19:53:52+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/КАТЕГОРИЙНЫЙ МЕНЕДЖЕР/Запись встречи 11.08.2026 14-00-15 - запись.webm",
+      "name": "Запись встречи 11.08.2026 14-00-15 - запись.webm",
+      "sizeBytes": 398841118,
+      "created": "2026-08-11T06:20:19+00:00",
+      "mimeType": "video/webm",
+      "class": "INTERVIEW_VIDEO"
+    },
+    {
+      "path": "/КАТЕГОРИЙНЫЙ МЕНЕДЖЕР/Запись встречи 11.08.2026 14-35-49 - запись.webm",
+      "name": "Запись встречи 11.08.2026 14-35-49 - запись.webm",
+      "sizeBytes": 406180844,
+      "created": "2026-08-11T06:20:38+00:00",
+      "mimeType": "video/webm",
+      "class": "INTERVIEW_VIDEO"
+    },
+    {
+      "path": "/КАТЕГОРИЙНЫЙ МЕНЕДЖЕР/Запись встречи 11.08.2026 15-06-15 - запись.webm",
+      "name": "Запись встречи 11.08.2026 15-06-15 - запись.webm",
+      "sizeBytes": 187719102,
+      "created": "2026-08-11T06:19:57+00:00",
+      "mimeType": "video/webm",
+      "class": "INTERVIEW_VIDEO"
+    },
+    {
+      "path": "/КАТЕГОРИЙНЫЙ МЕНЕДЖЕР/ФИТЭРА_Интервью_категорийный_менеджер_заведующая_складом_AS_IS_версия.docx",
+      "name": "ФИТЭРА_Интервью_категорийный_менеджер_заведующая_складом_AS_IS_версия.docx",
+      "sizeBytes": 2340196,
+      "created": "2026-08-17T19:58:06+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/КАТЕГОРИЙНЫЙ МЕНЕДЖЕР/ФИТЭРА_Сводка_бизнес_процессов_по_видеозаписи_AS_IS_версия_1_0_1.docx",
+      "name": "ФИТЭРА_Сводка_бизнес_процессов_по_видеозаписи_AS_IS_версия_1_0_1.docx",
+      "sizeBytes": 3078447,
+      "created": "2026-08-17T19:58:06+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/КАТЕГОРИЙНЫЙ МЕНЕДЖЕР/ФИТЭРА_Чек_лист_договорённостей_и_материалов_по_видеозаписи_версия.docx",
+      "name": "ФИТЭРА_Чек_лист_договорённостей_и_материалов_по_видеозаписи_версия.docx",
+      "sizeBytes": 56846,
+      "created": "2026-08-17T19:58:13+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/SNAK_Codex_Project_Pack_v2_0.zip",
+      "name": "SNAK_Codex_Project_Pack_v2_0.zip",
+      "sizeBytes": 1047310,
+      "created": "2026-08-17T20:13:52+00:00",
+      "mimeType": "application/zip",
+      "class": "OTHER"
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/SNAK_Дополнение_к_ТЗ_Автоматизация_приемки_v2_1 (2).docx",
+      "name": "SNAK_Дополнение_к_ТЗ_Автоматизация_приемки_v2_1 (2).docx",
+      "sizeBytes": 1694818,
+      "created": "2026-08-18T00:19:12+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/SNAK_Техническое_задание_автоматизация_заказов_и_приемки_v3_0.docx",
+      "name": "SNAK_Техническое_задание_автоматизация_заказов_и_приемки_v3_0.docx",
+      "sizeBytes": 2685969,
+      "created": "2026-08-19T03:29:25+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/SNAK_Техническое_задание_гибридный_импорт_и_1С_v2_0.docx",
+      "name": "SNAK_Техническое_задание_гибридный_импорт_и_1С_v2_0.docx",
+      "sizeBytes": 733406,
+      "created": "2026-08-17T19:58:27+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/SNAK_Функционально_техническая_спецификация_для_Codex_v2_0.docx",
+      "name": "SNAK_Функционально_техническая_спецификация_для_Codex_v2_0.docx",
+      "sizeBytes": 428313,
+      "created": "2026-08-17T20:13:53+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/SNAK_Формализованное_ТЗ_автоматизация_заказов_v1_0.docx",
+      "name": "SNAK_Формализованное_ТЗ_автоматизация_заказов_v1_0.docx",
+      "sizeBytes": 3251901,
+      "created": "2026-08-17T20:04:30+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Акира Ойл 7.08.xlsx",
+      "name": "Акира Ойл 7.08.xlsx",
+      "sizeBytes": 7411603,
+      "created": "2026-08-17T20:05:14+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Акира Ойл 7.08.Берёзка.xlsx",
+      "name": "Акира Ойл 7.08.Берёзка.xlsx",
+      "sizeBytes": 7411899,
+      "created": "2026-08-17T20:05:01+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/ГК Движение 7_08 (1).xlsx",
+      "name": "ГК Движение 7_08 (1).xlsx",
+      "sizeBytes": 2360121,
+      "created": "2026-08-17T20:04:52+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/ГК Движение 7_08.xlsx",
+      "name": "ГК Движение 7_08.xlsx",
+      "sizeBytes": 2360121,
+      "created": "2026-08-17T20:04:48+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Запись_встречи_16_08_2026_15_49_27_запись.webm",
+      "name": "Запись_встречи_16_08_2026_15_49_27_запись.webm",
+      "sizeBytes": 52617479,
+      "created": "2026-08-17T20:05:28+00:00",
+      "mimeType": "video/webm",
+      "class": "INTERVIEW_VIDEO"
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/ИП Вагабова.xlsx",
+      "name": "ИП Вагабова.xlsx",
+      "sizeBytes": 24926279,
+      "created": "2026-08-17T20:04:55+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Исттрейд 7.08.xlsx",
+      "name": "Исттрейд 7.08.xlsx",
+      "sizeBytes": 3060800,
+      "created": "2026-08-17T20:04:48+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Капа_Импорт 7.08.xlsx",
+      "name": "Капа_Импорт 7.08.xlsx",
+      "sizeBytes": 3153345,
+      "created": "2026-08-17T20:04:54+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Мороженое ТД Анри (1).xls",
+      "name": "Мороженое ТД Анри (1).xls",
+      "sizeBytes": 5749248,
+      "created": "2026-08-17T20:05:02+00:00",
+      "mimeType": "application/vnd.ms-excel",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Мороженое ТД Анри.xls",
+      "name": "Мороженое ТД Анри.xls",
+      "sizeBytes": 5749248,
+      "created": "2026-08-17T20:05:15+00:00",
+      "mimeType": "application/vnd.ms-excel",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/ОПТ_24_актуальный_прайс_лист_10_08_2026.xlsx",
+      "name": "ОПТ_24_актуальный_прайс_лист_10_08_2026.xlsx",
+      "sizeBytes": 10134598,
+      "created": "2026-08-17T20:04:35+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Прайс Gummy House SNAX ИЮЛЬ26 ПРАВКА.xlsx",
+      "name": "Прайс Gummy House SNAX ИЮЛЬ26 ПРАВКА.xlsx",
+      "sizeBytes": 4392325,
+      "created": "2026-08-17T20:04:53+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Прайс SNAX ИЮЛЬ26 ПРАВКА.xls",
+      "name": "Прайс SNAX ИЮЛЬ26 ПРАВКА.xls",
+      "sizeBytes": 4437504,
+      "created": "2026-08-17T20:04:46+00:00",
+      "mimeType": "application/vnd.ms-excel",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Прайс Импорт Август 2026г..xlsx",
+      "name": "Прайс Импорт Август 2026г..xlsx",
+      "sizeBytes": 143120000,
+      "created": "2026-08-17T20:05:44+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Прайс ОПТ1 - ОПТ2 от 01.01.26 (6) (1).xlsx",
+      "name": "Прайс ОПТ1 - ОПТ2 от 01.01.26 (6) (1).xlsx",
+      "sizeBytes": 15109635,
+      "created": "2026-08-17T20:04:40+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Прайс РЦ.xlsx",
+      "name": "Прайс РЦ.xlsx",
+      "sizeBytes": 39186,
+      "created": "2026-08-17T20:04:28+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Прайс-лист Eurotrade24 11.08.2026 .xlsx",
+      "name": "Прайс-лист Eurotrade24 11.08.2026 .xlsx",
+      "sizeBytes": 7665153,
+      "created": "2026-08-17T20:04:38+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Приместторг 07_08.xlsx",
+      "name": "Приместторг 07_08.xlsx",
+      "sizeBytes": 9464682,
+      "created": "2026-08-17T20:05:03+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Приместторг 07_08.xlsx артем 105.xlsx",
+      "name": "Приместторг 07_08.xlsx артем 105.xlsx",
+      "sizeBytes": 9464731,
+      "created": "2026-08-17T20:05:17+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Проект-Инвест 7.08.xlsx",
+      "name": "Проект-Инвест 7.08.xlsx",
+      "sizeBytes": 10496,
+      "created": "2026-08-17T20:04:51+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Рус Экономик 7.08 (1).xlsx",
+      "name": "Рус Экономик 7.08 (1).xlsx",
+      "sizeBytes": 3934653,
+      "created": "2026-08-17T20:04:58+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Рус Экономик 7.08.xlsx",
+      "name": "Рус Экономик 7.08.xlsx",
+      "sizeBytes": 3934653,
+      "created": "2026-08-17T20:05:08+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Сабитов 17.08.xlsx",
+      "name": "Сабитов 17.08.xlsx",
+      "sizeBytes": 3468945,
+      "created": "2026-08-17T20:04:35+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Сейфко 07.08.xlsx",
+      "name": "Сейфко 07.08.xlsx",
+      "sizeBytes": 28826911,
+      "created": "2026-08-17T20:05:09+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Тайланд 07.08.xlsx",
+      "name": "Тайланд 07.08.xlsx",
+      "sizeBytes": 56687653,
+      "created": "2026-08-17T20:05:30+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Торговый флот 7_08 (1).xlsx",
+      "name": "Торговый флот 7_08 (1).xlsx",
+      "sizeBytes": 895768,
+      "created": "2026-08-17T20:05:12+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Торговый флот 7_08 (2).xlsx",
+      "name": "Торговый флот 7_08 (2).xlsx",
+      "sizeBytes": 895768,
+      "created": "2026-08-17T20:04:55+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Торговый флот 7_08.xlsx",
+      "name": "Торговый флот 7_08.xlsx",
+      "sizeBytes": 895768,
+      "created": "2026-08-17T20:05:17+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/ФИТЭРА_Интервью_соучредитель_масштабирование_сети_AS-IS.docx",
+      "name": "ФИТЭРА_Интервью_соучредитель_масштабирование_сети_AS-IS.docx",
+      "sizeBytes": 2944405,
+      "created": "2026-08-17T20:05:22+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/ФИТЭРА_Чек-лист_по_интервью_соучредитель.docx",
+      "name": "ФИТЭРА_Чек-лист_по_интервью_соучредитель.docx",
+      "sizeBytes": 1635175,
+      "created": "2026-08-17T20:05:15+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Фудс Импорт 06.08.xlsx",
+      "name": "Фудс Импорт 06.08.xlsx",
+      "sizeBytes": 2741583,
+      "created": "2026-08-17T20:04:43+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/Шаблон_заказа_товара.xlsx",
+      "name": "Шаблон_заказа_товара.xlsx",
+      "sizeBytes": 70463,
+      "created": "2026-08-17T20:05:21+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/ЮК 07.08. (1).xlsx",
+      "name": "ЮК 07.08. (1).xlsx",
+      "sizeBytes": 3162827,
+      "created": "2026-08-17T20:04:57+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/ЮК 07.08..xlsx",
+      "name": "ЮК 07.08..xlsx",
+      "sizeBytes": 3162827,
+      "created": "2026-08-17T20:05:08+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Документы Категорийного/бланк_заказа_новинки_июль_новинки_суфлет.xlsx",
+      "name": "бланк_заказа_новинки_июль_новинки_суфлет.xlsx",
+      "sizeBytes": 10104200,
+      "created": "2026-08-17T20:04:43+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "SUPPLIER_COMMERCIAL",
+      "note": "Commercial supplier file; not downloaded into research Git; name/size from API listing only."
+    },
+    {
+      "path": "/Категорийный менеджер(заказ поставщику)/Торговый флот Артем 105.pdf",
+      "name": "Торговый флот Артем 105.pdf",
+      "sizeBytes": 3141045,
+      "created": "2026-08-17T20:13:53+00:00",
+      "mimeType": "application/pdf",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/ОПЕРАЦИОННЫЙ ДИРЕКТОР/1С доработки ДКМ.docx",
+      "name": "1С доработки ДКМ.docx",
+      "sizeBytes": 161389,
+      "created": "2026-08-17T19:54:16+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/ОПЕРАЦИОННЫЙ ДИРЕКТОР/1С продажники.docx",
+      "name": "1С продажники.docx",
+      "sizeBytes": 29114,
+      "created": "2026-08-17T19:54:15+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/ОПЕРАЦИОННЫЙ ДИРЕКТОР/SNAX_Продажи_исходные_материалы (1).zip",
+      "name": "SNAX_Продажи_исходные_материалы (1).zip",
+      "sizeBytes": 2798757,
+      "created": "2026-08-20T23:11:56+00:00",
+      "mimeType": "application/zip",
+      "class": "OTHER"
+    },
+    {
+      "path": "/ОПЕРАЦИОННЫЙ ДИРЕКТОР/ПродажиSNAX.webm",
+      "name": "ПродажиSNAX.webm",
+      "sizeBytes": 198605727,
+      "created": "2026-08-19T03:29:56+00:00",
+      "mimeType": "video/webm",
+      "class": "INTERVIEW_VIDEO"
+    },
+    {
+      "path": "/ОПЕРАЦИОННЫЙ ДИРЕКТОР/ФИТЭРА_SNAX_Продажи_оформленный_комплект_версия_1.1.zip",
+      "name": "ФИТЭРА_SNAX_Продажи_оформленный_комплект_версия_1.1.zip",
+      "sizeBytes": 16434090,
+      "created": "2026-08-20T23:11:44+00:00",
+      "mimeType": "application/zip",
+      "class": "OTHER"
+    },
+    {
+      "path": "/Розница/ConfigFiles.zip",
+      "name": "ConfigFiles.zip",
+      "sizeBytes": 2204363437,
+      "created": "2026-08-27T01:06:20+00:00",
+      "mimeType": "application/zip",
+      "class": "ONEC_XML_DUMP",
+      "sha256": "8dba2d5703f2041c3b67ee1d22329b919761d9fb3b069272573934e49ef44a76"
+    },
+    {
+      "path": "/Розница/F-2.zip",
+      "name": "F-2.zip",
+      "sizeBytes": 67475,
+      "created": "2026-08-27T01:22:49+00:00",
+      "mimeType": "application/zip",
+      "class": "ONEC_XML_DUMP",
+      "sha256": "71d6697ecb150cb2c97e74c71be831570dea233a61c981172666d0190c16a8fe"
+    },
+    {
+      "path": "/Розница/F.zip",
+      "name": "F.zip",
+      "sizeBytes": 509062,
+      "created": "2026-08-27T01:22:50+00:00",
+      "mimeType": "application/zip",
+      "class": "ONEC_XML_DUMP",
+      "sha256": "b3f6a7921339c6b7e8fe7a68e9ebb575ee7b420f46e5e058cb834588a9bbb3f2"
+    },
+    {
+      "path": "/Розница/Forus-1.zip",
+      "name": "Forus-1.zip",
+      "sizeBytes": 8506,
+      "created": "2026-08-27T01:22:50+00:00",
+      "mimeType": "application/zip",
+      "class": "ONEC_XML_DUMP",
+      "sha256": "60a4c0d1ebc336b154abdaf4820bcd85b9e742dd34525671eac81badc46512d1"
+    },
+    {
+      "path": "/Розница/maxma.zip",
+      "name": "maxma.zip",
+      "sizeBytes": 334929,
+      "created": "2026-08-27T01:22:50+00:00",
+      "mimeType": "application/zip",
+      "class": "ONEC_XML_DUMP",
+      "sha256": "5d56de5b8969bcba43314aeddd04052f21ba6cb1ed297b395b0391abb89d3c58"
+    },
+    {
+      "path": "/Стива(учредитель)/ФИТЭРА_Интервью_соучредитель_масштабирование_сети_AS-IS (1).docx",
+      "name": "ФИТЭРА_Интервью_соучредитель_масштабирование_сети_AS-IS (1).docx",
+      "sizeBytes": 2944405,
+      "created": "2026-08-20T23:14:25+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/Стива(учредитель)/ФИТЭРА_Чек-лист_по_интервью_соучредитель (1).docx",
+      "name": "ФИТЭРА_Чек-лист_по_интервью_соучредитель (1).docx",
+      "sizeBytes": 1635175,
+      "created": "2026-08-17T19:59:06+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/Стива(учредитель)/ФИТЭРА_Чек_лист_договорённостей_и_материалов_по_видеозаписи_версия.docx",
+      "name": "ФИТЭРА_Чек_лист_договорённостей_и_материалов_по_видеозаписи_версия.docx",
+      "sizeBytes": 56846,
+      "created": "2026-08-17T19:59:04+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/УТ Новая/YT-1.zip",
+      "name": "YT-1.zip",
+      "sizeBytes": 10713,
+      "created": "2026-08-27T02:40:33+00:00",
+      "mimeType": "application/zip",
+      "class": "ONEC_XML_DUMP",
+      "sha256": "1d8a0804d422de4778380f3ab7256c12cb0fb9406986bdbc656b7452dc0babe1"
+    },
+    {
+      "path": "/УТ Новая/YT-2.zip",
+      "name": "YT-2.zip",
+      "sizeBytes": 1715471,
+      "created": "2026-08-27T02:40:33+00:00",
+      "mimeType": "application/zip",
+      "class": "ONEC_XML_DUMP",
+      "sha256": "0844fdc292eb4340d86814a498a309d9bae3b230553f8e10b25dccd6b5beb1ab"
+    },
+    {
+      "path": "/УТ Новая/YT.zip",
+      "name": "YT.zip",
+      "sizeBytes": 1818810126,
+      "created": "2026-08-27T02:56:43+00:00",
+      "mimeType": "application/zip",
+      "class": "ONEC_XML_DUMP",
+      "sha256": "e25d29eef406de969b5177d365e771adfb6832dc4ea1568d01b418bf844a8863"
+    },
+    {
+      "path": "/ФИТЭРА_SNAX_Единый_пакет_проекта_v1.1.zip",
+      "name": "ФИТЭРА_SNAX_Единый_пакет_проекта_v1.1.zip",
+      "sizeBytes": 8242014,
+      "created": "2026-08-27T04:59:04+00:00",
+      "mimeType": "application/zip",
+      "class": "PROJECT_PACK"
+    },
+    {
+      "path": "/ФИТЭРА_SNAX_Итоговый_отчет_для_руководителя_v1.2.docx",
+      "name": "ФИТЭРА_SNAX_Итоговый_отчет_для_руководителя_v1.2.docx",
+      "sizeBytes": 222438,
+      "created": "2026-08-27T04:58:34+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/ФИТЭРА_SNAX_Пакет_исходных_материалов_архитектуры_21-08-2026.zip",
+      "name": "ФИТЭРА_SNAX_Пакет_исходных_материалов_архитектуры_21-08-2026.zip",
+      "sizeBytes": 2282070,
+      "created": "2026-08-27T04:59:25+00:00",
+      "mimeType": "application/zip",
+      "class": "PROJECT_PACK"
+    },
+    {
+      "path": "/ФИТЭРА_SNAX_Паспорт_проекта_реализации_v1.0.docx",
+      "name": "ФИТЭРА_SNAX_Паспорт_проекта_реализации_v1.0.docx",
+      "sizeBytes": 2672475,
+      "created": "2026-08-27T04:58:59+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/ФИТЭРА_SNAX_Программный_контракт_для_руководителя_v3.0-exec.docx",
+      "name": "ФИТЭРА_SNAX_Программный_контракт_для_руководителя_v3.0-exec.docx",
+      "sizeBytes": 53706,
+      "created": "2026-08-27T04:58:24+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/ФИТЭРА_SNAX_Реестр_требований_и_дорожная_карта_v1.0.xlsx",
+      "name": "ФИТЭРА_SNAX_Реестр_требований_и_дорожная_карта_v1.0.xlsx",
+      "sizeBytes": 93501,
+      "created": "2026-08-27T04:58:56+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "RESEARCH_REGISTRY"
+    },
+    {
+      "path": "/ФИТЭРА_SNAX_Реестр_требований_по_интервью_v1.2.xlsx",
+      "name": "ФИТЭРА_SNAX_Реестр_требований_по_интервью_v1.2.xlsx",
+      "sizeBytes": 143609,
+      "created": "2026-08-27T04:58:30+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "RESEARCH_REGISTRY",
+      "sha256": "f3306f79184c9d6706b4578ee20d383ff0850a040aa7ba3be0e130a98a70a122"
+    },
+    {
+      "path": "/ФИТЭРА_SNAX_Технический_реестр_архитектуры_и_доработок_v3.1.xlsx",
+      "name": "ФИТЭРА_SNAX_Технический_реестр_архитектуры_и_доработок_v3.1.xlsx",
+      "sizeBytes": 77211,
+      "created": "2026-08-27T04:58:13+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "RESEARCH_REGISTRY"
+    },
+    {
+      "path": "/Финансовый директор/Документы от директора (фин)/Payments (2).xlsx",
+      "name": "Payments (2).xlsx",
+      "sizeBytes": 37411,
+      "created": "2026-08-17T20:01:56+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "FINANCE_STATEMENT",
+      "note": "Filename redacted (account digits). Original not in Git."
+    },
+    {
+      "path": "/Финансовый директор/Документы от директора (фин)/Предупреждения загрузки УТ-УТ.txt",
+      "name": "Предупреждения загрузки УТ-УТ.txt",
+      "sizeBytes": 13026,
+      "created": "2026-08-17T20:01:56+00:00",
+      "mimeType": "text/plain",
+      "class": "OTHER"
+    },
+    {
+      "path": "/Финансовый директор/Документы от директора (фин)/Процессу в УТ.docx",
+      "name": "Процессу в УТ.docx",
+      "sizeBytes": 2095678,
+      "created": "2026-08-17T20:01:56+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/Финансовый директор/Документы от директора (фин)/Регламет проведения оплат.docx",
+      "name": "Регламет проведения оплат.docx",
+      "sizeBytes": 909861,
+      "created": "2026-08-17T20:01:56+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/Финансовый директор/Документы от директора (фин)/СберБизнес. Выписка за 2026.08.01-2026.08.12 счёт [ACCOUNT].xlsx",
+      "name": "СберБизнес. Выписка за 2026.08.01-2026.08.12 счёт [ACCOUNT].xlsx",
+      "sizeBytes": 107885,
+      "created": "2026-08-17T20:01:56+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "class": "FINANCE_STATEMENT",
+      "note": "Filename redacted (account digits). Original not in Git."
+    },
+    {
+      "path": "/Финансовый директор/Документы от директора (фин)/Ссылка на реестр.docx",
+      "name": "Ссылка на реестр.docx",
+      "sizeBytes": 10533,
+      "created": "2026-08-17T20:03:23+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/Финансовый директор/Запись встречи 12.08.2026 14-01-03 - запись.webm",
+      "name": "Запись встречи 12.08.2026 14-01-03 - запись.webm",
+      "sizeBytes": 419147386,
+      "created": "2026-08-12T07:08:16+00:00",
+      "mimeType": "video/webm",
+      "class": "INTERVIEW_VIDEO"
+    },
+    {
+      "path": "/Финансовый директор/Запись встречи 12.08.2026 14-35-40 - запись.webm",
+      "name": "Запись встречи 12.08.2026 14-35-40 - запись.webm",
+      "sizeBytes": 748693081,
+      "created": "2026-08-12T07:09:03+00:00",
+      "mimeType": "video/webm",
+      "class": "INTERVIEW_VIDEO"
+    },
+    {
+      "path": "/Финансовый директор/Запись встречи 12.08.2026 15-30-25 - запись.webm",
+      "name": "Запись встречи 12.08.2026 15-30-25 - запись.webm",
+      "sizeBytes": 669159164,
+      "created": "2026-08-12T07:08:44+00:00",
+      "mimeType": "video/webm",
+      "class": "INTERVIEW_VIDEO"
+    },
+    {
+      "path": "/Финансовый директор/ФИТЭРА_Интервью_финансовый_директор_AS_IS_версия_1_2.docx",
+      "name": "ФИТЭРА_Интервью_финансовый_директор_AS_IS_версия_1_2.docx",
+      "sizeBytes": 3640184,
+      "created": "2026-08-17T20:00:04+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/Финансовый директор/ФИТЭРА_Сводка_бизнес_процессов_финансового_директора_по_видеозаписям.docx",
+      "name": "ФИТЭРА_Сводка_бизнес_процессов_финансового_директора_по_видеозаписям.docx",
+      "sizeBytes": 5475028,
+      "created": "2026-08-17T20:00:18+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    },
+    {
+      "path": "/Финансовый директор/ФИТЭРА_Чек_лист_договорённостей_и_материалов_финансового_директора.docx",
+      "name": "ФИТЭРА_Чек_лист_договорённостей_и_материалов_финансового_директора.docx",
+      "sizeBytes": 61581,
+      "created": "2026-08-17T20:00:03+00:00",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "class": "INTERVIEW_OR_PROJECT_DOC"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snax.example/contracts/kpi-passport.schema.json",
+  "title": "SNAX KPI Passport",
+  "description": "Approved metric definition. The service does not compute the KPI; it only stores the signed formula metadata.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "kpiId",
+    "code",
+    "name",
+    "owner",
+    "status",
+    "formula",
+    "sourceSystem",
+    "updatedAt"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^1\\.[0-9]+\\.[0-9]+$"
+    },
+    "kpiId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "code": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "owner": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "status": {
+      "type": "string",
+      "enum": ["DRAFT", "APPROVED", "RETIRED"]
+    },
+    "formula": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4000
+    },
+    "sourceSystem": {
+      "type": "string",
+      "enum": ["1C_UT", "1C_RETAIL", "1C_BP", "BANK", "SERVICE_IMPORT", "MIXED"]
+    },
+    "grain": {
+      "type": ["string", "null"],
+      "enum": ["SKU", "STORE", "REGION", "DOCUMENT", "DAY", "MONTH", null]
+    },
+    "exclusions": {
+      "type": ["string", "null"],
+      "maxLength": 2000
+    },
+    "controlExample": {
+      "type": ["string", "null"],
+      "maxLength": 2000
+    },
+    "decisionId": {
+      "type": ["string", "null"],
+      "maxLength": 32
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0.0",
+  "kpiId": "f56a8234-7199-4eb5-a04c-11c5d6e7f8b9",
+  "code": "AVAILABLE_STOCK",
+  "name": "Свободный остаток",
+  "owner": "category-manager",
+  "status": "DRAFT",
+  "formula": "physical_qty - reserved_qty - unposted_writeoffs; in-transit is shown separately and is not subtracted unless D-20 says otherwise",
+  "sourceSystem": "1C_UT",
+  "grain": "SKU",
+  "exclusions": "Virtual warehouse statuses are out of scope until INV-007 is approved.",
+  "controlExample": "SKU DEMO-001 on 2026-08-15: physical 10, reserved 2, available 8.",
+  "decisionId": "D-20",
+  "updatedAt": "2026-09-01T09:00:00Z"
+}

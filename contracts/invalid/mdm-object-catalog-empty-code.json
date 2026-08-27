@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0.0",
+  "catalogId": "b12c4e90-3d55-4a71-9c08-77e1a2b3c4d5",
+  "generatedAt": "2026-09-12T08:00:00Z",
+  "intakeId": "7e2b6a10-4c1e-4f8a-9d3b-21c8a0f5b901",
+  "status": "UNVERIFIED",
+  "objects": [
+    {
+      "objectId": "11111111-2222-4333-8444-555555555555",
+      "objectType": "STORE",
+      "code": "",
+      "status": "UNVERIFIED"
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "1.0.0",
+  "catalogId": "c22546c6-3ea5-43dc-88bf-f5d97f48137e",
+  "generatedAt": "2026-08-27T05:40:00Z",
+  "intakeId": "a19e6c40-7b2d-4f11-8c55-2d9a0b47e801",
+  "extensions": [
+    {
+      "passportId": "11111111-1111-4111-8111-111111111101",
+      "baseCode": "RETAIL_DUMP_01",
+      "name": "СНЭКС_Доработки",
+      "active": true,
+      "closedSource": false,
+      "compatibilityMode": "8.3.27",
+      "ownDataObjects": true,
+      "risk": "MEDIUM",
+      "disposition": "UNDECIDED",
+      "sourceAnalysisName": null,
+      "status": "UNVERIFIED",
+      "notes": "XML dump F.zip. Synonym: Доработки обмена и Заказов поставщикам. Prefix Дораб_. Customer: work with the six transferred XMLs for now; IB enabled-list completeness not confirmed. Enablement in the live IB was not read. active=true only means the dump was transferred. Disposition stays UNDECIDED."
+    },
+    {
+      "passportId": "11111111-1111-4111-8111-111111111102",
+      "baseCode": "RETAIL_DUMP_01",
+      "name": "СНЭКС_ФункционалОбъединенияВидовЦенПоРегионам",
+      "active": true,
+      "closedSource": false,
+      "compatibilityMode": "8.5.1",
+      "ownDataObjects": true,
+      "risk": "MEDIUM",
+      "disposition": "UNDECIDED",
+      "sourceAnalysisName": null,
+      "status": "UNVERIFIED",
+      "notes": "XML dump F-2.zip. Vendor НПК ФОРУС, version 1.0.1.1. Touches ВидыЦен and СтруктурныеЕдиницы. Customer: work with the six transferred XMLs for now; IB enabled-list completeness not confirmed. Enablement not read from IB. Disposition stays UNDECIDED."
+    },
+    {
+      "passportId": "11111111-1111-4111-8111-111111111103",
+      "baseCode": "RETAIL_DUMP_01",
+      "name": "Форус_ОснованиеТоварнойНакладнойВозврат",
+      "active": true,
+      "closedSource": false,
+      "compatibilityMode": "8.5.1",
+      "ownDataObjects": false,
+      "risk": "MEDIUM",
+      "disposition": "UNDECIDED",
+      "sourceAnalysisName": null,
+      "status": "UNVERIFIED",
+      "notes": "XML dump Forus-1.zip. Adopts DataProcessor ПечатьТОРГ12. Customer: work with the six transferred XMLs for now; IB enabled-list completeness not confirmed. Enablement not read from IB. Disposition stays UNDECIDED."
+    },
+    {
+      "passportId": "11111111-1111-4111-8111-111111111104",
+      "baseCode": "RETAIL_DUMP_01",
+      "name": "maxma",
+      "active": true,
+      "closedSource": false,
+      "compatibilityMode": "8.5.1",
+      "ownDataObjects": true,
+      "risk": "MEDIUM",
+      "disposition": "UNDECIDED",
+      "sourceAnalysisName": null,
+      "status": "UNVERIFIED",
+      "notes": "XML dump maxma.zip. Purpose AddOn, vendor maxma, version 3.0.13.363_1. RMK/loyalty integration. Not matched to a source-analysis UT extension name. Customer: work with the six transferred XMLs for now; IB enabled-list completeness not confirmed. Enablement not read from IB. Disposition stays UNDECIDED."
+    },
+    {
+      "passportId": "11111111-1111-4111-8111-111111111201",
+      "baseCode": "UT_DUMP_01",
+      "name": "СНЭКС_ДоработкаОбмена",
+      "active": true,
+      "closedSource": false,
+      "compatibilityMode": "8.3.27",
+      "ownDataObjects": false,
+      "risk": "MEDIUM",
+      "disposition": "UNDECIDED",
+      "sourceAnalysisName": null,
+      "status": "UNVERIFIED",
+      "notes": "XML dump YT-1.zip. Touches universal-format exchange manager and ПриобретениеТоваровУслуг. Customer: work with the six transferred XMLs for now; IB enabled-list completeness not confirmed. Enablement not read from IB. Disposition stays UNDECIDED."
+    },
+    {
+      "passportId": "11111111-1111-4111-8111-111111111202",
+      "baseCode": "UT_DUMP_01",
+      "name": "СНЭКС_ЗагрузкаДанныхИзВнешнегоИсточника",
+      "active": true,
+      "closedSource": false,
+      "compatibilityMode": "8.3.27",
+      "ownDataObjects": true,
+      "risk": "MEDIUM",
+      "disposition": "UNDECIDED",
+      "sourceAnalysisName": null,
+      "status": "UNVERIFIED",
+      "notes": "XML dump YT-2.zip. External-source load. Not asserted to be the source-analysis name ДоработкаИмпорта. Customer: work with the six transferred XMLs for now; IB enabled-list completeness not confirmed. Enablement not read from IB. Disposition stays UNDECIDED."
+    }
+  ]
+}

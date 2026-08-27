@@ -50,5 +50,16 @@ fixtures/raw/
 !fixtures/golden/**/*.xls
 !fixtures/golden/**/*.csv
 
+# Research registries without commercial payloads
+!docs/research/**/*.xlsx
+
 # Generated project packs
 *_Codex_Project_Pack_*.zip
+
+# 1C dump payloads (never commit)
+*.dt
+*.cf
+*.cfe
+*.v8i
+*.v8i
+ibases*.v8i

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "snax-retail-xml": {
+      "command": "python3",
+      "args": ["${workspaceFolder}/scripts/retail_xml_mcp.py"]
+    },
+    "snax-1c": {
+      "command": "python3",
+      "args": ["${workspaceFolder}/scripts/snax_1c_mcp.py"]
+    }
+  }
+}

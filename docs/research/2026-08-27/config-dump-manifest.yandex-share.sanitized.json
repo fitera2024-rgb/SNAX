@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0.0",
+  "intakeId": "a19e6c40-7b2d-4f11-8c55-2d9a0b47e801",
+  "receivedAt": "2026-08-27T02:56:43Z",
+  "sourceOwner": "customer-1c",
+  "classification": "RESTRICTED",
+  "gitPolicy": "DO_NOT_COMMIT_PAYLOAD",
+  "intendedUse": [
+    "CATALOG",
+    "EXTENSION_AUDIT"
+  ],
+  "correlationId": "dump-intake-yandex-share-2026-08-27",
+  "notes": "Yandex Disk public folder SNAX (https://disk.yandex.ru/d/dfKzWDC27vtTFg). Retail ConfigFiles.zip is a full XML configuration dump (Configuration.xml present; Розница 3.0.13.342). UT YT.zip is a full XML dump (УправлениеТорговлей 11.5.22.164). Customer 2026-08-27 confirmed in writing: /Розница + ConfigFiles.zip is the central working Retail; /УТ Новая + YT.zip is the central UT of the pilot (not declared the only live UT forever). Other bases (legacy UT, BP, sn101…) are deferred by the customer, not absent. Infobase data is not verified. F/F-2/Forus-1/maxma and YT-1/YT-2 are XML dumps of configuration extensions, not CFE binaries. Inner vendor ParentConfigurations/*.cf stay inside the zips and are not copied to Git. No DT, no infobase data, no BP dump. Catalog set of Retail matches 2026-08-26 Catalogs-only zip (735 names). Six transferred extension XMLs are the working set for now, not proof of the full enabled-in-IB list. A 1C infobase list-file was received and is not an artifact here because it contains connection strings.",
+  "period": null,
+  "sanitization": {
+    "status": "NOT_APPLICABLE",
+    "maskedFields": []
+  },
+  "bases": [
+    {
+      "baseCode": "RETAIL_DUMP_01",
+      "contour": "RETAIL_CENTRAL",
+      "displayName": "Central working Retail 3.0.13.342 (customer-confirmed RETAIL_CENTRAL)",
+      "platformVersion": null,
+      "configurationName": "Розница",
+      "configurationVersion": "3.0.13.342",
+      "supportMode": "PARTIAL",
+      "unknownReason": "VERIFIED covers XML name+version and customer-confirmed node role only. platformVersion is not in the XML dump. Infobase data is not verified. Six transferred extension XMLs are a working set, not a confirmed full IB list. Vendor parent CF is present; Forus attributes exist in the main configuration, so support is not treated as clean ON_SUPPORT.",
+      "status": "VERIFIED"
+    },
+    {
+      "baseCode": "UT_DUMP_01",
+      "contour": "UT_CENTRAL",
+      "displayName": "Central UT of the pilot 11.5.22.164 (customer-confirmed UT_CENTRAL)",
+      "platformVersion": null,
+      "configurationName": "УправлениеТорговлей",
+      "configurationVersion": "11.5.22.164",
+      "supportMode": "PARTIAL",
+      "unknownReason": "VERIFIED covers XML name+version and customer-confirmed node role only. platformVersion is not in the XML dump. Infobase data is not verified. This dump is the central UT of the pilot, not a claim that legacy UT is retired. Other bases are deferred, not absent. Two transferred UT extension XMLs are a working set, not a confirmed full IB list.",
+      "status": "VERIFIED"
+    }
+  ],
+  "artifacts": [
+    {
+      "artifactId": "b56eef80-347c-4bde-9994-a74b3dcf87e8",
+      "fileName": "ConfigFiles.zip",
+      "mediaType": "application/zip",
+      "sha256": "8dba2d5703f2041c3b67ee1d22329b919761d9fb3b069272573934e49ef44a76",
+      "sizeBytes": 2204363437,
+      "kind": "XML_CONFIG",
+      "baseCode": "RETAIL_DUMP_01"
+    },
+    {
+      "artifactId": "6899cb3d-eedb-4b1f-bdbc-dd425965b551",
+      "fileName": "F.zip",
+      "mediaType": "application/zip",
+      "sha256": "b3f6a7921339c6b7e8fe7a68e9ebb575ee7b420f46e5e058cb834588a9bbb3f2",
+      "sizeBytes": 509062,
+      "kind": "XML_CONFIG",
+      "baseCode": "RETAIL_DUMP_01"
+    },
+    {
+      "artifactId": "03ea9469-5212-4585-b743-1f0d3bf19191",
+      "fileName": "F-2.zip",
+      "mediaType": "application/zip",
+      "sha256": "71d6697ecb150cb2c97e74c71be831570dea233a61c981172666d0190c16a8fe",
+      "sizeBytes": 67475,
+      "kind": "XML_CONFIG",
+      "baseCode": "RETAIL_DUMP_01"
+    },
+    {
+      "artifactId": "9486bbbf-a3a5-41de-834e-782f50f7e7a2",
+      "fileName": "Forus-1.zip",
+      "mediaType": "application/zip",
+      "sha256": "60a4c0d1ebc336b154abdaf4820bcd85b9e742dd34525671eac81badc46512d1",
+      "sizeBytes": 8506,
+      "kind": "XML_CONFIG",
+      "baseCode": "RETAIL_DUMP_01"
+    },
+    {
+      "artifactId": "a65452c5-98f7-4314-b323-7609cceba469",
+      "fileName": "maxma.zip",
+      "mediaType": "application/zip",
+      "sha256": "5d56de5b8969bcba43314aeddd04052f21ba6cb1ed297b395b0391abb89d3c58",
+      "sizeBytes": 334929,
+      "kind": "XML_CONFIG",
+      "baseCode": "RETAIL_DUMP_01"
+    },
+    {
+      "artifactId": "7db82d67-c4a1-4c53-aed5-59aa77c0747b",
+      "fileName": "YT.zip",
+      "mediaType": "application/zip",
+      "sha256": "e25d29eef406de969b5177d365e771adfb6832dc4ea1568d01b418bf844a8863",
+      "sizeBytes": 1818810126,
+      "kind": "XML_CONFIG",
+      "baseCode": "UT_DUMP_01"
+    },
+    {
+      "artifactId": "a2d2da43-7df0-451a-bc3c-9cd7dd78f88b",
+      "fileName": "YT-1.zip",
+      "mediaType": "application/zip",
+      "sha256": "1d8a0804d422de4778380f3ab7256c12cb0fb9406986bdbc656b7452dc0babe1",
+      "sizeBytes": 10713,
+      "kind": "XML_CONFIG",
+      "baseCode": "UT_DUMP_01"
+    },
+    {
+      "artifactId": "58df380e-7d1c-4fb7-8533-f41fde4db0f5",
+      "fileName": "YT-2.zip",
+      "mediaType": "application/zip",
+      "sha256": "0844fdc292eb4340d86814a498a309d9bae3b230553f8e10b25dccd6b5beb1ab",
+      "sizeBytes": 1715471,
+      "kind": "XML_CONFIG",
+      "baseCode": "UT_DUMP_01"
+    }
+  ]
+}

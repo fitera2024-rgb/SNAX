@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "1.0.0",
+  "catalogId": "b12c4e90-3d55-4a71-9c08-77e1a2b3c4d5",
+  "generatedAt": "2026-09-12T08:00:00Z",
+  "intakeId": "7e2b6a10-4c1e-4f8a-9d3b-21c8a0f5b901",
+  "status": "UNVERIFIED",
+  "objects": [
+    {
+      "objectId": "11111111-2222-4333-8444-555555555555",
+      "objectType": "STORE",
+      "code": "STORE_DEMO_01",
+      "displayName": "Demo store 01",
+      "guidByBase": [
+        {
+          "baseCode": "UT_CENTRAL",
+          "guid": "aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee"
+        }
+      ],
+      "parentCode": "REGION_DEMO",
+      "status": "UNVERIFIED"
+    },
+    {
+      "objectId": "21111111-2222-4333-8444-555555555555",
+      "objectType": "WAREHOUSE",
+      "code": "WH_DEMO_01",
+      "displayName": "Demo warehouse 01",
+      "guidByBase": [
+        {
+          "baseCode": "UT_CENTRAL",
+          "guid": "bbbbbbbb-cccc-4ddd-8eee-ffffffffffff"
+        }
+      ],
+      "parentCode": "STORE_DEMO_01",
+      "status": "UNVERIFIED"
+    }
+  ]
+}

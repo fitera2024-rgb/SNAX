@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snax.example/contracts/mdm-object-catalog.schema.json",
+  "title": "SNAX MDM Object Catalog",
+  "description": "Cross-base mapping of legal entities, stores, warehouses, cash desks and retail nodes. Filled after dump parse.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "catalogId",
+    "generatedAt",
+    "intakeId",
+    "status",
+    "objects"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^1\\.[0-9]+\\.[0-9]+$"
+    },
+    "catalogId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "intakeId": {
+      "type": ["string", "null"],
+      "format": "uuid"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["DRAFT", "UNVERIFIED", "VERIFIED"]
+    },
+    "objects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "objectId",
+          "objectType",
+          "code",
+          "status"
+        ],
+        "properties": {
+          "objectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "objectType": {
+            "type": "string",
+            "enum": [
+              "LEGAL_ENTITY",
+              "BRAND",
+              "REGION",
+              "STORE",
+              "WAREHOUSE",
+              "CASH_DESK",
+              "DEPARTMENT",
+              "RETAIL_NODE",
+              "ORGANIZATION_1C"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "displayName": {
+            "type": ["string", "null"],
+            "maxLength": 300
+          },
+          "guidByBase": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["baseCode", "guid"],
+              "properties": {
+                "baseCode": {
+                  "type": "string",
+                  "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+                },
+                "guid": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "parentCode": {
+            "type": ["string", "null"],
+            "maxLength": 64
+          },
+          "status": {
+            "type": "string",
+            "enum": ["UNVERIFIED", "VERIFIED", "DUPLICATE", "RETIRED"]
+          }
+        }
+      }
+    }
+  }
+}

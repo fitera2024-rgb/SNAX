@@ -1,0 +1,611 @@
+{
+  "schemaVersion": "1.0.0",
+  "intakeId": "a19e6c40-7b2d-4f11-8c55-2d9a0b47e801",
+  "extensions": [
+    {
+      "dumpId": "RETAIL_EXT_F2_SNEX_REGIONS",
+      "sourceFile": "F-2.zip",
+      "sha256": "71d6697ecb150cb2c97e74c71be831570dea233a61c981172666d0190c16a8fe",
+      "sizeBytes": 67475,
+      "configuration": {
+        "Name": "СНЭКС_ФункционалОбъединенияВидовЦенПоРегионам",
+        "Synonym": "Функционал объединения видов цен по регионам",
+        "Comment": null,
+        "ConfigurationExtensionPurpose": "Customization",
+        "NamePrefix": "снэкс_",
+        "ScriptVariant": "Russian",
+        "DefaultRoles": null,
+        "Vendor": "НПК ФОРУС",
+        "Version": "1.0.1.1",
+        "DefaultLanguage": "Language.Русский"
+      },
+      "kindCounts": {
+        "Catalog": 4,
+        "CommonCommand": 1,
+        "CommonModule": 2,
+        "DataProcessor": 1,
+        "Document": 1,
+        "InformationRegister": 1,
+        "Language": 1,
+        "Role": 2,
+        "StyleItem": 1,
+        "Subsystem": 2
+      },
+      "objectCount": 16,
+      "bslFileCount": 6,
+      "objectsExcludingPictures": [
+        {
+          "kind": "Catalog",
+          "name": "ВидыЦен",
+          "synonym": null
+        },
+        {
+          "kind": "Catalog",
+          "name": "Номенклатура",
+          "synonym": null
+        },
+        {
+          "kind": "Catalog",
+          "name": "СтруктурныеЕдиницы",
+          "synonym": null
+        },
+        {
+          "kind": "Catalog",
+          "name": "ХарактеристикиНоменклатуры",
+          "synonym": null
+        },
+        {
+          "kind": "CommonCommand",
+          "name": "снэкс_ОткрытьПереоценку",
+          "synonym": "[ФОРУС] Открыть переоценку"
+        },
+        {
+          "kind": "CommonModule",
+          "name": "МодификацияКонфигурацииПереопределяемый",
+          "synonym": "Модификация конфигурации переопределяемый"
+        },
+        {
+          "kind": "CommonModule",
+          "name": "СобытияФорм",
+          "synonym": "События форм"
+        },
+        {
+          "kind": "DataProcessor",
+          "name": "снэксПереоценкаТоваров",
+          "synonym": "[ФОРУС] Переоценка товаров"
+        },
+        {
+          "kind": "Document",
+          "name": "ПриходнаяНакладная",
+          "synonym": null
+        },
+        {
+          "kind": "InformationRegister",
+          "name": "ЦеныНоменклатуры",
+          "synonym": null
+        },
+        {
+          "kind": "Role",
+          "name": "ДобавлениеИзменениеПриходныхНакладных",
+          "synonym": null
+        },
+        {
+          "kind": "Role",
+          "name": "снэкс_ОсновнаяРоль",
+          "synonym": null
+        },
+        {
+          "kind": "Subsystem",
+          "name": "Продажи",
+          "synonym": null
+        },
+        {
+          "kind": "Subsystem",
+          "name": "Справочники",
+          "synonym": null
+        }
+      ]
+    },
+    {
+      "dumpId": "RETAIL_EXT_FORUS1",
+      "sourceFile": "Forus-1.zip",
+      "sha256": "60a4c0d1ebc336b154abdaf4820bcd85b9e742dd34525671eac81badc46512d1",
+      "sizeBytes": 8506,
+      "configuration": {
+        "Name": "Форус_ОснованиеТоварнойНакладнойВозврат",
+        "Synonym": "Форус основание товарной накладной возврат",
+        "Comment": null,
+        "ConfigurationExtensionPurpose": "Customization",
+        "NamePrefix": "ф_",
+        "ScriptVariant": "Russian",
+        "DefaultRoles": null,
+        "Vendor": "Форус",
+        "Version": "1.0",
+        "DefaultLanguage": "Language.Русский"
+      },
+      "kindCounts": {
+        "DataProcessor": 1,
+        "Language": 1
+      },
+      "objectCount": 2,
+      "bslFileCount": 1,
+      "objectsExcludingPictures": [
+        {
+          "kind": "DataProcessor",
+          "name": "ПечатьТОРГ12",
+          "synonym": null
+        }
+      ]
+    },
+    {
+      "dumpId": "RETAIL_EXT_F_SNEX_DORAB",
+      "sourceFile": "F.zip",
+      "sha256": "b3f6a7921339c6b7e8fe7a68e9ebb575ee7b420f46e5e058cb834588a9bbb3f2",
+      "sizeBytes": 509062,
+      "configuration": {
+        "Name": "СНЭКС_Доработки",
+        "Synonym": "Доработки обмена и Заказов поставщикам",
+        "Comment": null,
+        "ConfigurationExtensionPurpose": "Customization",
+        "NamePrefix": "Дораб_",
+        "ScriptVariant": "Russian",
+        "DefaultRoles": null,
+        "Vendor": null,
+        "Version": null,
+        "DefaultLanguage": "Language.Русский"
+      },
+      "kindCounts": {
+        "Catalog": 2,
+        "CommonModule": 5,
+        "CommonPicture": 43,
+        "DataProcessor": 4,
+        "Document": 3,
+        "Enum": 9,
+        "InformationRegister": 1,
+        "Language": 1,
+        "StyleItem": 22,
+        "XDTOPackage": 3
+      },
+      "objectCount": 93,
+      "bslFileCount": 19,
+      "objectsExcludingPictures": [
+        {
+          "kind": "Catalog",
+          "name": "ЕдиницыИзмерения",
+          "synonym": null
+        },
+        {
+          "kind": "Catalog",
+          "name": "Номенклатура",
+          "synonym": null
+        },
+        {
+          "kind": "CommonModule",
+          "name": "МенеджерОбменаЧерезУниверсальныйФормат",
+          "synonym": null
+        },
+        {
+          "kind": "CommonModule",
+          "name": "ОбменДаннымиПереопределяемый",
+          "synonym": null
+        },
+        {
+          "kind": "CommonModule",
+          "name": "СНЭКС_ОбщийМодульПовтИсп",
+          "synonym": "СНЭКС общий модуль повт исп"
+        },
+        {
+          "kind": "CommonModule",
+          "name": "СтандартныеПодсистемыСервер",
+          "synonym": null
+        },
+        {
+          "kind": "CommonModule",
+          "name": "снэксВыгрузкаПродажВTXT",
+          "synonym": null
+        },
+        {
+          "kind": "DataProcessor",
+          "name": "ЗагрузкаДанныхИзВнешнегоИсточника",
+          "synonym": null
+        },
+        {
+          "kind": "DataProcessor",
+          "name": "НастройкаПрограммы",
+          "synonym": null
+        },
+        {
+          "kind": "DataProcessor",
+          "name": "ПечатьЭтикетокИЦенниковБПО",
+          "synonym": null
+        },
+        {
+          "kind": "DataProcessor",
+          "name": "РабочееМестоКассира",
+          "synonym": null
+        },
+        {
+          "kind": "Document",
+          "name": "ЗаказПоставщику",
+          "synonym": null
+        },
+        {
+          "kind": "Document",
+          "name": "ЧекККМ",
+          "synonym": null
+        },
+        {
+          "kind": "Document",
+          "name": "ЧекККМВозврат",
+          "synonym": null
+        },
+        {
+          "kind": "Enum",
+          "name": "ВариантыЗавершенияЗаказа",
+          "synonym": null
+        },
+        {
+          "kind": "Enum",
+          "name": "ВидыКонтроляДоговоровПриПроведении",
+          "synonym": null
+        },
+        {
+          "kind": "Enum",
+          "name": "ВидыОперацийЗаказПоставщику",
+          "synonym": null
+        },
+        {
+          "kind": "Enum",
+          "name": "ВидыОтборовНоменклатуры",
+          "synonym": null
+        },
+        {
+          "kind": "Enum",
+          "name": "ДаНет",
+          "synonym": null
+        },
+        {
+          "kind": "Enum",
+          "name": "ТипыВидовЦен",
+          "synonym": null
+        },
+        {
+          "kind": "Enum",
+          "name": "ТипыДенежныхСредств",
+          "synonym": null
+        },
+        {
+          "kind": "Enum",
+          "name": "ЧастотаРасчетаКурсовыхРазниц",
+          "synonym": null
+        },
+        {
+          "kind": "Enum",
+          "name": "снэксВидыОперацийЧекККМ",
+          "synonym": null
+        },
+        {
+          "kind": "InformationRegister",
+          "name": "ВесИОбъемЕдиницТоваров",
+          "synonym": null
+        },
+        {
+          "kind": "XDTOPackage",
+          "name": "EnterpriseData_1_20_2",
+          "synonym": null
+        },
+        {
+          "kind": "XDTOPackage",
+          "name": "ExchangeMessage",
+          "synonym": null
+        },
+        {
+          "kind": "XDTOPackage",
+          "name": "Дораб_ПакетXDTO_Касса",
+          "synonym": "Дораб пакет XDTO касса"
+        }
+      ]
+    },
+    {
+      "dumpId": "RETAIL_EXT_MAXMA",
+      "sourceFile": "maxma.zip",
+      "sha256": "5d56de5b8969bcba43314aeddd04052f21ba6cb1ed297b395b0391abb89d3c58",
+      "sizeBytes": 334929,
+      "configuration": {
+        "Name": "maxma",
+        "Synonym": "maxma",
+        "Comment": null,
+        "ConfigurationExtensionPurpose": "AddOn",
+        "NamePrefix": "maxma_",
+        "ScriptVariant": "Russian",
+        "DefaultRoles": null,
+        "Vendor": "maxma",
+        "Version": "3.0.13.363_1",
+        "DefaultLanguage": "Language.Русский"
+      },
+      "kindCounts": {
+        "Catalog": 4,
+        "CommonModule": 6,
+        "CommonPicture": 49,
+        "DataProcessor": 2,
+        "Document": 2,
+        "Language": 1,
+        "Role": 1,
+        "StyleItem": 17,
+        "Subsystem": 2
+      },
+      "objectCount": 84,
+      "bslFileCount": 19,
+      "objectsExcludingPictures": [
+        {
+          "kind": "Catalog",
+          "name": "ДисконтныеКарты",
+          "synonym": null
+        },
+        {
+          "kind": "Catalog",
+          "name": "Контрагенты",
+          "synonym": null
+        },
+        {
+          "kind": "Catalog",
+          "name": "Номенклатура",
+          "synonym": null
+        },
+        {
+          "kind": "Catalog",
+          "name": "СтруктурныеЕдиницы",
+          "synonym": null
+        },
+        {
+          "kind": "CommonModule",
+          "name": "maxma_ИнтеграцияССервисомВызовСервера",
+          "synonym": "Интеграция с сервисом maxma"
+        },
+        {
+          "kind": "CommonModule",
+          "name": "maxma_ИнтеграцияССервисомКлиент",
+          "synonym": "Интеграция с сервисом maxma"
+        },
+        {
+          "kind": "CommonModule",
+          "name": "maxma_ИнтеграцияССервисомКлиентСервер",
+          "synonym": "(maxma) Интеграция с сервисом клиент сервер"
+        },
+        {
+          "kind": "CommonModule",
+          "name": "ОбщегоНазначенияРМКУНФ",
+          "synonym": null
+        },
+        {
+          "kind": "CommonModule",
+          "name": "СкидкиНаценкиСервер",
+          "synonym": null
+        },
+        {
+          "kind": "CommonModule",
+          "name": "СкидкиНаценкиСерверПереопределяемый",
+          "synonym": null
+        },
+        {
+          "kind": "DataProcessor",
+          "name": "maxma_ИнтеграцияССервисом",
+          "synonym": "Интеграция с сервисом MAXMA"
+        },
+        {
+          "kind": "DataProcessor",
+          "name": "РабочееМестоКассира",
+          "synonym": null
+        },
+        {
+          "kind": "Document",
+          "name": "ЧекККМ",
+          "synonym": null
+        },
+        {
+          "kind": "Document",
+          "name": "ЧекККМВозврат",
+          "synonym": null
+        },
+        {
+          "kind": "Role",
+          "name": "maxma",
+          "synonym": "MAXMA"
+        },
+        {
+          "kind": "Subsystem",
+          "name": "Интеграции",
+          "synonym": null
+        },
+        {
+          "kind": "Subsystem",
+          "name": "Настройки",
+          "synonym": null
+        }
+      ]
+    },
+    {
+      "dumpId": "UT_EXT_YT1_EXCHANGE",
+      "sourceFile": "YT-1.zip",
+      "sha256": "1d8a0804d422de4778380f3ab7256c12cb0fb9406986bdbc656b7452dc0babe1",
+      "sizeBytes": 10713,
+      "configuration": {
+        "Name": "СНЭКС_ДоработкаОбмена",
+        "Synonym": "Доработка обмена",
+        "Comment": null,
+        "ConfigurationExtensionPurpose": "Customization",
+        "NamePrefix": "Дор_",
+        "ScriptVariant": "Russian",
+        "DefaultRoles": null,
+        "Vendor": null,
+        "Version": null,
+        "DefaultLanguage": "Language.Русский"
+      },
+      "kindCounts": {
+        "Catalog": 1,
+        "CommonModule": 1,
+        "Document": 1,
+        "EventSubscription": 1,
+        "Language": 1
+      },
+      "objectCount": 5,
+      "bslFileCount": 2,
+      "objectsExcludingPictures": [
+        {
+          "kind": "Catalog",
+          "name": "НоменклатураПрисоединенныеФайлы",
+          "synonym": null
+        },
+        {
+          "kind": "CommonModule",
+          "name": "МенеджерОбменаЧерезУниверсальныйФормат",
+          "synonym": null
+        },
+        {
+          "kind": "Document",
+          "name": "ПриобретениеТоваровУслуг",
+          "synonym": null
+        },
+        {
+          "kind": "EventSubscription",
+          "name": "СинхронизацияДанныхЧерезУниверсальныйФорматРегистрация",
+          "synonym": null
+        }
+      ]
+    },
+    {
+      "dumpId": "UT_EXT_YT2_EXTERNAL_LOAD",
+      "sourceFile": "YT-2.zip",
+      "sha256": "0844fdc292eb4340d86814a498a309d9bae3b230553f8e10b25dccd6b5beb1ab",
+      "sizeBytes": 1715471,
+      "configuration": {
+        "Name": "СНЭКС_ЗагрузкаДанныхИзВнешнегоИсточника",
+        "Synonym": "Загрузка данных из внешнего источника",
+        "Comment": null,
+        "ConfigurationExtensionPurpose": "Customization",
+        "NamePrefix": "Загр_",
+        "ScriptVariant": "Russian",
+        "DefaultRoles": null,
+        "Vendor": null,
+        "Version": null,
+        "DefaultLanguage": "Language.Русский"
+      },
+      "kindCounts": {
+        "Catalog": 7,
+        "ChartOfCharacteristicTypes": 1,
+        "CommonModule": 6,
+        "CommonPicture": 5,
+        "DataProcessor": 1,
+        "Enum": 2,
+        "Language": 1,
+        "Role": 1,
+        "StyleItem": 1,
+        "Subsystem": 2
+      },
+      "objectCount": 27,
+      "bslFileCount": 15,
+      "objectsExcludingPictures": [
+        {
+          "kind": "Catalog",
+          "name": "Валюты",
+          "synonym": null
+        },
+        {
+          "kind": "Catalog",
+          "name": "ВидыЦен",
+          "synonym": null
+        },
+        {
+          "kind": "Catalog",
+          "name": "ИдентификаторыОбъектовМетаданных",
+          "synonym": null
+        },
+        {
+          "kind": "Catalog",
+          "name": "Номенклатура",
+          "synonym": null
+        },
+        {
+          "kind": "Catalog",
+          "name": "Пользователи",
+          "synonym": null
+        },
+        {
+          "kind": "Catalog",
+          "name": "Склады",
+          "synonym": null
+        },
+        {
+          "kind": "Catalog",
+          "name": "СтавкиНДС",
+          "synonym": null
+        },
+        {
+          "kind": "ChartOfCharacteristicTypes",
+          "name": "ДополнительныеРеквизитыИСведения",
+          "synonym": null
+        },
+        {
+          "kind": "CommonModule",
+          "name": "ЗагрузкаДанныхИзВнешнегоИсточника",
+          "synonym": "Загрузка данных из внешнего источника"
+        },
+        {
+          "kind": "CommonModule",
+          "name": "ЗагрузкаДанныхИзВнешнегоИсточникаКлиент",
+          "synonym": "Загрузка данных из внешнего источника клиент"
+        },
+        {
+          "kind": "CommonModule",
+          "name": "ЗагрузкаДанныхИзВнешнегоИсточникаКлиентПереопределяемый",
+          "synonym": "Загрузка данных из внешнего источника клиент переопределяемый"
+        },
+        {
+          "kind": "CommonModule",
+          "name": "ЗагрузкаДанныхИзВнешнегоИсточникаПереопределяемый",
+          "synonym": "Загрузка данных из внешнего источника переопределяемый"
+        },
+        {
+          "kind": "CommonModule",
+          "name": "МодификацияКонфигурацииПереопределяемый",
+          "synonym": null
+        },
+        {
+          "kind": "CommonModule",
+          "name": "РаботаСФормой",
+          "synonym": "Работа с формой"
+        },
+        {
+          "kind": "DataProcessor",
+          "name": "ЗагрузкаДанныхИзВнешнегоИсточника",
+          "synonym": "Загрузка данных из внешнего источника"
+        },
+        {
+          "kind": "Enum",
+          "name": "СпособЗагрузкиДанныхИзВнешнихИсточников",
+          "synonym": "Способ загрузки данных из внешних источников"
+        },
+        {
+          "kind": "Enum",
+          "name": "СпособыФормированияСегментов",
+          "synonym": null
+        },
+        {
+          "kind": "Role",
+          "name": "Загр_ОсновнаяРольОбщиеПрава",
+          "synonym": "Загр основная роль общие права"
+        },
+        {
+          "kind": "Subsystem",
+          "name": "Администрирование",
+          "synonym": null
+        },
+        {
+          "kind": "Subsystem",
+          "name": "НСИ",
+          "synonym": null
+        }
+      ]
+    }
+  ]
+}

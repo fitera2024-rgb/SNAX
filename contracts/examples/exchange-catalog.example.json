@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0.0",
+  "catalogId": "d34e6012-5f77-4c93-8e2a-99a3b4c5d6f7",
+  "generatedAt": "2026-09-12T08:20:00Z",
+  "intakeId": "7e2b6a10-4c1e-4f8a-9d3b-21c8a0f5b901",
+  "routes": [
+    {
+      "routeId": "aaaaaaaa-1111-4222-8333-555555555501",
+      "code": "RETAIL_TO_UT",
+      "sourceBase": "RETAIL_CENTRAL",
+      "targetBase": "UT_CENTRAL",
+      "direction": "PUSH",
+      "schedule": "every 15 minutes",
+      "slaMinutes": 30,
+      "controlFields": [
+        "DOCUMENT_COUNT",
+        "AMOUNT_SUM",
+        "POSTED_FLAG",
+        "DEPARTMENT"
+      ],
+      "status": "UNVERIFIED"
+    }
+  ]
+}

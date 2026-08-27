@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://snax.example/contracts/store-day-reconciliation.schema.json",
+  "title": "SNAX Store-Day Reconciliation Protocol",
+  "description": "G1 evidence. Money and quantities are decimal strings. Demo payloads only in Git.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "reconciliationId",
+    "businessDate",
+    "storeCode",
+    "generatedAt",
+    "status",
+    "legs"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^1\\.[0-9]+\\.[0-9]+$"
+    },
+    "reconciliationId": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "businessDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "storeCode": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "intakeId": {
+      "type": ["string", "null"],
+      "format": "uuid"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["DRAFT", "MISMATCH", "EXPLAINED", "ACCEPTED"]
+    },
+    "legs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "legId",
+          "baseCode",
+          "documentCount",
+          "postedCount",
+          "errorCount",
+          "amountSum",
+          "currency"
+        ],
+        "properties": {
+          "legId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "baseCode": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{1,63}$"
+          },
+          "documentCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "postedCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unpostedCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "errorCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "amountSum": {
+            "type": "string",
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "taxSum": {
+            "type": ["string", "null"],
+            "pattern": "^-?[0-9]+(\\.[0-9]+)?$"
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$"
+          },
+          "unknownDepartmentCount": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "issues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "severity", "message"],
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]{2,80}$"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["INFO", "WARNING", "ERROR", "CRITICAL"]
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        }
+      }
+    }
+  }
+}

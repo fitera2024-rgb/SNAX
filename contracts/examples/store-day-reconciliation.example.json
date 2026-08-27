@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0.0",
+  "reconciliationId": "e45f7123-6088-4da4-af3b-00b4c5d6e7a8",
+  "businessDate": "2026-08-15",
+  "storeCode": "STORE_DEMO_01",
+  "generatedAt": "2026-09-20T16:00:00Z",
+  "intakeId": "7e2b6a10-4c1e-4f8a-9d3b-21c8a0f5b901",
+  "status": "MISMATCH",
+  "legs": [
+    {
+      "legId": "aaaaaaaa-1111-4222-8333-666666666601",
+      "baseCode": "RETAIL_CENTRAL",
+      "documentCount": 12,
+      "postedCount": 12,
+      "unpostedCount": 0,
+      "errorCount": 0,
+      "amountSum": "158430.50",
+      "taxSum": "26405.08",
+      "currency": "RUB",
+      "unknownDepartmentCount": 0
+    },
+    {
+      "legId": "aaaaaaaa-1111-4222-8333-666666666602",
+      "baseCode": "UT_CENTRAL",
+      "documentCount": 12,
+      "postedCount": 10,
+      "unpostedCount": 2,
+      "errorCount": 0,
+      "amountSum": "158430.50",
+      "taxSum": "26405.08",
+      "currency": "RUB",
+      "unknownDepartmentCount": 1
+    }
+  ],
+  "issues": [
+    {
+      "code": "UNPOSTED_DOCUMENTS",
+      "severity": "ERROR",
+      "message": "Two documents are written but not posted."
+    },
+    {
+      "code": "UNKNOWN_DEPARTMENT",
+      "severity": "WARNING",
+      "message": "One document has empty department analytics."
+    }
+  ]
+}
