@@ -13,7 +13,7 @@
 
 Корень: 22 элемента, 8 каталогов интервью/ролей и 14 файлов. Новые каталоги дампов (созданы 27.08): `/Розница`, `/УТ Новая`.
 
-Полный перечень имён: [share-inventory.json](share-inventory.json). Коммерческие прайсы и видео не скачивались в Git; у них есть только имя и размер с API.
+Полный перечень имён: [share-inventory.json](share-inventory.json). Все **91** файл шары (~7.05 ГиБ по API) скопированы в карантин `.local/dumps/incoming/yandex-2026-08-27/` на машине агента; в Git их нет. Коммерческие прайсы, выписка и видео **не** индексируются как конфигурация 1С.
 
 ### `/Розница`
 
@@ -106,3 +106,28 @@
 - не заполнять `mdm-object-catalog` экземплярами;
 - не объявлять disposition 14 расширений УТ;
 - не считать план обмена «Розница 2.2» в УТ 11.5 доказательством текущего hop.
+
+## 8. Индекс и MCP
+
+Публичные индексы в Git: компактные JSON полных конфигураций + пообъектные JSON шести расширений. **Нет** тел BSL, **нет** массивов имён процедур, **нет** данных ИБ.
+
+| Артефакт | Где |
+|---|---|
+| Компактный индекс Розницы | [retail-config-index.json](retail-config-index.json) |
+| Компактный индекс УТ | [ut-config-index.json](ut-config-index.json) |
+| Расширения | [indexes/](indexes/) |
+| MCP Cursor | `.cursor/mcp.json` → сервер `snax-1c` (`scripts/snax_1c_mcp.py`) |
+
+После `git pull` локально: Cursor → Settings → MCP → включить `snax-1c`. Инструменты: `list_1c_dumps`, `search_1c_metadata`, `get_1c_object` (плюс совместимые `search_retail_catalogs` / `get_retail_catalog` / `retail_dump_stats`). Облачный агент этот сервер к уже запущенной сессии не подключает.
+
+Это не установка БСП в базу 1С и не загрузка XML в конфигуратор.
+
+Пересобрать компактный индекс (zip только в `.local`):
+
+```bash
+python3 scripts/index_1c_xml_config_dump.py \
+  --zip ".local/dumps/incoming/yandex-2026-08-27/Розница/ConfigFiles.zip" \
+  --json-out docs/research/2026-08-27/retail-config-index.json \
+  --intake-id a19e6c40-7b2d-4f11-8c55-2d9a0b47e801 \
+  --source-file-name ConfigFiles.zip
+```

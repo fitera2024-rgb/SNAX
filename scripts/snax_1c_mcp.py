@@ -89,7 +89,9 @@ def normalize_index_payload(payload: dict[str, Any], path: Path) -> dict[str, An
         }
     objects = payload.get("objects")
     if isinstance(objects, dict):
-        dump_id, contour = COMPACT_DUMP_IDS.get(path.name, (path.stem, payload.get("contour")))
+        dump_id, contour = COMPACT_DUMP_IDS.get(
+            path.name, (path.stem, payload.get("contour"))
+        )
         forus_keys = {
             (str(item.get("kind")), str(item.get("name")))
             for item in payload.get("forusNamedObjects") or []
