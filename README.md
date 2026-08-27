@@ -25,6 +25,7 @@
 - [Архитектурное решение](adr/ADR-001-hybrid-architecture.md)
 - [ADR-002: приемка поставки](adr/ADR-002-receiving-workflow.md)
 - [Программный backlog](tasks/IMPLEMENTATION_BACKLOG.md)
+- [Технический план: папка файлов и выгрузки баз](docs/plans/TECHNICAL_PLAN_FOLDER_AND_DUMPS.md)
 - [Процесс выполнения работ](docs/WORK_PROCESS.md)
 - [WORK-001: bootstrap web-сервиса](tasks/WORK-001-web-bootstrap.md)
 - [WORK-003: очередь, transactional outbox и worker](tasks/WORK-003-queue-outbox-worker.md)
