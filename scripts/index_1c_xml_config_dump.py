@@ -41,7 +41,7 @@ KIND_DIRS = {
     "Subsystems": "Subsystem",
     "ChartsOfCharacteristicTypes": "ChartOfCharacteristicTypes",
 }
-FORUS_MARKERS = ("снэкс", "форус", "forus", "maxma")
+FORUS_MARKERS = ("снэкс", "форус")
 
 
 def local_tag(tag: str) -> str:
