@@ -1,6 +1,6 @@
 # Точные действия и план · после XML Розницы · 26.08.2026
 
-Это операционный чек-лист. Программный план пакетов AP-0…AP-8 не заменяется: [TECHNICAL_ACTION_PLAN.md](../../TECHNICAL_ACTION_PLAN.md). Календарь ворот: [SCHEDULE.md](../../SCHEDULE.md). Приём файла: [dump-intake-RETAIL-XML.md](dump-intake-RETAIL-XML.md).
+Это операционный чек-лист на 26.08 (Catalogs-zip). Обновление после полных XML 27.08: [../2026-08-27/ACTION_PLAN.md](../2026-08-27/ACTION_PLAN.md). Программный план пакетов AP-0…AP-8 не заменяется: [TECHNICAL_ACTION_PLAN.md](../../TECHNICAL_ACTION_PLAN.md). Календарь ворот: [SCHEDULE.md](../../SCHEDULE.md). Приём файла: [dump-intake-RETAIL-XML.md](dump-intake-RETAIL-XML.md).
 
 Открытые D-01…D-48 **не угадываются**. G1 **не открывается** с одним ZIP справочников.
 

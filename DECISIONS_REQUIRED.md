@@ -48,6 +48,6 @@
 
 Выгрузки принимаются по [DATA_DUMP_INTAKE.md](docs/DATA_DUMP_INTAKE.md). Payload DT/CF/XML в Git запрещён.
 
-26.08.2026 принят **частичный** XML Розницы (только метаданные справочников). Это не закрывает D-47: нет релиза, данных магазинов, УТ и БП. Разбор: [docs/research/2026-08-26/dump-intake-RETAIL-XML.md](docs/research/2026-08-26/dump-intake-RETAIL-XML.md).
+26.08.2026 принят **частичный** XML Розницы (только метаданные справочников). 27.08.2026 с https://disk.yandex.ru/d/dfKzWDC27vtTFg приняты полные XML Розницы 3.0.13.342 и УТ 11.5.22.164 плюс 6 XML расширений. Это всё ещё не закрывает D-47: нет данных магазинов, нет БП, список расширений УТ неполный, роли узлов не подтверждены. Разбор: [docs/research/2026-08-27/dump-intake-YANDEX-2026-08-27.md](docs/research/2026-08-27/dump-intake-YANDEX-2026-08-27.md).
 
 Очередь работ по архитектуре и доработкам AS-IS: [docs/TECHNICAL_ACTION_PLAN.md](docs/TECHNICAL_ACTION_PLAN.md).

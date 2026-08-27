@@ -84,7 +84,9 @@ Object key формирует сервис/оператор, не пользов
 
 Это позволяет зелёные contract tests и TASK-037 без реальных баз.
 
-Первый реальный (частичный) intake: [research/2026-08-26/dump-intake-RETAIL-XML.md](research/2026-08-26/dump-intake-RETAIL-XML.md). Он **не** заменяет synthetic examples и **не** закрывает D-47.
+Первый реальный (частичный) intake: [research/2026-08-26/dump-intake-RETAIL-XML.md](research/2026-08-26/dump-intake-RETAIL-XML.md) — только Catalogs Розницы.
+
+Второй intake 27.08.2026: публичная папка https://disk.yandex.ru/d/dfKzWDC27vtTFg — полные XML Розницы 3.0.13.342 и УТ 11.5.22.164 плюс 6 XML расширений. Нет DT/данных, нет БП, список расширений УТ неполный. Разбор: [research/2026-08-27/dump-intake-YANDEX-2026-08-27.md](research/2026-08-27/dump-intake-YANDEX-2026-08-27.md). **Не** заменяет synthetic examples и **не** закрывает D-47.
 
 ## 8. Сдвиг плана
 

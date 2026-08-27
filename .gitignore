@@ -60,3 +60,6 @@ fixtures/raw/
 *.dt
 *.cf
 *.cfe
+*.v8i
+*.v8i
+ibases*.v8i

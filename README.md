@@ -28,6 +28,7 @@
 - [Календарный график v3.0](docs/SCHEDULE.md)
 - [Приём выгрузок баз](docs/DATA_DUMP_INTAKE.md)
 - [Реестр требований v1.2](docs/research/2026-08-26/README.md)
+- [Приём шары Яндекс.Диска 27.08.2026](docs/research/2026-08-27/README.md)
 - [Техническое задание](docs/TZ.md)
 - [Функционально-техническая спецификация сервиса](docs/SPEC.md)
 - [Дополнение 2.1: автоматизация приемки](docs/TZ_ADDENDUM_RECEIVING.md)

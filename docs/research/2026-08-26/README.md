@@ -19,6 +19,7 @@
 | Календарный график | 3.0 | Пересчёт сроков | [../../SCHEDULE.md](../../SCHEDULE.md) |
 | Приём XML Розницы | 26.08.2026 | Частичный dump: только Catalogs, без данных ИБ | [dump-intake-RETAIL-XML.md](dump-intake-RETAIL-XML.md) · [манифест](config-dump-manifest.retail-xml.sanitized.json) · [индекс](retail-catalogs-index.json) |
 | Действия после XML | 26.08.2026 | Точный чек-лист: MCP, следующие выгрузки, оси A/B, ворота | [ACTION_PLAN.md](ACTION_PLAN.md) |
+| Шара Яндекс.Диска | 27.08.2026 | Полные XML Розницы и УТ, 6 расширений; D-47 всё ещё открыт | [../2026-08-27/README.md](../2026-08-27/README.md) |
 
 SHA-256 реестра Excel: `f3306f79184c9d6706b4578ee20d383ff0850a040aa7ba3be0e130a98a70a122`.
 

@@ -55,6 +55,49 @@ def test_retail_xml_sanitized_manifest_passes() -> None:
     assert payload["bases"][0]["status"] == "UNVERIFIED"
 
 
+def test_yandex_share_sanitized_manifest_passes() -> None:
+    import json
+
+    validator = Draft202012Validator(_load("schemas/config-dump-manifest.schema.json"))
+    manifest_path = (
+        ROOT
+        / "docs"
+        / "research"
+        / "2026-08-27"
+        / "config-dump-manifest.yandex-share.sanitized.json"
+    )
+    payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert not list(validator.iter_errors(payload))
+    assert payload["gitPolicy"] == "DO_NOT_COMMIT_PAYLOAD"
+    assert payload["bases"][0]["status"] == "UNVERIFIED"
+    assert payload["bases"][1]["status"] == "UNVERIFIED"
+    assert payload["bases"][0]["configurationVersion"] == "3.0.13.342"
+    assert payload["bases"][1]["configurationVersion"] == "11.5.22.164"
+    assert {item["kind"] for item in payload["artifacts"]} == {"XML_CONFIG"}
+    assert {item["fileName"] for item in payload["artifacts"]} == {
+        "ConfigFiles.zip",
+        "F.zip",
+        "F-2.zip",
+        "Forus-1.zip",
+        "maxma.zip",
+        "YT.zip",
+        "YT-1.zip",
+        "YT-2.zip",
+    }
+
+
+def test_extension_passport_draft_passes() -> None:
+    import json
+
+    validator = Draft202012Validator(_load("schemas/extension-passport.schema.json"))
+    path = ROOT / "docs" / "research" / "2026-08-27" / "extension-passport.draft.sanitized.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    assert not list(validator.iter_errors(payload))
+    assert all(item["disposition"] == "UNDECIDED" for item in payload["extensions"])
+    assert all(item["status"] == "UNVERIFIED" for item in payload["extensions"])
+    assert len(payload["extensions"]) == 6
+
+
 def test_retail_xml_payload_is_not_in_git_tree() -> None:
     import subprocess
 
@@ -65,8 +108,12 @@ def test_retail_xml_payload_is_not_in_git_tree() -> None:
     lowered = listed.lower()
     assert "roznitsaxml.zip" not in lowered
     assert "розницаxml.zip" not in listed.lower()
+    assert "configfiles.zip" not in lowered
+    assert "ibases_snax" not in lowered
+    forbidden_suffixes = (".v8i", ".dt", ".cf", ".cfe")
     for line in listed.splitlines():
-        assert not line.endswith(".dt")
-        assert not line.endswith(".cf")
-        assert not line.endswith(".cfe")
-        assert "/Catalogs/" not in line
+        lower_line = line.lower()
+        assert not lower_line.endswith(forbidden_suffixes)
+        assert "/catalogs/" not in lower_line
+        assert "parentconfigurations/" not in lower_line
+        assert Path(line).name.lower() not in {"yt.zip", "configfiles.zip", "f.zip", "maxma.zip"}
