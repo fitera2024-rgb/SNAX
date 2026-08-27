@@ -32,6 +32,7 @@
 - [ADR-003: очередь и recovery](adr/ADR-003-queue-outbox-worker.md)
 - [Prompt Codex Cloud для WORK-001](CODEX_WORK_001_PROMPT.md)
 - [Начальный prompt для Codex](CODEX_INITIAL_PROMPT.md)
+- [Промпт для Cursor: план по папке и выгрузкам](CURSOR_PROMPT_TECHNICAL_PLAN.md)
 - [OpenAPI](contracts/openapi.yaml)
 - [JSON Schema пакета](contracts/schemas/import-package.schema.json)
 - [JSON Schema синхронизации связей](contracts/schemas/mapping-sync.schema.json)
