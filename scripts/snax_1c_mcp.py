@@ -33,9 +33,11 @@ COMPACT_DUMP_IDS = {
 }
 
 
-def resolve_index_dirs() -> list[Path]:
-    if len(sys.argv) > 1:
-        return [Path(argument) for argument in sys.argv[1:]]
+def resolve_index_dirs(argv: list[str] | None = None) -> list[Path]:
+    argv = list(sys.argv if argv is None else argv)
+    script = Path(__file__).resolve()
+    if argv and Path(argv[0]).resolve() == script and len(argv) > 1:
+        return [Path(argument) for argument in argv[1:]]
     return list(INDEX_DIRS)
 
 
@@ -89,9 +91,7 @@ def normalize_index_payload(payload: dict[str, Any], path: Path) -> dict[str, An
         }
     objects = payload.get("objects")
     if isinstance(objects, dict):
-        dump_id, contour = COMPACT_DUMP_IDS.get(
-            path.name, (path.stem, payload.get("contour"))
-        )
+        dump_id, contour = COMPACT_DUMP_IDS.get(path.name, (path.stem, payload.get("contour")))
         forus_keys = {
             (str(item.get("kind")), str(item.get("name")))
             for item in payload.get("forusNamedObjects") or []
