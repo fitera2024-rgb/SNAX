@@ -1,0 +1,142 @@
+name: SN111 Yandex Disk inventory
+
+on:
+  push:
+    branches:
+      - automation/sn111-training-pack-20260901
+    paths:
+      - .github/workflows/sn111-yadisk-inventory.yml
+
+permissions:
+  contents: read
+
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Read public folder metadata recursively
+        env:
+          PUBLIC_KEY: https://disk.yandex.ru/d/-yUlF0K-Ot1ZoA
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import time
+          import urllib.parse
+          import urllib.request
+          from pathlib import Path
+
+          PUBLIC_KEY = os.environ["PUBLIC_KEY"]
+          API = "https://cloud-api.yandex.net/v1/disk/public/resources"
+          out = Path("sn111_inventory")
+          out.mkdir(exist_ok=True)
+
+          def request_json(params, retries=5):
+              url = API + "?" + urllib.parse.urlencode(params)
+              last = None
+              for attempt in range(retries):
+                  try:
+                      req = urllib.request.Request(url, headers={"User-Agent": "SN111-training-inventory/1.0"})
+                      with urllib.request.urlopen(req, timeout=60) as resp:
+                          return json.load(resp)
+                  except Exception as exc:
+                      last = exc
+                      time.sleep(2 ** attempt)
+              raise RuntimeError(f"Yandex API request failed: {last}")
+
+          items = []
+          seen_dirs = set()
+
+          def normalize_path(path):
+              if not path:
+                  return "/"
+              if path.startswith("disk:"):
+                  path = path[5:]
+              if not path.startswith("/"):
+                  path = "/" + path
+              return path
+
+          def walk(path="/"):
+              path = normalize_path(path)
+              if path in seen_dirs:
+                  return
+              seen_dirs.add(path)
+              offset = 0
+              while True:
+                  data = request_json({
+                      "public_key": PUBLIC_KEY,
+                      "path": path,
+                      "limit": 1000,
+                      "offset": offset,
+                      "sort": "name",
+                  })
+                  embedded = data.get("_embedded") or {}
+                  batch = embedded.get("items") or []
+                  for raw in batch:
+                      record = {
+                          "name": raw.get("name"),
+                          "path": normalize_path(raw.get("path") or (path.rstrip("/") + "/" + (raw.get("name") or ""))),
+                          "type": raw.get("type"),
+                          "mime_type": raw.get("mime_type"),
+                          "media_type": raw.get("media_type"),
+                          "size": raw.get("size"),
+                          "created": raw.get("created"),
+                          "modified": raw.get("modified"),
+                          "md5": raw.get("md5"),
+                          "sha256": raw.get("sha256"),
+                          "preview": raw.get("preview"),
+                      }
+                      items.append(record)
+                      if record["type"] == "dir":
+                          walk(record["path"])
+                  total = embedded.get("total", len(batch))
+                  offset += len(batch)
+                  if not batch or offset >= total:
+                      break
+
+          root = request_json({"public_key": PUBLIC_KEY, "limit": 1})
+          walk("/")
+          items.sort(key=lambda x: (x.get("path") or "").casefold())
+
+          manifest = {
+              "public_key": PUBLIC_KEY,
+              "root": {
+                  "name": root.get("name"),
+                  "type": root.get("type"),
+                  "created": root.get("created"),
+                  "modified": root.get("modified"),
+              },
+              "items": items,
+          }
+          (out / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+
+          total_bytes = sum((i.get("size") or 0) for i in items if i.get("type") == "file")
+          files = [i for i in items if i.get("type") == "file"]
+          dirs = [i for i in items if i.get("type") == "dir"]
+          lines = [
+              f"Root: {root.get('name')}",
+              f"Directories: {len(dirs)}",
+              f"Files: {len(files)}",
+              f"Total bytes: {total_bytes}",
+              "",
+          ]
+          for i in items:
+              size = i.get("size")
+              size_text = "" if size is None else str(size)
+              lines.append(f"{i.get('type','?'):4}  {size_text:>12}  {i.get('mime_type') or i.get('media_type') or '':30}  {i.get('path')}")
+          (out / "tree.txt").write_text("\n".join(lines), encoding="utf-8")
+          print("\n".join(lines[:25]))
+          print(f"Inventory written: {out.resolve()}")
+          PY
+      - name: Upload inventory
+        uses: actions/upload-artifact@v4
+        with:
+          name: sn111-yadisk-inventory
+          path: sn111_inventory
+          if-no-files-found: error
+          retention-days: 7
