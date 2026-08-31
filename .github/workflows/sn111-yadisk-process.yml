@@ -1,0 +1,443 @@
+name: SN111 Yandex Disk media processing
+
+on:
+  push:
+    branches:
+      - automation/sn111-training-pack-20260901
+    paths:
+      - .github/workflows/sn111-yadisk-process.yml
+
+permissions:
+  contents: read
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      PUBLIC_KEY: https://disk.yandex.ru/d/-yUlF0K-Ot1ZoA
+      PYTHONUNBUFFERED: "1"
+      HF_HUB_DISABLE_TELEMETRY: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install media and transcription dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg
+          python -m pip install --upgrade pip
+          python -m pip install "faster-whisper>=1.1,<2" "Pillow>=10,<12"
+      - name: Download, normalize, frame and transcribe all materials
+        run: |
+          cat > /tmp/process_sn111.py <<'PY'
+          from __future__ import annotations
+
+          import csv
+          import json
+          import math
+          import os
+          import re
+          import shutil
+          import subprocess
+          import sys
+          import time
+          import traceback
+          import unicodedata
+          import urllib.parse
+          import urllib.request
+          from datetime import datetime, timezone
+          from pathlib import Path
+          from typing import Any
+
+          from faster_whisper import WhisperModel
+          from PIL import Image, ImageDraw, ImageFont, ImageOps
+
+          PUBLIC_KEY = os.environ["PUBLIC_KEY"]
+          META_API = "https://cloud-api.yandex.net/v1/disk/public/resources"
+          DOWNLOAD_API = "https://cloud-api.yandex.net/v1/disk/public/resources/download"
+          ROOT = Path("sn111_output")
+          INVENTORY_DIR = ROOT / "00_inventory"
+          PHOTOS_DIR = ROOT / "01_photos"
+          FRAMES_DIR = ROOT / "02_video_frames"
+          TRANSCRIPTS_DIR = ROOT / "03_transcripts"
+          AUDIO_DIR = ROOT / "04_audio"
+          CONTACT_DIR = ROOT / "05_contact_sheets"
+          LOG_DIR = ROOT / "99_logs"
+          WORK = Path("sn111_work")
+          for directory in [INVENTORY_DIR, PHOTOS_DIR, FRAMES_DIR, TRANSCRIPTS_DIR, AUDIO_DIR, CONTACT_DIR, LOG_DIR, WORK]:
+              directory.mkdir(parents=True, exist_ok=True)
+
+          log_path = LOG_DIR / "processing.log"
+
+          def log(message: str) -> None:
+              stamp = datetime.now(timezone.utc).isoformat(timespec="seconds")
+              line = f"[{stamp}] {message}"
+              print(line, flush=True)
+              with log_path.open("a", encoding="utf-8") as fh:
+                  fh.write(line + "\n")
+
+          def request_json(base_url: str, params: dict[str, Any], retries: int = 6) -> dict[str, Any]:
+              url = base_url + "?" + urllib.parse.urlencode(params)
+              last: Exception | None = None
+              for attempt in range(retries):
+                  try:
+                      req = urllib.request.Request(url, headers={"User-Agent": "SN111-training-processor/1.0"})
+                      with urllib.request.urlopen(req, timeout=90) as resp:
+                          return json.load(resp)
+                  except Exception as exc:
+                      last = exc
+                      delay = min(60, 2 ** attempt)
+                      log(f"API retry {attempt + 1}/{retries} after {type(exc).__name__}: {exc}; sleep {delay}s")
+                      time.sleep(delay)
+              raise RuntimeError(f"Yandex API request failed: {last}")
+
+          def normalize_path(path: str | None) -> str:
+              if not path:
+                  return "/"
+              if path.startswith("disk:"):
+                  path = path[5:]
+              if not path.startswith("/"):
+                  path = "/" + path
+              return path
+
+          def list_all_items() -> tuple[dict[str, Any], list[dict[str, Any]]]:
+              root = request_json(META_API, {"public_key": PUBLIC_KEY, "limit": 1})
+              items: list[dict[str, Any]] = []
+              seen_dirs: set[str] = set()
+
+              def walk(path: str = "/") -> None:
+                  path = normalize_path(path)
+                  if path in seen_dirs:
+                      return
+                  seen_dirs.add(path)
+                  offset = 0
+                  while True:
+                      data = request_json(META_API, {
+                          "public_key": PUBLIC_KEY,
+                          "path": path,
+                          "limit": 1000,
+                          "offset": offset,
+                          "sort": "name",
+                      })
+                      embedded = data.get("_embedded") or {}
+                      batch = embedded.get("items") or []
+                      for raw in batch:
+                          item = dict(raw)
+                          item["path"] = normalize_path(raw.get("path") or (path.rstrip("/") + "/" + (raw.get("name") or "")))
+                          items.append(item)
+                          if item.get("type") == "dir":
+                              walk(item["path"])
+                      total = embedded.get("total", len(batch))
+                      offset += len(batch)
+                      if not batch or offset >= total:
+                          break
+
+              walk("/")
+              items.sort(key=lambda x: (x.get("path") or "").casefold())
+              return root, items
+
+          def download_file(resource_path: str, destination: Path, expected_size: int | None = None) -> None:
+              destination.parent.mkdir(parents=True, exist_ok=True)
+              tmp = destination.with_suffix(destination.suffix + ".part")
+              tmp.unlink(missing_ok=True)
+              last: Exception | None = None
+              for attempt in range(6):
+                  try:
+                      link = request_json(DOWNLOAD_API, {"public_key": PUBLIC_KEY, "path": resource_path})["href"]
+                      req = urllib.request.Request(link, headers={"User-Agent": "SN111-training-processor/1.0"})
+                      with urllib.request.urlopen(req, timeout=180) as resp, tmp.open("wb") as out:
+                          shutil.copyfileobj(resp, out, length=1024 * 1024)
+                      if expected_size and tmp.stat().st_size != expected_size:
+                          raise IOError(f"size mismatch: expected {expected_size}, got {tmp.stat().st_size}")
+                      tmp.replace(destination)
+                      return
+                  except Exception as exc:
+                      last = exc
+                      tmp.unlink(missing_ok=True)
+                      delay = min(90, 3 * (2 ** attempt))
+                      log(f"Download retry {attempt + 1}/6 for {resource_path}: {exc}; sleep {delay}s")
+                      time.sleep(delay)
+              raise RuntimeError(f"Download failed for {resource_path}: {last}")
+
+          def safe_component(value: str, max_len: int = 110) -> str:
+              value = unicodedata.normalize("NFC", value)
+              value = re.sub(r"[\\/:*?\"<>|]+", "_", value)
+              value = re.sub(r"\s+", " ", value).strip(" ._")
+              return (value or "file")[:max_len]
+
+          def run(cmd: list[str], check: bool = True) -> subprocess.CompletedProcess[str]:
+              log("RUN " + " ".join(cmd))
+              return subprocess.run(cmd, check=check, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+          def ffprobe(path: Path) -> dict[str, Any]:
+              result = run([
+                  "ffprobe", "-v", "error", "-print_format", "json",
+                  "-show_format", "-show_streams", str(path),
+              ])
+              return json.loads(result.stdout)
+
+          def fmt_ts(seconds: float, srt: bool = False) -> str:
+              if not math.isfinite(seconds):
+                  seconds = 0.0
+              millis = max(0, int(round(seconds * 1000)))
+              h, rem = divmod(millis, 3_600_000)
+              m, rem = divmod(rem, 60_000)
+              s, ms = divmod(rem, 1000)
+              sep = "," if srt else "."
+              return f"{h:02d}:{m:02d}:{s:02d}{sep}{ms:03d}"
+
+          def create_contact_sheets(frame_dir: Path, destination_dir: Path, interval: float) -> int:
+              frames = sorted(frame_dir.glob("frame_*.jpg"))
+              if not frames:
+                  return 0
+              destination_dir.mkdir(parents=True, exist_ok=True)
+              columns = 4
+              rows = 4
+              cell_w, cell_h = 400, 260
+              label_h = 28
+              page_size = columns * rows
+              font = ImageFont.load_default()
+              pages = 0
+              for page_start in range(0, len(frames), page_size):
+                  page_frames = frames[page_start:page_start + page_size]
+                  canvas = Image.new("RGB", (columns * cell_w, rows * (cell_h + label_h)), "white")
+                  draw = ImageDraw.Draw(canvas)
+                  for local_index, frame_path in enumerate(page_frames):
+                      global_index = page_start + local_index
+                      with Image.open(frame_path) as image:
+                          image = ImageOps.exif_transpose(image).convert("RGB")
+                          image.thumbnail((cell_w, cell_h), Image.Resampling.LANCZOS)
+                          x = (local_index % columns) * cell_w + (cell_w - image.width) // 2
+                          y = (local_index // columns) * (cell_h + label_h) + (cell_h - image.height) // 2
+                          canvas.paste(image, (x, y))
+                      seconds = global_index * interval
+                      label = f"{global_index + 1:04d}  {fmt_ts(seconds)}"
+                      tx = (local_index % columns) * cell_w + 8
+                      ty = (local_index // columns) * (cell_h + label_h) + cell_h + 5
+                      draw.text((tx, ty), label, fill="black", font=font)
+                  pages += 1
+                  canvas.save(destination_dir / f"sheet_{pages:03d}.jpg", "JPEG", quality=84, optimize=True)
+              return pages
+
+          root, items = list_all_items()
+          files = [i for i in items if i.get("type") == "file"]
+          images = [i for i in files if (i.get("mime_type") or "").startswith("image/")]
+          videos = [i for i in files if (i.get("mime_type") or "").startswith("video/")]
+          total_bytes = sum(int(i.get("size") or 0) for i in files)
+          manifest = {
+              "source": PUBLIC_KEY,
+              "generated_at": datetime.now(timezone.utc).isoformat(),
+              "root_name": root.get("name"),
+              "file_count": len(files),
+              "image_count": len(images),
+              "video_count": len(videos),
+              "total_bytes": total_bytes,
+              "items": items,
+          }
+          (INVENTORY_DIR / "source_manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+          log(f"Inventory: {len(images)} images, {len(videos)} videos, {total_bytes} bytes")
+
+          media_rows: list[dict[str, Any]] = []
+          failures: list[dict[str, str]] = []
+
+          # Normalize every photograph for readable training materials.
+          for index, item in enumerate(images, 1):
+              src_path = item["path"]
+              original_name = item.get("name") or Path(src_path).name
+              stem = safe_component(Path(original_name).stem)
+              out_name = f"P{index:03d}_{stem}.jpg"
+              tmp = WORK / f"photo_{index:03d}{Path(original_name).suffix or '.jpg'}"
+              out_path = PHOTOS_DIR / out_name
+              try:
+                  log(f"PHOTO {index}/{len(images)} {src_path}")
+                  download_file(src_path, tmp, int(item.get("size") or 0) or None)
+                  with Image.open(tmp) as image:
+                      image = ImageOps.exif_transpose(image).convert("RGB")
+                      image.thumbnail((2200, 2200), Image.Resampling.LANCZOS)
+                      image.save(out_path, "JPEG", quality=90, optimize=True, progressive=True)
+                      width, height = image.size
+                  media_rows.append({
+                      "id": f"P{index:03d}", "kind": "photo", "source_path": src_path,
+                      "source_name": original_name, "source_size": item.get("size"),
+                      "local_name": out_name, "width": width, "height": height,
+                      "duration_seconds": "", "frame_interval_seconds": "", "status": "ok",
+                  })
+              except Exception as exc:
+                  failures.append({"path": src_path, "error": repr(exc), "traceback": traceback.format_exc()})
+                  log(f"PHOTO FAILED {src_path}: {exc}")
+              finally:
+                  tmp.unlink(missing_ok=True)
+
+          log("Loading Whisper medium model (CPU int8)")
+          model = WhisperModel("medium", device="cpu", compute_type="int8", cpu_threads=max(2, os.cpu_count() or 4), num_workers=1)
+          prompt = (
+              "Инструкция по установке торговой точки SNAX (Снекс). Термины: Форус, Фронтол, 1С, УТ, БП, "
+              "ККТ, онлайн-касса, фискальный накопитель, ФН, ОФД, КСО, касса самообслуживания, "
+              "термопринтер, этикетка, штрих-код, QR-код, DataMatrix, Честный знак, сканер, "
+              "роутер, точка доступа Wi-Fi, ИБП, RJ-45, денежный ящик, первый чек."
+          )
+
+          for index, item in enumerate(videos, 1):
+              src_path = item["path"]
+              original_name = item.get("name") or Path(src_path).name
+              stem = safe_component(Path(original_name).stem)
+              media_id = f"V{index:03d}"
+              base = f"{media_id}_{stem}"
+              tmp_video = WORK / f"{media_id}.mp4"
+              audio_path = AUDIO_DIR / f"{base}.mp3"
+              frame_dir = FRAMES_DIR / base
+              contact_dir = CONTACT_DIR / base
+              transcript_txt = TRANSCRIPTS_DIR / f"{base}.txt"
+              transcript_srt = TRANSCRIPTS_DIR / f"{base}.srt"
+              transcript_json = TRANSCRIPTS_DIR / f"{base}.json"
+              try:
+                  log(f"VIDEO {index}/{len(videos)} {src_path}")
+                  download_file(src_path, tmp_video, int(item.get("size") or 0) or None)
+                  probe = ffprobe(tmp_video)
+                  fmt = probe.get("format") or {}
+                  streams = probe.get("streams") or []
+                  duration = float(fmt.get("duration") or 0.0)
+                  vstream = next((s for s in streams if s.get("codec_type") == "video"), {})
+                  astream = next((s for s in streams if s.get("codec_type") == "audio"), {})
+                  width = int(vstream.get("width") or 0)
+                  height = int(vstream.get("height") or 0)
+                  important = any(token in original_name.casefold() for token in ["форус", "настр", "штрих", "qr", "сканирован", "первому покупателю"])
+                  interval = 2.0 if important else 4.0
+
+                  # Audio for verification and transcription.
+                  run([
+                      "ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-i", str(tmp_video),
+                      "-vn", "-ac", "1", "-ar", "16000", "-codec:a", "libmp3lame", "-b:a", "48k", str(audio_path),
+                  ])
+
+                  # Fixed-interval frames retain the full chronology and make every UI change reviewable.
+                  frame_dir.mkdir(parents=True, exist_ok=True)
+                  vf = f"fps=1/{interval:g},scale='if(gt(iw,1600),1600,iw)':-2"
+                  run([
+                      "ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-i", str(tmp_video),
+                      "-vf", vf, "-q:v", "4", str(frame_dir / "frame_%05d.jpg"),
+                  ])
+                  frame_count = len(list(frame_dir.glob("frame_*.jpg")))
+                  sheet_count = create_contact_sheets(frame_dir, contact_dir, interval)
+
+                  log(f"TRANSCRIBE {media_id}: duration={duration:.1f}s, frames={frame_count}")
+                  segments_iter, info = model.transcribe(
+                      str(audio_path), language="ru", beam_size=5, best_of=5,
+                      vad_filter=True, word_timestamps=True, initial_prompt=prompt,
+                      condition_on_previous_text=True,
+                  )
+                  segments_payload: list[dict[str, Any]] = []
+                  for segment in segments_iter:
+                      words = []
+                      for word in (segment.words or []):
+                          words.append({
+                              "start": word.start, "end": word.end,
+                              "word": word.word, "probability": word.probability,
+                          })
+                      segments_payload.append({
+                          "id": segment.id, "start": segment.start, "end": segment.end,
+                          "text": segment.text.strip(), "avg_logprob": segment.avg_logprob,
+                          "no_speech_prob": segment.no_speech_prob, "words": words,
+                      })
+
+                  transcript_txt.write_text(
+                      "\n".join(f"[{fmt_ts(s['start'])} --> {fmt_ts(s['end'])}] {s['text']}" for s in segments_payload) + "\n",
+                      encoding="utf-8",
+                  )
+                  with transcript_srt.open("w", encoding="utf-8") as fh:
+                      for number, segment in enumerate(segments_payload, 1):
+                          fh.write(f"{number}\n{fmt_ts(segment['start'], True)} --> {fmt_ts(segment['end'], True)}\n{segment['text']}\n\n")
+                  transcript_json.write_text(json.dumps({
+                      "source_path": src_path,
+                      "source_name": original_name,
+                      "duration_seconds": duration,
+                      "detected_language": info.language,
+                      "language_probability": info.language_probability,
+                      "frame_interval_seconds": interval,
+                      "segments": segments_payload,
+                  }, ensure_ascii=False, indent=2), encoding="utf-8")
+
+                  media_rows.append({
+                      "id": media_id, "kind": "video", "source_path": src_path,
+                      "source_name": original_name, "source_size": item.get("size"),
+                      "local_name": base, "width": width, "height": height,
+                      "duration_seconds": f"{duration:.3f}",
+                      "frame_interval_seconds": f"{interval:g}", "status": "ok",
+                      "has_audio": bool(astream), "frame_count": frame_count,
+                      "contact_sheet_count": sheet_count,
+                  })
+              except Exception as exc:
+                  failures.append({"path": src_path, "error": repr(exc), "traceback": traceback.format_exc()})
+                  log(f"VIDEO FAILED {src_path}: {exc}")
+              finally:
+                  tmp_video.unlink(missing_ok=True)
+
+          fieldnames = sorted({key for row in media_rows for key in row.keys()})
+          with (INVENTORY_DIR / "media_index.csv").open("w", newline="", encoding="utf-8-sig") as fh:
+              writer = csv.DictWriter(fh, fieldnames=fieldnames)
+              writer.writeheader()
+              writer.writerows(media_rows)
+          (INVENTORY_DIR / "failures.json").write_text(json.dumps(failures, ensure_ascii=False, indent=2), encoding="utf-8")
+          summary = {
+              "processed_rows": len(media_rows),
+              "failures": len(failures),
+              "photos_output": len(list(PHOTOS_DIR.glob("*.jpg"))),
+              "videos_with_transcripts": len(list(TRANSCRIPTS_DIR.glob("*.json"))),
+              "generated_at": datetime.now(timezone.utc).isoformat(),
+          }
+          (INVENTORY_DIR / "processing_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+          log(f"DONE {json.dumps(summary, ensure_ascii=False)}")
+          if failures:
+              log("Some files failed; partial artifacts will still be uploaded.")
+          PY
+          python /tmp/process_sn111.py
+      - name: Upload inventory and transcripts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sn111-inventory-transcripts
+          path: |
+            sn111_output/00_inventory
+            sn111_output/03_transcripts
+            sn111_output/99_logs
+          if-no-files-found: warn
+          retention-days: 7
+          compression-level: 6
+      - name: Upload normalized photos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sn111-photos
+          path: sn111_output/01_photos
+          if-no-files-found: warn
+          retention-days: 7
+          compression-level: 0
+      - name: Upload video frames
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sn111-video-frames
+          path: sn111_output/02_video_frames
+          if-no-files-found: warn
+          retention-days: 7
+          compression-level: 0
+      - name: Upload contact sheets
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sn111-contact-sheets
+          path: sn111_output/05_contact_sheets
+          if-no-files-found: warn
+          retention-days: 7
+          compression-level: 0
+      - name: Upload verification audio
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sn111-audio
+          path: sn111_output/04_audio
+          if-no-files-found: warn
+          retention-days: 7
+          compression-level: 0
