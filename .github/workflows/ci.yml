@@ -2,6 +2,8 @@ name: CI
 
 on:
   push:
+    branches-ignore:
+      - automation/sn111-training-pack-20260901
   pull_request:
 
 jobs:
