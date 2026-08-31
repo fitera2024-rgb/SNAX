@@ -1,0 +1,41 @@
+name: SN111 parallel photo groups
+
+on:
+  push:
+    branches:
+      - automation/sn111-training-pack-20260901
+    paths:
+      - .github/workflows/sn111-photo-groups.yml
+
+permissions:
+  contents: read
+
+jobs:
+  photos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        group: [0, 1, 2, 3]
+    env:
+      PUBLIC_KEY: https://disk.yandex.ru/d/-yUlF0K-Ot1ZoA
+      GROUP: ${{ matrix.group }}
+      GROUPS: "4"
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install "Pillow>=10,<12"
+      - run: python scripts/sn111_parallel_photos.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sn111-photo-group-${{ matrix.group }}
+          path: sn111_photo_groups/group_${{ matrix.group }}
+          if-no-files-found: warn
+          retention-days: 7
+          compression-level: 0
